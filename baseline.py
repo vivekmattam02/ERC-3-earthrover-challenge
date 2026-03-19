@@ -44,6 +44,7 @@ from networkx.readwrite import json_graph
 DEFAULT_VALID_EXTS = (".png", ".jpg", ".jpeg", ".bmp")
 
 
+############# Configuration & Argument Parsing
 @dataclass
 class DescriptorConfig:
     '''Configuration parameters for descriptor extraction and model loading.\n
@@ -69,7 +70,6 @@ class DescriptorConfig:
     '''Bottom crop ratio before descriptor extraction.'''
     batch_size: int = 64
     '''Batch size for descriptor extraction.'''
-
 
 @dataclass
 class VerificationConfig:
@@ -170,13 +170,26 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def get_device() -> torch.device:
-    """
-    Get the available torch device (CUDA if available, else CPU).
+
+############### Image & File Handling
+
+def load_data_info(json_path: Path) -> list[dict]:
+    """Load and parse the data_info.json file.
+
+    This file contains metadata linking image frames to control actions taken
+    at each step of a recorded trajectory. The contents are sorted by the
+    'step' number.
+
+    Args:
+        json_path (Path): Path to the data_info.json file.
+
     Returns:
-        torch.device: The device to use for computation.
+        list[dict]: A list of dictionaries, where each entry corresponds to a
+                    step in the trajectory.
     """
-    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    with json_path.open("r", encoding="utf-8") as handle:
+        data_info = json.load(handle)
+    return sorted(data_info, key=lambda item: item.get("step", 0))
 
 
 def numeric_sort_key(path: Path) -> tuple[int, str]:
@@ -225,6 +238,153 @@ def collect_image_paths(image_dir: Path, step: int = 1, limit: Optional[int] = N
     if not image_paths:
         raise RuntimeError(f"No valid images found in {image_dir}")
     return image_paths
+
+
+def load_descriptor_archive(npz_path: Path) -> tuple[np.ndarray, list[str], list[str]]:
+    """Load the descriptor database from a .npz archive file.
+
+    Args:
+        npz_path (Path): Path to the 'descriptors.npz' file.
+
+    Returns:
+        tuple[np.ndarray, list[str], list[str]]: A tuple containing:
+            - The descriptor array as a float32 NumPy array.
+            - The list of image base names.
+            - The list of resolved image path strings.
+    """
+    data = np.load(npz_path, allow_pickle=True)
+    descriptors = data["descriptors"].astype(np.float32)
+    image_names = data["image_names"].tolist()
+    image_paths = data["image_paths"].tolist()
+    return descriptors, image_names, image_paths
+
+
+def load_descriptor_config(npz_path: Path) -> DescriptorConfig:
+    """Load the descriptor configuration from the associated config.json.
+
+    This function assumes that a 'config.json' file exists in the same
+    directory as the provided descriptor database path.
+
+    Args:
+        npz_path (Path): Path to the 'descriptors.npz' database file.
+
+    Returns:
+        DescriptorConfig: The configuration object used to create the database.
+
+    Raises:
+        FileNotFoundError: If 'config.json' is not found in the same
+                           directory as the npz file.
+    """
+    config_path = npz_path.parent / "config.json"
+    if not config_path.is_file():
+        raise FileNotFoundError(f"Missing config.json next to database: {config_path}")
+    with config_path.open("r", encoding="utf-8") as handle:
+        data = json.load(handle)
+    return DescriptorConfig(**data["descriptor_config"])
+
+
+def save_json(path: Path, payload: dict) -> None:
+    """Save a dictionary to a JSON file with pretty-printing.
+
+    This utility ensures the parent directory exists before writing the file.
+
+    Args:
+        path (Path): The output file path.
+        payload (dict): The dictionary to serialize and save.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as handle:
+        json.dump(payload, handle, indent=2)
+
+
+def save_graph(path: Path, graph: nx.Graph | nx.DiGraph) -> None:
+    """Serialize a networkx graph to a JSON file using node-link format.
+
+    Args:
+        path (Path): The output file path.
+        graph (nx.Graph | nx.DiGraph): The graph object to save.
+    """
+    data = json_graph.node_link_data(graph)
+    save_json(path, data)
+
+
+def write_build_outputs(output_dir: Path, descriptors: np.ndarray, image_names: list[str], image_paths: list[str], descriptor_config: DescriptorConfig,
+                        graph: nx.Graph, nav_graph: Optional[nx.DiGraph], action_edge_count: int,) -> None:
+    """Save all artifacts from the database build process to disk.
+
+    This function writes the following files to the specified output directory:
+    - `descriptors.npz`: An archive containing the descriptor array and image
+                         metadata.
+    - `config.json`: A file with the descriptor configuration and summary stats.
+    - `place_graph.json`: The structure of the place recognition graph.
+    - `navigation_graph.json`: (Optional) The directed action graph.
+
+    Args:
+        output_dir (Path): The directory to save the artifacts to.
+        descriptors (np.ndarray): The array of computed descriptors.
+        image_names (list[str]): The list of image base names.
+        image_paths (list[str]): The list of resolved image paths.
+        descriptor_config (DescriptorConfig): The configuration used for
+                                              descriptor extraction.
+        graph (nx.Graph): The constructed place graph.
+        nav_graph (Optional[nx.DiGraph]): The (optional) constructed nav graph.
+        action_edge_count (int): The number of action edges added.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    np.savez(output_dir / "descriptors.npz", descriptors=descriptors, image_names=np.array(image_names), image_paths=np.array(image_paths),)
+
+    save_json(
+        output_dir / "config.json",
+        {
+            "descriptor_config": asdict(descriptor_config),
+            "artifact_files": {
+                "descriptor_archive": "descriptors.npz",
+                "place_graph": "place_graph.json",
+                "navigation_graph": "navigation_graph.json" if nav_graph is not None else None,
+            },
+            "counts": {
+                "num_images": len(image_paths),
+                "num_nodes": graph.number_of_nodes(),
+                "num_edges": graph.number_of_edges(),
+                "num_action_edges": action_edge_count,
+            },
+        },
+    )
+
+    save_graph(output_dir / "place_graph.json", graph)
+    if nav_graph is not None:
+        save_graph(output_dir / "navigation_graph.json", nav_graph)
+
+
+def load_gray(path: Path) -> np.ndarray:
+    """Load an image from a file and convert it to grayscale.
+
+    Args:
+        path (Path): Path to the image file.
+
+    Returns:
+        np.ndarray: The grayscale image as a NumPy array.
+
+    Raises:
+        RuntimeError: If `cv2.imread` fails to load the image.
+    """
+    image = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
+    if image is None:
+        raise RuntimeError(f"Failed to read image: {path}")
+    return image
+
+
+
+############ CosPlace Model & Descriptors
+
+def get_device() -> torch.device:
+    """
+    Get the available torch device (CUDA if available, else CPU).
+    Returns:
+        torch.device: The device to use for computation.
+    """
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def load_cosplace_model(repo_path: Optional[Path], config: DescriptorConfig, device: torch.device,
@@ -410,6 +570,30 @@ def flush_descriptor_batch(model: torch.nn.Module, batch_tensors: list[torch.Ten
     return descs, names, path_strings
 
 
+def descriptor_distance_search(descriptors: np.ndarray, query_descriptor: np.ndarray, top_k: int) -> list[tuple[int, float]]:
+    """Find the top-K nearest neighbors in the descriptor database.
+
+    This function computes the L2 (Euclidean) distance from a single query
+    descriptor to all descriptors in the database and returns the indices and
+    distances of the closest matches.
+
+    Args:
+        descriptors (np.ndarray): The database of descriptors (N, D).
+        query_descriptor (np.ndarray): The query descriptor (D,).
+        top_k (int): The number of nearest neighbors to retrieve.
+
+    Returns:
+        list[tuple[int, float]]: A list of the top-K `(index, distance)`
+                                 tuples, sorted by distance.
+    """
+    dists = np.linalg.norm(descriptors - query_descriptor[None, :], axis=1)
+    order = np.argsort(dists)[:top_k]
+    return [(int(index), float(dists[index])) for index in order]
+
+
+
+######################### Graph Building
+
 def build_place_graph(descriptors: np.ndarray, image_names: list[str], image_paths: list[str], knn: int,) -> nx.Graph:
     """Build a graph connecting images by sequence and descriptor similarity.
 
@@ -458,25 +642,6 @@ def build_place_graph(descriptors: np.ndarray, image_names: list[str], image_pat
                 graph.add_edge(i, j, sequence=False, cosplace=True, desc_dist=float(dist))
 
     return graph
-
-
-def load_data_info(json_path: Path) -> list[dict]:
-    """Load and parse the data_info.json file.
-
-    This file contains metadata linking image frames to control actions taken
-    at each step of a recorded trajectory. The contents are sorted by the
-    'step' number.
-
-    Args:
-        json_path (Path): Path to the data_info.json file.
-
-    Returns:
-        list[dict]: A list of dictionaries, where each entry corresponds to a
-                    step in the trajectory.
-    """
-    with json_path.open("r", encoding="utf-8") as handle:
-        data_info = json.load(handle)
-    return sorted(data_info, key=lambda item: item.get("step", 0))
 
 
 def build_step_image_action_maps(data_info: list[dict]) -> tuple[dict[int, str], dict[int, list[str]], dict[str, list[int]]]:
@@ -598,29 +763,7 @@ def attach_actions_to_graph(graph: nx.Graph, action_edges: list[tuple[int, int, 
     return nav_graph
 
 
-def save_json(path: Path, payload: dict) -> None:
-    """Save a dictionary to a JSON file with pretty-printing.
-
-    This utility ensures the parent directory exists before writing the file.
-
-    Args:
-        path (Path): The output file path.
-        payload (dict): The dictionary to serialize and save.
-    """
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as handle:
-        json.dump(payload, handle, indent=2)
-
-
-def save_graph(path: Path, graph: nx.Graph | nx.DiGraph) -> None:
-    """Serialize a networkx graph to a JSON file using node-link format.
-
-    Args:
-        path (Path): The output file path.
-        graph (nx.Graph | nx.DiGraph): The graph object to save.
-    """
-    data = json_graph.node_link_data(graph)
-    save_json(path, data)
+##################### SuperGlue Geometric Verification
 
 
 def resolve_superglue_module_dir(superglue_root: Path) -> Path:
@@ -688,24 +831,6 @@ def load_superglue_models(superglue_root: Path, device: torch.device):
         }
     ).eval().to(device)
     return superpoint, superglue
-
-
-def load_gray(path: Path) -> np.ndarray:
-    """Load an image from a file and convert it to grayscale.
-
-    Args:
-        path (Path): Path to the image file.
-
-    Returns:
-        np.ndarray: The grayscale image as a NumPy array.
-
-    Raises:
-        RuntimeError: If `cv2.imread` fails to load the image.
-    """
-    image = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
-    if image is None:
-        raise RuntimeError(f"Failed to read image: {path}")
-    return image
 
 
 def match_superglue(image_a: np.ndarray, image_b: np.ndarray, superpoint, superglue, device: torch.device,) -> tuple[Optional[np.ndarray], Optional[np.ndarray]]:
@@ -840,74 +965,7 @@ def verify_candidate(query_image: Path, candidate_image: Path, superpoint, super
     }
 
 
-def descriptor_distance_search(descriptors: np.ndarray, query_descriptor: np.ndarray, top_k: int) -> list[tuple[int, float]]:
-    """Find the top-K nearest neighbors in the descriptor database.
-
-    This function computes the L2 (Euclidean) distance from a single query
-    descriptor to all descriptors in the database and returns the indices and
-    distances of the closest matches.
-
-    Args:
-        descriptors (np.ndarray): The database of descriptors (N, D).
-        query_descriptor (np.ndarray): The query descriptor (D,).
-        top_k (int): The number of nearest neighbors to retrieve.
-
-    Returns:
-        list[tuple[int, float]]: A list of the top-K `(index, distance)`
-                                 tuples, sorted by distance.
-    """
-    dists = np.linalg.norm(descriptors - query_descriptor[None, :], axis=1)
-    order = np.argsort(dists)[:top_k]
-    return [(int(index), float(dists[index])) for index in order]
-
-
-def write_build_outputs(output_dir: Path, descriptors: np.ndarray, image_names: list[str], image_paths: list[str], descriptor_config: DescriptorConfig,
-                        graph: nx.Graph, nav_graph: Optional[nx.DiGraph], action_edge_count: int,) -> None:
-    """Save all artifacts from the database build process to disk.
-
-    This function writes the following files to the specified output directory:
-    - `descriptors.npz`: An archive containing the descriptor array and image
-                         metadata.
-    - `config.json`: A file with the descriptor configuration and summary stats.
-    - `place_graph.json`: The structure of the place recognition graph.
-    - `navigation_graph.json`: (Optional) The directed action graph.
-
-    Args:
-        output_dir (Path): The directory to save the artifacts to.
-        descriptors (np.ndarray): The array of computed descriptors.
-        image_names (list[str]): The list of image base names.
-        image_paths (list[str]): The list of resolved image paths.
-        descriptor_config (DescriptorConfig): The configuration used for
-                                              descriptor extraction.
-        graph (nx.Graph): The constructed place graph.
-        nav_graph (Optional[nx.DiGraph]): The (optional) constructed nav graph.
-        action_edge_count (int): The number of action edges added.
-    """
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    np.savez(output_dir / "descriptors.npz", descriptors=descriptors, image_names=np.array(image_names), image_paths=np.array(image_paths),)
-
-    save_json(
-        output_dir / "config.json",
-        {
-            "descriptor_config": asdict(descriptor_config),
-            "artifact_files": {
-                "descriptor_archive": "descriptors.npz",
-                "place_graph": "place_graph.json",
-                "navigation_graph": "navigation_graph.json" if nav_graph is not None else None,
-            },
-            "counts": {
-                "num_images": len(image_paths),
-                "num_nodes": graph.number_of_nodes(),
-                "num_edges": graph.number_of_edges(),
-                "num_action_edges": action_edge_count,
-            },
-        },
-    )
-
-    save_graph(output_dir / "place_graph.json", graph)
-    if nav_graph is not None:
-        save_graph(output_dir / "navigation_graph.json", nav_graph)
+##################### Core Application Logic
 
 
 def run_build_db(args: argparse.Namespace) -> None:
@@ -954,49 +1012,6 @@ def run_build_db(args: argparse.Namespace) -> None:
     print(f"Place graph nodes: {graph.number_of_nodes()}, edges: {graph.number_of_edges()}")
     if nav_graph is not None:
         print(f"Navigation graph nodes: {nav_graph.number_of_nodes()}, edges: {nav_graph.number_of_edges()}")
-
-
-def load_descriptor_archive(npz_path: Path) -> tuple[np.ndarray, list[str], list[str]]:
-    """Load the descriptor database from a .npz archive file.
-
-    Args:
-        npz_path (Path): Path to the 'descriptors.npz' file.
-
-    Returns:
-        tuple[np.ndarray, list[str], list[str]]: A tuple containing:
-            - The descriptor array as a float32 NumPy array.
-            - The list of image base names.
-            - The list of resolved image path strings.
-    """
-    data = np.load(npz_path, allow_pickle=True)
-    descriptors = data["descriptors"].astype(np.float32)
-    image_names = data["image_names"].tolist()
-    image_paths = data["image_paths"].tolist()
-    return descriptors, image_names, image_paths
-
-
-def load_descriptor_config(npz_path: Path) -> DescriptorConfig:
-    """Load the descriptor configuration from the associated config.json.
-
-    This function assumes that a 'config.json' file exists in the same
-    directory as the provided descriptor database path.
-
-    Args:
-        npz_path (Path): Path to the 'descriptors.npz' database file.
-
-    Returns:
-        DescriptorConfig: The configuration object used to create the database.
-
-    Raises:
-        FileNotFoundError: If 'config.json' is not found in the same
-                           directory as the npz file.
-    """
-    config_path = npz_path.parent / "config.json"
-    if not config_path.is_file():
-        raise FileNotFoundError(f"Missing config.json next to database: {config_path}")
-    with config_path.open("r", encoding="utf-8") as handle:
-        data = json.load(handle)
-    return DescriptorConfig(**data["descriptor_config"])
 
 
 def run_query(args: argparse.Namespace) -> None:
