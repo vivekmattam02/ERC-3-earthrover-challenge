@@ -18,6 +18,7 @@ earth-rovers-sdk/.env
 *.log
 *.out
 *.tex
+docs/
 earth-rovers-sdk/screenshots/
 
 # Generated baseline artifacts and experiment outputs
