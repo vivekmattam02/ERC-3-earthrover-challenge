@@ -31,6 +31,11 @@ from navigation_runtime import NavigationRuntime, NavigationRuntimeConfig  # typ
 
 
 def parse_args() -> argparse.Namespace:
+    """Parses command-line arguments for the live indoor navigation loop.
+
+    Returns:
+        argparse.Namespace: An object containing the parsed command-line arguments.
+    """
     parser = argparse.ArgumentParser(description="Run the ERC indoor baseline live loop.")
     parser.add_argument(
         "--database",
@@ -72,7 +77,14 @@ def parse_args() -> argparse.Namespace:
 
 
 def get_orientation_deg(data: Optional[dict]) -> Optional[float]:
-    """Extracts the rover's orientation in degrees from the SDK data payload."""
+    """Extracts the rover's orientation in degrees from the SDK data payload.
+
+    Args:
+        data (Optional[dict]): The data payload from the EarthRover SDK.
+
+    Returns:
+        Optional[float]: The orientation in degrees, or None if not available or invalid.
+    """
     if not data:
         return None
     # The 'orientation' key holds the compass heading.
@@ -88,7 +100,14 @@ def get_orientation_deg(data: Optional[dict]) -> Optional[float]:
 
 
 def build_runtime(args: argparse.Namespace) -> NavigationRuntime:
-    """Initializes the NavigationRuntime with the specified configuration."""
+    """Initializes the NavigationRuntime with the specified configuration.
+
+    Args:
+        args (argparse.Namespace): The parsed command-line arguments.
+
+    Returns:
+        NavigationRuntime: An instance of the NavigationRuntime.
+    """
     return NavigationRuntime(
         NavigationRuntimeConfig(
             database_npz=args.database,
@@ -105,7 +124,16 @@ def build_controller() -> SimpleLocalController:
 
 
 def main() -> int:
-    """Main function to run the live indoor navigation loop."""
+    """Main function to run the live indoor navigation loop.
+
+    This function orchestrates the entire process:
+    1. Parses arguments.
+    2. Initializes the navigation runtime, local controller, and rover interface.
+    3. Runs a continuous loop to fetch sensor data, localize, plan, and control the robot.
+
+    Returns:
+        int: An exit code (0 for success).
+    """
     args = parse_args()
     if args.target_step is None and not args.checkpoint_steps:
         raise SystemExit("Provide --target-step or --checkpoint-steps.")

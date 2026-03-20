@@ -10,6 +10,36 @@ from typing import Optional
 import networkx as nx
 from networkx.readwrite import json_graph
 
+@dataclass
+class GraphPlan:
+    """Represents a complete navigation plan from a current node to a target.
+
+    Attributes:
+        current_node (int): The starting node index of the plan (robot's current location).
+        current_step (Optional[int]): The step number corresponding to the current node.
+        target_node (int): The final destination node index of the plan.
+        target_step (Optional[int]): The step number corresponding to the target node.
+        path_nodes (list[int]): The sequence of node indices forming the shortest path.
+        path_steps (list[Optional[int]]): The sequence of step numbers for the path.
+        subgoal_node (Optional[int]): The intermediate node selected as a short-term target.
+        subgoal_step (Optional[int]): The step number for the subgoal node.
+        subgoal_image_name (Optional[str]): The filename of the image for the subgoal node.
+        subgoal_image_path (Optional[str]): The file path of the image for the subgoal node.
+        subgoal_metadata (Optional[dict]): Additional metadata associated with the subgoal.
+        checkpoint_reached (bool): True if the final target of this plan has been reached.
+    """
+    current_node: int
+    current_step: Optional[int]
+    target_node: int
+    target_step: Optional[int]
+    path_nodes: list[int]
+    path_steps: list[Optional[int]]
+    subgoal_node: Optional[int]
+    subgoal_step: Optional[int]
+    subgoal_image_name: Optional[str]
+    subgoal_image_path: Optional[str]
+    subgoal_metadata: Optional[dict]
+    checkpoint_reached: bool
 
 @dataclass
 class GraphPlannerConfig:
@@ -53,10 +83,15 @@ class GraphPlanner:
         # Create lookup dictionaries for efficient mapping between different
         # identifiers (node index, image name, step number).
         self.node_to_name: dict[int, str] = {}
+        '''These mappings allow us to quickly find the corresponding image name for a given node index, which is essential for providing the local controller with the necessary visual information about subgoals.'''
         self.node_to_path: dict[int, str] = {}
+        '''These mappings allow us to quickly find the corresponding image name or path for a given node index, which is essential for providing the local controller with the necessary visual information about subgoals.'''
         self.node_to_step: dict[int, int] = {}
+        '''These mappings allow us to quickly find the corresponding step number for a given node index, which is essential for resolving targets and planning routes.'''
         self.step_to_node: dict[int, int] = {}
+        '''These mappings allow us to quickly find the corresponding node index for a given step number, which is essential for resolving targets and planning routes.'''
         self.image_to_node: dict[str, int] = {}
+        '''These mappings allow us to quickly find the corresponding node index for a given image name, which is essential for resolving targets and planning routes.'''
 
         for node, attrs in self.graph.nodes(data=True):
             node_id = int(node)
@@ -244,7 +279,7 @@ class GraphPlanner:
         target_step: Optional[int] = None,
         target_image_name: Optional[str] = None,
         hops_ahead: Optional[int] = None,
-    ) -> dict:
+    ) -> GraphPlan:
         """Generates a plan from the current location to a specified target.
 
         Args:
@@ -255,8 +290,8 @@ class GraphPlanner:
             hops_ahead (Optional[int]): Overrides the default number of hops for subgoal selection.
 
         Returns:
-            A dictionary containing the full plan, including the path and the
-            selected subgoal with its associated metadata.
+            GraphPlan: A plan object containing the full plan, including the path and the
+                       selected subgoal with its associated metadata.
         """
         current_node = localization_result.get("node_index")
         if current_node is None:
@@ -276,23 +311,31 @@ class GraphPlanner:
         subgoal_node = self.choose_subgoal_node(path_nodes, hops_ahead=hops_ahead)
 
         # 4. Package all information into a plan dictionary for the controller.
-        return {
-            "current_node": int(current_node),
-            "current_step": self.node_to_step.get(int(current_node)),
-            "target_node": resolved_target,
-            "target_step": self.node_to_step.get(resolved_target),
-            "path_nodes": path_nodes,
-            "path_steps": [self.node_to_step.get(node) for node in path_nodes],
-            "subgoal_node": subgoal_node,
-            "subgoal_step": self.node_to_step.get(subgoal_node),
-            "subgoal_image_name": self.node_to_name.get(subgoal_node),
-            "subgoal_image_path": self.node_to_path.get(subgoal_node),
-            "subgoal_metadata": self.image_meta_by_name.get(self.node_to_name.get(subgoal_node, "")),
-            "checkpoint_reached": self.checkpoint_reached(localization_result, resolved_target),
-        }
+        return GraphPlan(
+            current_node=int(current_node),
+            current_step=self.node_to_step.get(int(current_node)),
+            target_node=resolved_target,
+            target_step=self.node_to_step.get(resolved_target),
+            path_nodes=path_nodes,
+            path_steps=[self.node_to_step.get(node) for node in path_nodes],
+            subgoal_node=subgoal_node,
+            subgoal_step=self.node_to_step.get(subgoal_node),
+            subgoal_image_name=self.node_to_name.get(subgoal_node),
+            subgoal_image_path=self.node_to_path.get(subgoal_node),
+            subgoal_metadata=self.image_meta_by_name.get(self.node_to_name.get(subgoal_node, "")),
+            checkpoint_reached=self.checkpoint_reached(localization_result, resolved_target),
+        )
 
-    def plan_to_active_checkpoint(self, localization_result: dict, hops_ahead: Optional[int] = None) -> dict:
-        """Convenience method to plan to the currently active checkpoint."""
+    def plan_to_active_checkpoint(self, localization_result: dict, hops_ahead: Optional[int] = None) -> GraphPlan:
+        """Convenience method to plan to the currently active checkpoint.
+
+        Args:
+            localization_result (dict): The output from `CorridorLocalizer.localize_*`.
+            hops_ahead (Optional[int]): Overrides the default subgoal hop distance.
+
+        Returns:
+            GraphPlan: A plan targeting the active checkpoint.
+        """
         target = self.get_active_checkpoint()
         if target is None:
             raise ValueError("No active checkpoint configured")
