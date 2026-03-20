@@ -5,7 +5,8 @@ This module combines:
 - graph planning
 - checkpoint progression
 
-It is the thin handoff layer between perception/planning and control.
+It is the thin handoff layer between perception/planning and control, providing
+a single entry point for a robot's main control loop.
 """
 
 from __future__ import annotations
@@ -23,10 +24,34 @@ from graph_planner import GraphPlanner, GraphPlannerConfig
 
 @dataclass
 class NavigationRuntimeConfig:
+    """A unified configuration for the entire navigation stack.
+
+    This dataclass collects all parameters needed to initialize the
+    `CorridorLocalizer` and `GraphPlanner` modules.
+
+    Attributes:
+        database_npz (Path): Path to the `.npz` file containing the image embeddings for the environment.
+        graph_json (Path): Path to the `.json` file representing the connectivity of the environment nodes.
+        data_info_json (Optional[Path]): Optional path to a JSON file with additional data information.
+        cosplace_repo (Optional[Path]): Optional path to the CosPlace repository, if needed.
+        top_k (int): The number of top candidate images to consider during localization.
+        max_step_jump (int): The maximum allowed jump in steps between consecutive localizations.
+        jump_penalty (float): Penalty applied for jumps in estimated position.
+        backward_penalty (float): Penalty for moving backward along the corridor.
+        heading_penalty (float): Penalty for deviations from the expected heading.
+        ambiguity_margin (float): The margin used to detect localization ambiguity.
+        ambiguity_hold_min_jump (int): Minimum jump size to hold ambiguity state.
+        max_subgoal_hops (int): The maximum number of hops to look ahead when selecting a subgoal.
+        min_confidence_to_advance (float): The minimum confidence required to advance to the next checkpoint.
+    """
+
+    # --- Shared Paths ---
     database_npz: Path
     graph_json: Path
     data_info_json: Optional[Path] = None
     cosplace_repo: Optional[Path] = None
+
+    # --- CorridorLocalizer Pass-through ---
     top_k: int = 5
     max_step_jump: int = 15
     jump_penalty: float = 0.05
@@ -34,15 +59,29 @@ class NavigationRuntimeConfig:
     heading_penalty: float = 0.002
     ambiguity_margin: float = 0.05
     ambiguity_hold_min_jump: int = 4
+
+    # --- GraphPlanner Pass-through ---
     max_subgoal_hops: int = 3
     min_confidence_to_advance: float = 0.55
 
 
 class NavigationRuntime:
-    """Controller-facing runtime API for the current indoor baseline."""
+    """The main runtime API for the indoor navigation baseline.
+
+    This class orchestrates the `localize -> plan` pipeline. It initializes all
+    necessary components and provides a single `step` method that takes a camera
+    frame and returns a dictionary containing the localization result, the
+    high-level plan, and a tailored input dictionary for a local controller.
+    """
 
     def __init__(self, config: NavigationRuntimeConfig):
+        """Initializes the full navigation stack.
+
+        Args:
+            config (NavigationRuntimeConfig): The configuration object for the navigation stack.
+        """
         self.config = config
+        # Instantiate the CorridorLocalizer.
         self.localizer = CorridorLocalizer(
             CorridorLocalizerConfig(
                 database_npz=config.database_npz,
@@ -57,6 +96,7 @@ class NavigationRuntime:
                 ambiguity_hold_min_jump=config.ambiguity_hold_min_jump,
             )
         )
+        # Instantiate the GraphPlanner.
         self.planner = GraphPlanner(
             GraphPlannerConfig(
                 graph_json=config.graph_json,
@@ -67,6 +107,7 @@ class NavigationRuntime:
         )
 
     def reset(self) -> None:
+        """Resets the state of the underlying localizer."""
         self.localizer.reset()
 
     def set_checkpoints(
@@ -74,9 +115,23 @@ class NavigationRuntime:
         checkpoint_steps: Optional[list[int]] = None,
         checkpoint_images: Optional[list[str]] = None,
     ) -> None:
+        """Sets a multi-stage route by defining a sequence of checkpoints.
+
+        Args:
+            checkpoint_steps (Optional[list[int]]): A list of step indices defining the route.
+            checkpoint_images (Optional[list[str]]): A list of image filenames defining the route.
+        """
         self.planner.set_checkpoints(checkpoint_steps=checkpoint_steps, checkpoint_images=checkpoint_images)
 
     def _load_subgoal_image(self, subgoal_image_path: Optional[str]) -> Optional[np.ndarray]:
+        """Helper to load the subgoal image for visualization.
+
+        Args:
+            subgoal_image_path (Optional[str]): The path to the subgoal image.
+
+        Returns:
+            Optional[np.ndarray]: The loaded image as a NumPy array, or None if the path is invalid.
+        """
         if not subgoal_image_path:
             return None
         path = Path(subgoal_image_path)
@@ -95,10 +150,28 @@ class NavigationRuntime:
         hops_ahead: Optional[int] = None,
         load_subgoal_image: bool = True,
     ) -> dict:
+        """Performs one full `localize -> plan` step toward a single, fixed target.
+
+        Args:
+            frame_rgb (np.ndarray): The current camera frame as a NumPy array.
+            target_node (Optional[int]): Identifier for the final goal node.
+            target_step (Optional[int]): The step index of the target.
+            target_image_name (Optional[str]): The filename of the target image.
+            observation_heading_deg (Optional[float]): The robot's current heading from a compass or IMU.
+            hops_ahead (Optional[int]): Overrides default subgoal selection distance.
+            load_subgoal_image (bool): If True, loads the subgoal's image for debugging.
+
+        Returns:
+            dict: A dictionary containing the `localization` result, the full `plan`,
+                  and a smaller `controller_input` dictionary for the local controller.
+        """
+        # 1. Localize the robot using the current camera frame.
         localization = self.localizer.localize_frame(
             frame_rgb,
             observation_heading_deg=observation_heading_deg,
         )
+
+        # 2. Generate a plan from the new location to the specified target.
         plan = self.planner.plan(
             localization,
             target_node=target_node,
@@ -107,6 +180,8 @@ class NavigationRuntime:
             hops_ahead=hops_ahead,
         )
         subgoal_image_rgb = self._load_subgoal_image(plan["subgoal_image_path"]) if load_subgoal_image else None
+
+        # 3. Package the results for the end user and local controller.
         return {
             "localization": localization,
             "plan": plan,
@@ -136,16 +211,40 @@ class NavigationRuntime:
         load_subgoal_image: bool = True,
         auto_advance_checkpoint: bool = False,
     ) -> dict:
+        """Performs one `localize -> plan` step toward the active checkpoint in a route.
+
+        This is the primary method to use for executing multi-stage routes.
+
+        Args:
+            frame_rgb (np.ndarray): The current camera frame as a NumPy array.
+            observation_heading_deg (Optional[float]): The robot's current heading from a compass or IMU.
+            hops_ahead (Optional[int]): Overrides default subgoal selection distance.
+            load_subgoal_image (bool): If True, loads the subgoal's image for debugging.
+            auto_advance_checkpoint (bool): If True, automatically moves to the next
+                                            checkpoint when the current one is reached.
+
+        Returns:
+            dict: A dictionary containing the `localization` result, the full `plan`,
+                  and a smaller `controller_input` dictionary for the local controller,
+                  including checkpoint status.
+        """
+        # 1. Localize the robot.
         localization = self.localizer.localize_frame(
             frame_rgb,
             observation_heading_deg=observation_heading_deg,
         )
+
+        # 2. Plan a path to the currently active checkpoint.
         plan = self.planner.plan_to_active_checkpoint(localization, hops_ahead=hops_ahead)
+
+        # 3. If we've reached the checkpoint, automatically advance to the next one.
         if auto_advance_checkpoint and plan["checkpoint_reached"]:
             next_target = self.planner.advance_checkpoint()
         else:
             next_target = self.planner.get_active_checkpoint()
         subgoal_image_rgb = self._load_subgoal_image(plan["subgoal_image_path"]) if load_subgoal_image else None
+
+        # 4. Package the results.
         return {
             "localization": localization,
             "plan": plan,
