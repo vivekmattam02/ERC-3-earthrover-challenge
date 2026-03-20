@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 
+from pygame.math import clamp
+
 
 def wrap_angle_deg(delta: float) -> float:
     """Wraps an angle difference in degrees to the range [-180, 180]."""
@@ -163,12 +165,12 @@ class SimpleLocalController:
 
         # Angular velocity is proportional to the heading error.
         angular = self.config.heading_gain * heading_error
-        angular = max(-self.config.max_angular, min(self.config.max_angular, angular))
+        angular = clamp(angular, -self.config.max_angular, self.config.max_angular)
 
         # Linear velocity has a minimum base speed and increases with distance (step_gap).
         linear = min(
             self.config.max_linear,
-            self.config.min_linear + self.config.step_gain * max(1, step_gap),
+            self.config.min_linear + self.config.step_gain * step_gap,
         )
 
         # --- 5. Apply special condition adjustments ---
@@ -185,5 +187,5 @@ class SimpleLocalController:
             linear *= self.config.held_previous_linear_scale
 
         # --- 6. Finalize and return the command ---
-        linear = max(0.0, min(self.config.max_linear, linear))
+        linear = clamp(linear, 0.0, self.config.max_linear)
         return ControlCommand(linear=linear, angular=angular, reason="simple_heading_controller")
