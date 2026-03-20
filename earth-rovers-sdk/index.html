@@ -194,6 +194,15 @@
           >
             Leave
           </button>
+          <button
+            id="mute-remote"
+            type="button"
+            class="btn btn-secondary btn-sm"
+            style="height: 30px"
+            onclick="toggleRemoteAudio()"
+          >
+            Mute Remote Audio
+          </button>
 
           <div class="collapse-wrapper" style="height: 30px">
             <div class="collapse-content">
@@ -333,88 +342,10 @@
     <script src="/static/map.js"></script>
     <script src="/static/jquery-3.4.1.min.js"></script>
     <script src="/static/bootstrap.bundle.min.js"></script>
-    <script src="/static/AgoraRTC_N-4.1.0.js"></script>
+    <script src="/static/AgoraRTC_N-4.24.2.js"></script>
     <script src="/static/basicVideoCall.js"></script>
-    <script src="/static/agora-rtm-sdk-1.4.0.js"></script>
+    <script src="/static/agora-rtm-sdk-1.6.0.js"></script>
     <script src="/static/basicRtm.js" defer></script>
-    <script>
-      // Status tracking
-      var status = {
-        video: false,
-        rtm: false,
-        lastCheck: Date.now()
-      };
-      
-      // Check status every 2 seconds and log
-      setInterval(function() {
-        var video = document.querySelector('video');
-        var hasVideo = video && video.readyState >= 2 && video.videoWidth > 0;
-        var hasRtm = window.rtm_data && window.rtm_data.latitude;
-        
-        if (hasVideo !== status.video || hasRtm !== status.rtm) {
-          status.video = hasVideo;
-          status.rtm = hasRtm;
-          console.log('Status: Video=' + (hasVideo ? 'OK' : 'NO') + ', RTM=' + (hasRtm ? 'OK' : 'NO'));
-          if (!hasVideo) console.log('  → Video not ready. Make sure robot stream is visible.');
-          if (!hasRtm) console.log('  → RTM not ready. Waiting for GPS data from robot...');
-        }
-      }, 2000);
-      
-      // Push robot data to Python backend every second (bypasses Puppeteer)
-      setInterval(function() {
-        if (window.rtm_data && window.rtm_data.latitude) {
-          fetch('/api/update_data', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(window.rtm_data)
-          }).catch(err => console.log('Data push failed:', err));
-        }
-      }, 1000);
-      
-      // Push camera frames to Python backend (bypasses Puppeteer)
-      // Capture directly from video element
-      setInterval(function() {
-        try {
-          var video = document.querySelector('video');
-          if (!video || video.readyState < 2 || video.videoWidth === 0) {
-            return;
-          }
-          
-          // Create canvas and capture frame
-          var canvas = document.createElement('canvas');
-          canvas.width = video.videoWidth || 640;
-          canvas.height = video.videoHeight || 480;
-          var ctx = canvas.getContext('2d');
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          
-          // Convert to base64
-          var base64Data = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
-          
-          // Send to backend
-          fetch('/api/update_frame', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({frame: base64Data})
-          }).catch(err => console.log('Frame push failed:', err));
-        } catch (err) {
-          // Silently fail - this runs frequently
-        }
-      }, 200); // 5 FPS
-      
-      // Poll for control commands and send via RTM
-      setInterval(async function() {
-        try {
-          var response = await fetch('/api/get_control');
-          var data = await response.json();
-          if (data.command && window.sendMessage) {
-            console.log('Sending control command:', data.command);
-            window.sendMessage(data.command);
-          }
-        } catch (err) {
-          // Silently ignore - this runs frequently
-        }
-      }, 50); // Check every 50ms for responsive control
-    </script>
   </body>
 </html>
 
