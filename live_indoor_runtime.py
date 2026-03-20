@@ -68,6 +68,29 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--stop-on-low-confidence", action="store_true", help="Stop when localization confidence is too low.")
     parser.add_argument("--min-confidence", type=float, default=0.35, help="Low-confidence stop threshold.")
     parser.add_argument("--print-json", action="store_true", help="Print each loop state as JSON.")
+    parser.add_argument(
+        "--controller",
+        choices=("simple", "mbra", "logonav"),
+        default="simple",
+        help="Choose the local controller implementation.",
+    )
+    parser.add_argument(
+        "--mbra-config",
+        type=Path,
+        default=None,
+        help="Optional override for the MBRA/LogoNav YAML config.",
+    )
+    parser.add_argument(
+        "--mbra-checkpoint",
+        type=Path,
+        default=None,
+        help="Optional override for the MBRA/LogoNav checkpoint path.",
+    )
+    parser.add_argument(
+        "--mbra-device",
+        default=None,
+        help="Optional torch device string for the MBRA/LogoNav controller, e.g. cpu or cuda:0.",
+    )
     return parser.parse_args()
 
 
@@ -94,8 +117,22 @@ def build_runtime(args: argparse.Namespace) -> NavigationRuntime:
     )
 
 
-def build_controller() -> SimpleLocalController:
-    return SimpleLocalController(SimpleLocalControllerConfig())
+def build_controller(args: argparse.Namespace):
+    if args.controller == "simple":
+        return SimpleLocalController(SimpleLocalControllerConfig())
+
+    from mbra_local_controller import MBRALocalController, MBRALocalControllerConfig  # type: ignore
+
+    config_name = "MBRA.yaml" if args.controller == "mbra" else "LogoNav.yaml"
+    checkpoint_name = "mbra.pth" if args.controller == "mbra" else "logonav.pth"
+    return MBRALocalController(
+        MBRALocalControllerConfig(
+            repo_root=REPO_ROOT,
+            model_config_path=args.mbra_config or REPO_ROOT / "mbra_repo_1" / "train" / "config" / config_name,
+            checkpoint_path=args.mbra_checkpoint or REPO_ROOT / "mbra_repo_1" / "deployment" / "model_weights" / checkpoint_name,
+            device=args.mbra_device,
+        )
+    )
 
 
 def main() -> int:
@@ -106,7 +143,7 @@ def main() -> int:
         raise SystemExit("--tick-hz must be > 0")
 
     runtime = build_runtime(args)
-    controller = build_controller()
+    controller = build_controller(args)
     rover = EarthRoverInterface(base_url=args.sdk_url, timeout=args.sdk_timeout)
 
     if not rover.connect():
@@ -163,7 +200,11 @@ def main() -> int:
                 )
 
             controller_input = step_output["controller_input"]
-            command = controller.compute_command(controller_input, observation_heading_deg=heading_deg)
+            command = controller.compute_command(
+                controller_input,
+                observation_heading_deg=heading_deg,
+                frame_rgb=frame,
+            )
 
             confidence = float(controller_input.get("confidence", 0.0))
             if args.stop_on_low_confidence and confidence < args.min_confidence:

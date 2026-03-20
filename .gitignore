@@ -42,3 +42,15 @@ third_party/Depth-Anything-V2/checkpoints/
 mbra_repo/deployment/model_weights/*
 !mbra_repo/deployment/model_weights/
 !mbra_repo/deployment/model_weights/README.md
+
+mbra_repo_1/train/wandb
+mbra_repo_1/train/logs
+mbra_repo_1/deployment/model_weights
+__pycache__/
+*.pyc
+map_cache
+mbra_repo_1/train/vint_train/data/sampler
+mbra_repo_1/train/config/LogoNav_.yaml
+download_youtube/videos
+mbra_repo_1/deployment/model_weights
+mbra_repo_1/lerobot

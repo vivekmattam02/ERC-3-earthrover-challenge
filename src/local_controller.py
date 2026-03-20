@@ -43,6 +43,7 @@ class SimpleLocalController:
         self,
         controller_input: dict,
         observation_heading_deg: Optional[float] = None,
+        frame_rgb: Optional[object] = None,
     ) -> ControlCommand:
         confidence = float(controller_input.get("confidence", 0.0))
         current_step = controller_input.get("current_step")
@@ -87,3 +88,15 @@ class SimpleLocalController:
 
         linear = max(0.0, min(self.config.max_linear, linear))
         return ControlCommand(linear=linear, angular=angular, reason="simple_heading_controller")
+
+# class MBRALocalController(SimpleLocalController):
+#     """A simple local controller that also considers the previous action."""
+
+#     def compute_command(
+#         self,
+#         controller_input: dict,
+#         observation_heading_deg: Optional[float] = None,
+#     ) -> ControlCommand:
+#         command = super().compute_command(controller_input, observation_heading_deg=observation_heading_deg)
+#         # Here you could add additional logic to modify the command based on previous actions or other factors.
+#         return command
