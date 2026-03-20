@@ -19,7 +19,7 @@ import numpy as np
 from PIL import Image
 
 from corridor_localizer import CorridorLocalizer, CorridorLocalizerConfig
-from graph_planner import GraphPlanner, GraphPlannerConfig
+from graph_planner import GraphPlan, GraphPlanner, GraphPlannerConfig
 
 
 @dataclass
@@ -172,31 +172,31 @@ class NavigationRuntime:
         )
 
         # 2. Generate a plan from the new location to the specified target.
-        plan = self.planner.plan(
+        plan: GraphPlan = self.planner.plan(
             localization,
             target_node=target_node,
             target_step=target_step,
             target_image_name=target_image_name,
             hops_ahead=hops_ahead,
         )
-        subgoal_image_rgb = self._load_subgoal_image(plan["subgoal_image_path"]) if load_subgoal_image else None
+        subgoal_image_rgb = self._load_subgoal_image(plan.subgoal_image_path) if load_subgoal_image else None
 
         # 3. Package the results for the end user and local controller.
         return {
             "localization": localization,
             "plan": plan,
             "controller_input": {
-                "current_node": plan["current_node"],
-                "current_step": plan["current_step"],
+                "current_node": plan.current_node,
+                "current_step": plan.current_step,
                 "current_orientation": localization.get("node_orientation"),
-                "target_node": plan["target_node"],
-                "target_step": plan["target_step"],
-                "subgoal_node": plan["subgoal_node"],
-                "subgoal_step": plan["subgoal_step"],
-                "subgoal_image_name": plan["subgoal_image_name"],
-                "subgoal_image_path": plan["subgoal_image_path"],
+                "target_node": plan.target_node,
+                "target_step": plan.target_step,
+                "subgoal_node": plan.subgoal_node,
+                "subgoal_step": plan.subgoal_step,
+                "subgoal_image_name": plan.subgoal_image_name,
+                "subgoal_image_path": plan.subgoal_image_path,
                 "subgoal_image_rgb": subgoal_image_rgb,
-                "subgoal_orientation": None if plan["subgoal_metadata"] is None else plan["subgoal_metadata"].get("orientation"),
+                "subgoal_orientation": None if plan.subgoal_metadata is None else plan.subgoal_metadata.get("orientation"),
                 "confidence": localization["confidence"],
                 "held_previous": localization["held_previous"],
                 "stable_steps": localization["stable_steps"],
@@ -235,35 +235,35 @@ class NavigationRuntime:
         )
 
         # 2. Plan a path to the currently active checkpoint.
-        plan = self.planner.plan_to_active_checkpoint(localization, hops_ahead=hops_ahead)
+        plan: GraphPlan = self.planner.plan_to_active_checkpoint(localization, hops_ahead=hops_ahead)
 
         # 3. If we've reached the checkpoint, automatically advance to the next one.
-        if auto_advance_checkpoint and plan["checkpoint_reached"]:
+        if auto_advance_checkpoint and plan.checkpoint_reached:
             next_target = self.planner.advance_checkpoint()
         else:
             next_target = self.planner.get_active_checkpoint()
-        subgoal_image_rgb = self._load_subgoal_image(plan["subgoal_image_path"]) if load_subgoal_image else None
+        subgoal_image_rgb = self._load_subgoal_image(plan.subgoal_image_path) if load_subgoal_image else None
 
         # 4. Package the results.
         return {
             "localization": localization,
             "plan": plan,
             "controller_input": {
-                "current_node": plan["current_node"],
-                "current_step": plan["current_step"],
+                "current_node": plan.current_node,
+                "current_step": plan.current_step,
                 "current_orientation": localization.get("node_orientation"),
-                "target_node": plan["target_node"],
-                "target_step": plan["target_step"],
-                "subgoal_node": plan["subgoal_node"],
-                "subgoal_step": plan["subgoal_step"],
-                "subgoal_image_name": plan["subgoal_image_name"],
-                "subgoal_image_path": plan["subgoal_image_path"],
+                "target_node": plan.target_node,
+                "target_step": plan.target_step,
+                "subgoal_node": plan.subgoal_node,
+                "subgoal_step": plan.subgoal_step,
+                "subgoal_image_name": plan.subgoal_image_name,
+                "subgoal_image_path": plan.subgoal_image_path,
                 "subgoal_image_rgb": subgoal_image_rgb,
-                "subgoal_orientation": None if plan["subgoal_metadata"] is None else plan["subgoal_metadata"].get("orientation"),
+                "subgoal_orientation": None if plan.subgoal_metadata is None else plan.subgoal_metadata.get("orientation"),
                 "confidence": localization["confidence"],
                 "held_previous": localization["held_previous"],
                 "stable_steps": localization["stable_steps"],
-                "checkpoint_reached": plan["checkpoint_reached"],
+                "checkpoint_reached": plan.checkpoint_reached,
                 "next_active_checkpoint": next_target,
             },
         }
