@@ -26,7 +26,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from earthrover_interface import EarthRoverInterface  # type: ignore
-from local_controller import SimpleLocalController, SimpleLocalControllerConfig  # type: ignore
+from local_controller import ControlCommand, LocalControllerInput, SimpleLocalController, SimpleLocalControllerConfig  # type: ignore
 from navigation_runtime import NavigationRuntime, NavigationRuntimeConfig  # type: ignore
 
 
@@ -113,13 +113,18 @@ def build_runtime(args: argparse.Namespace) -> NavigationRuntime:
             database_npz=args.database,
             graph_json=args.graph,
             data_info_json=args.data_info_json,
-            max_subgoal_hops=args.max_subgoal_hops,
+            max_subgoal_search_hops=args.max_subgoal_search_hops,
+            max_subgoal_cost_threshold=args.max_subgoal_cost_threshold,
         )
     )
 
 
 def build_controller() -> SimpleLocalController:
-    """Initializes the SimpleLocalController with its default configuration."""
+    """Initializes the SimpleLocalController with its default configuration.
+
+    Returns:
+        SimpleLocalController: An instance of the SimpleLocalController.
+    """
     return SimpleLocalController(SimpleLocalControllerConfig())
 
 
@@ -210,12 +215,12 @@ def main() -> int:
                 )
 
             # The runtime provides input for the local controller.
-            controller_input = step_output["controller_input"]
+            controller_input: LocalControllerInput = step_output["controller_input"]
             # The controller computes the required linear and angular velocities.
-            command = controller.compute_command(controller_input, observation_heading_deg=heading_deg)
+            command: ControlCommand = controller.compute_command(controller_input, observation_heading_deg=heading_deg)
 
             # Safety check: if localization confidence is low, stop the robot.
-            confidence = float(controller_input.get("confidence", 0.0))
+            confidence: float = controller_input.confidence
             if args.stop_on_low_confidence and confidence < args.min_confidence:
                 command.linear = 0.0
                 command.angular = 0.0
@@ -231,12 +236,12 @@ def main() -> int:
             payload = {
                 "iteration": iteration,
                 "heading_deg": heading_deg,
-                "current_step": controller_input.get("current_step"),
-                "target_step": controller_input.get("target_step"),
-                "subgoal_step": controller_input.get("subgoal_step"),
+                "current_step": controller_input.current_step,
+                "target_step": controller_input.target_step,
+                "subgoal_step": controller_input.subgoal_step,
                 "confidence": confidence,
-                "held_previous": controller_input.get("held_previous"),
-                "stable_steps": controller_input.get("stable_steps"),
+                "held_previous": controller_input.held_previous,
+                "stable_steps": controller_input.stable_steps,
                 "linear": command.linear,
                 "angular": command.angular,
                 "reason": command.reason,

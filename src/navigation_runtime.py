@@ -20,6 +20,7 @@ from PIL import Image
 
 from corridor_localizer import CorridorLocalizer, CorridorLocalizerConfig
 from graph_planner import GraphPlan, GraphPlanner, GraphPlannerConfig
+from local_controller import LocalControllerInput
 
 
 @dataclass
@@ -61,7 +62,8 @@ class NavigationRuntimeConfig:
     ambiguity_hold_min_jump: int = 4
 
     # --- GraphPlanner Pass-through ---
-    max_subgoal_hops: int = 3
+    max_subgoal_search_hops: int = 3
+    max_subgoal_cost_threshold: float = 0.4
     min_confidence_to_advance: float = 0.55
 
 
@@ -101,7 +103,8 @@ class NavigationRuntime:
             GraphPlannerConfig(
                 graph_json=config.graph_json,
                 data_info_json=config.data_info_json,
-                max_subgoal_hops=config.max_subgoal_hops,
+                max_subgoal_search_hops=config.max_subgoal_search_hops,
+                max_subgoal_cost_threshold=config.max_subgoal_cost_threshold,
                 min_confidence_to_advance=config.min_confidence_to_advance,
             )
         )
@@ -110,11 +113,7 @@ class NavigationRuntime:
         """Resets the state of the underlying localizer."""
         self.localizer.reset()
 
-    def set_checkpoints(
-        self,
-        checkpoint_steps: Optional[list[int]] = None,
-        checkpoint_images: Optional[list[str]] = None,
-    ) -> None:
+    def set_checkpoints(self, checkpoint_steps: Optional[list[int]] = None, checkpoint_images: Optional[list[str]] = None,) -> None:
         """Sets a multi-stage route by defining a sequence of checkpoints.
 
         Args:
@@ -140,16 +139,9 @@ class NavigationRuntime:
         image = Image.open(path).convert("RGB")
         return np.array(image, dtype=np.uint8)
 
-    def step_to_target(
-        self,
-        frame_rgb: np.ndarray,
-        target_node: Optional[int] = None,
-        target_step: Optional[int] = None,
-        target_image_name: Optional[str] = None,
-        observation_heading_deg: Optional[float] = None,
-        hops_ahead: Optional[int] = None,
-        load_subgoal_image: bool = True,
-    ) -> dict:
+    def step_to_target(self, frame_rgb: np.ndarray, target_node: Optional[int] = None, target_step: Optional[int] = None, 
+                       target_image_name: Optional[str] = None, observation_heading_deg: Optional[float] = None, hops_ahead: Optional[int] = None,
+                       load_subgoal_image: bool = True, ) -> dict:
         """Performs one full `localize -> plan` step toward a single, fixed target.
 
         Args:
@@ -203,14 +195,8 @@ class NavigationRuntime:
             },
         }
 
-    def step_to_active_checkpoint(
-        self,
-        frame_rgb: np.ndarray,
-        observation_heading_deg: Optional[float] = None,
-        hops_ahead: Optional[int] = None,
-        load_subgoal_image: bool = True,
-        auto_advance_checkpoint: bool = False,
-    ) -> dict:
+    def step_to_active_checkpoint(self, frame_rgb: np.ndarray, observation_heading_deg: Optional[float] = None, hops_ahead: Optional[int] = None,
+                                  load_subgoal_image: bool = True, auto_advance_checkpoint: bool = False,) -> dict:
         """Performs one `localize -> plan` step toward the active checkpoint in a route.
 
         This is the primary method to use for executing multi-stage routes.
@@ -248,22 +234,22 @@ class NavigationRuntime:
         return {
             "localization": localization,
             "plan": plan,
-            "controller_input": {
-                "current_node": plan.current_node,
-                "current_step": plan.current_step,
-                "current_orientation": localization.get("node_orientation"),
-                "target_node": plan.target_node,
-                "target_step": plan.target_step,
-                "subgoal_node": plan.subgoal_node,
-                "subgoal_step": plan.subgoal_step,
-                "subgoal_image_name": plan.subgoal_image_name,
-                "subgoal_image_path": plan.subgoal_image_path,
-                "subgoal_image_rgb": subgoal_image_rgb,
-                "subgoal_orientation": None if plan.subgoal_metadata is None else plan.subgoal_metadata.get("orientation"),
-                "confidence": localization["confidence"],
-                "held_previous": localization["held_previous"],
-                "stable_steps": localization["stable_steps"],
-                "checkpoint_reached": plan.checkpoint_reached,
-                "next_active_checkpoint": next_target,
-            },
+            "controller_input": LocalControllerInput(
+                current_node=plan.current_node,
+                current_step=plan.current_step,
+                current_orientation=localization["node_orientation"],
+                target_node=plan.target_node,
+                target_step=plan.target_step,
+                subgoal_node=plan.subgoal_node,
+                subgoal_step=plan.subgoal_step,
+                subgoal_image_name=plan.subgoal_image_name,
+                subgoal_image_path=plan.subgoal_image_path,
+                subgoal_image_rgb=subgoal_image_rgb, # type: ignore
+                subgoal_orientation=None if plan.subgoal_metadata is None else plan.subgoal_metadata.get("orientation", 0.0),
+                confidence=localization["confidence"],
+                held_previous=localization["held_previous"],
+                stable_steps=localization["stable_steps"],
+                checkpoint_reached=plan.checkpoint_reached,
+                next_active_checkpoint=next_target,
+            ),
         }

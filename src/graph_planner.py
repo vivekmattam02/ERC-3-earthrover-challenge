@@ -29,15 +29,15 @@ class GraphPlan:
         checkpoint_reached (bool): True if the final target of this plan has been reached.
     """
     current_node: int
-    current_step: Optional[int]
+    current_step: int
     target_node: int
-    target_step: Optional[int]
+    target_step: int
     path_nodes: list[int]
     path_steps: list[Optional[int]]
-    subgoal_node: Optional[int]
-    subgoal_step: Optional[int]
-    subgoal_image_name: Optional[str]
-    subgoal_image_path: Optional[str]
+    subgoal_node: int
+    subgoal_step: int
+    subgoal_image_name: str
+    subgoal_image_path: str
     subgoal_metadata: Optional[dict]
     checkpoint_reached: bool
 
@@ -48,15 +48,18 @@ class GraphPlannerConfig:
     Attributes:
         graph_json (Path): Path to the `place_graph.json` file created by the baseline.
         data_info_json (Optional[Path]): Optional path to `data_info.json` for metadata lookup.
-        max_subgoal_hops (int): Default number of nodes to look ahead on the path
-                                to select a short-term subgoal.
+        max_subgoal_search_hops (int): Max number of nodes to look ahead on the path
+                                     to select a short-term subgoal.
+        max_subgoal_cost_threshold (float): Max descriptor distance between consecutive
+                                            nodes to be considered a valid hop.
         min_confidence_to_advance (float): Minimum localization confidence required
                                            to mark a checkpoint as reached.
     """
 
     graph_json: Path
     data_info_json: Optional[Path] = None
-    max_subgoal_hops: int = 3
+    max_subgoal_search_hops: int = 10
+    max_subgoal_cost_threshold: float = 0.4
     min_confidence_to_advance: float = 0.55
 
 
@@ -136,12 +139,7 @@ class GraphPlanner:
         graph = json_graph.node_link_graph(data)
         return graph
 
-    def resolve_target_node(
-        self,
-        target_node: Optional[int] = None,
-        target_step: Optional[int] = None,
-        target_image_name: Optional[str] = None,
-    ) -> int:
+    def resolve_target_node(self, target_node: Optional[int] = None, target_step: Optional[int] = None, target_image_name: Optional[str] = None,) -> int:
         """Finds a graph node index from various possible identifiers.
 
         Args:
@@ -170,11 +168,7 @@ class GraphPlanner:
             return node
         raise ValueError("One of target_node, target_step, or target_image_name is required")
 
-    def set_checkpoints(
-        self,
-        checkpoint_steps: Optional[list[int]] = None,
-        checkpoint_images: Optional[list[str]] = None,
-    ) -> None:
+    def set_checkpoints(self, checkpoint_steps: Optional[list[int]] = None, checkpoint_images: Optional[list[str]] = None,) -> None:
         """Defines a multi-stage route using a sequence of checkpoints.
 
         Args:
@@ -234,26 +228,65 @@ class GraphPlanner:
         return [int(node) for node in path]
 
     def choose_subgoal_node(self, path_nodes: list[int], hops_ahead: Optional[int] = None) -> int:
-        """Selects a short-term subgoal from a path.
+        """Selects a short-term subgoal from a path using a dynamic cost-based search.
 
-        The subgoal is a node a few steps ahead on the path. This provides a
-        stable, near-term target for the local controller, rather than having
-        it aim for the final, distant goal.
+        This function iterates forward along the planned path from the current
+        node. It 'hops' to the next node as long as the visual similarity cost
+        (descriptor distance) between consecutive nodes is below a threshold.
+        This allows the robot to select a more distant subgoal in familiar areas
+        (long stretches of low-cost hops) and a closer one in visually distinct
+        areas (where cost is high).
 
         Args:
-            path_nodes (list[int]): The sequence of nodes in the full path.
-            hops_ahead (Optional[int]): The number of hops to look ahead for the subgoal.
-                                       If None, uses the default from the config.
+            path_nodes (list[int]): The sequence of nodes in the full path, starting
+                                    from the current location.
+            hops_ahead (Optional[int]): Overrides the default maximum number of hops
+                                        to search ahead.
 
         Returns:
             int: The selected subgoal node index.
         """
         if not path_nodes:
             raise ValueError("path_nodes cannot be empty")
-        hops = self.config.max_subgoal_hops if hops_ahead is None else max(0, int(hops_ahead))
-        # Clamp index to be within the path's bounds.
-        idx = min(hops, len(path_nodes) - 1)
-        return int(path_nodes[idx])
+
+        # The furthest valid node found so far. Default to the current node's
+        # immediate successor, which is the safest possible subgoal.
+        best_subgoal_idx = min(1, len(path_nodes) - 1)
+
+        # Determine the maximum number of hops to check ahead.
+        max_hops_to_check = hops_ahead if hops_ahead is not None else self.config.max_subgoal_search_hops
+
+        total_steps_cost: int = 0
+        '''Accumulates the total cost of steps along the path.'''
+        
+        # Iterate from the current position up to the max search distance.
+        for i in range(len(path_nodes) - 1):
+            if i >= max_hops_to_check:
+                break
+
+            u = path_nodes[i]
+            v = path_nodes[i + 1]
+
+            edge_data = self.graph.get_edge_data(u, v)
+            if edge_data is None:
+                # This should not happen on a valid path from shortest_path
+                break
+
+            # The cost is the descriptor distance stored on 'cosplace' edges.
+            step_cost: int = edge_data.get("desc_dist") # type: ignore
+            total_steps_cost += step_cost if step_cost is not None else 0 
+
+
+            # If the step is cheap enough, we can safely traverse it.
+            if step_cost is not None and total_steps_cost < self.config.max_subgoal_cost_threshold:
+                # This hop is valid, so update our best subgoal to the destination.
+                best_subgoal_idx = i + 1
+            else:
+                # The step is too expensive or lacks similarity data. Stop here.
+                # The previous node remains the best subgoal.
+                break
+
+        return int(path_nodes[best_subgoal_idx])
 
     def checkpoint_reached(self, localization_result: dict, target_node: int) -> bool:
         """Checks if the robot has confidently reached the target node.
@@ -272,14 +305,8 @@ class GraphPlanner:
         # The robot must be at the target node with sufficient confidence.
         return int(current_node) == int(target_node) and confidence >= self.config.min_confidence_to_advance
 
-    def plan(
-        self,
-        localization_result: dict,
-        target_node: Optional[int] = None,
-        target_step: Optional[int] = None,
-        target_image_name: Optional[str] = None,
-        hops_ahead: Optional[int] = None,
-    ) -> GraphPlan:
+    def plan(self, localization_result: dict, target_node: Optional[int] = None, target_step: Optional[int] = None,
+             target_image_name: Optional[str] = None, hops_ahead: Optional[int] = None,) -> GraphPlan:
         """Generates a plan from the current location to a specified target.
 
         Args:
@@ -313,15 +340,15 @@ class GraphPlanner:
         # 4. Package all information into a plan dictionary for the controller.
         return GraphPlan(
             current_node=int(current_node),
-            current_step=self.node_to_step.get(int(current_node)),
+            current_step=self.node_to_step.get(int(current_node)), # type: ignore
             target_node=resolved_target,
-            target_step=self.node_to_step.get(resolved_target),
+            target_step=self.node_to_step.get(resolved_target), # type: ignore
             path_nodes=path_nodes,
             path_steps=[self.node_to_step.get(node) for node in path_nodes],
             subgoal_node=subgoal_node,
-            subgoal_step=self.node_to_step.get(subgoal_node),
-            subgoal_image_name=self.node_to_name.get(subgoal_node),
-            subgoal_image_path=self.node_to_path.get(subgoal_node),
+            subgoal_step=self.node_to_step.get(subgoal_node), # type: ignore
+            subgoal_image_name=self.node_to_name.get(subgoal_node), # type: ignore
+            subgoal_image_path=self.node_to_path.get(subgoal_node), # type: ignore
             subgoal_metadata=self.image_meta_by_name.get(self.node_to_name.get(subgoal_node, "")),
             checkpoint_reached=self.checkpoint_reached(localization_result, resolved_target),
         )
