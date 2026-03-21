@@ -27,6 +27,7 @@ Usage:
 import base64
 import math
 import time
+from pygame.math import clamp
 import requests
 import numpy as np
 from io import BytesIO
@@ -218,8 +219,8 @@ class EarthRoverInterface:
             True if successful, False otherwise
         """
         # Clamp values
-        linear = max(-1.0, min(1.0, float(linear)))
-        angular = max(-1.0, min(1.0, float(angular)))
+        linear = clamp(linear, -1.0, 1.0)
+        angular = clamp(angular, -1.0, 1.0)
         lamp = int(lamp)
 
         try:
