@@ -73,6 +73,29 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--stop-on-low-confidence", action="store_true", help="Stop when localization confidence is too low.")
     parser.add_argument("--min-confidence", type=float, default=0.35, help="Low-confidence stop threshold.")
     parser.add_argument("--print-json", action="store_true", help="Print each loop state as JSON.")
+    parser.add_argument(
+        "--controller",
+        choices=("simple", "mbra", "logonav"),
+        default="simple",
+        help="Choose the local controller implementation.",
+    )
+    parser.add_argument(
+        "--mbra-config",
+        type=Path,
+        default=None,
+        help="Optional override for the MBRA/LogoNav YAML config.",
+    )
+    parser.add_argument(
+        "--mbra-checkpoint",
+        type=Path,
+        default=None,
+        help="Optional override for the MBRA/LogoNav checkpoint path.",
+    )
+    parser.add_argument(
+        "--mbra-device",
+        default=None,
+        help="Optional torch device string for the MBRA/LogoNav controller, e.g. cpu or cuda:0.",
+    )
     return parser.parse_args()
 
 
@@ -119,13 +142,28 @@ def build_runtime(args: argparse.Namespace) -> NavigationRuntime:
     )
 
 
-def build_controller() -> SimpleLocalController:
+def build_controller(args: argparse.Namespace) -> SimpleLocalController:
     """Initializes the SimpleLocalController with its default configuration.
+
+    Args:
+        args (argparse.Namespace): The parsed command-line arguments.
 
     Returns:
         SimpleLocalController: An instance of the SimpleLocalController.
     """
-    return SimpleLocalController(SimpleLocalControllerConfig())
+    if args.controller == "simple":
+        return SimpleLocalController(SimpleLocalControllerConfig())
+
+    from mbra_local_controller import MBRALocalController, MBRALocalControllerConfig  # type: ignore
+
+    config_name = "MBRA.yaml" if args.controller == "mbra" else "LogoNav.yaml"
+    checkpoint_name = "mbra.pth" if args.controller == "mbra" else "logonav.pth"
+    return MBRALocalController(MBRALocalControllerConfig(repo_root=REPO_ROOT,
+            model_config_path=args.mbra_config or REPO_ROOT / "mbra_repo_1" / "train" / "config" / config_name,
+            checkpoint_path=args.mbra_checkpoint or REPO_ROOT / "mbra_repo_1" / "deployment" / "model_weights" / checkpoint_name,
+            device=args.mbra_device,
+        ) # type: ignore
+    )
 
 
 def main() -> int:
@@ -147,7 +185,7 @@ def main() -> int:
 
     # Initialize the core components for navigation, control, and rover communication.
     runtime = build_runtime(args)
-    controller = build_controller()
+    controller = build_controller(args)
     rover = EarthRoverInterface(base_url=args.sdk_url, timeout=args.sdk_timeout)
 
     # Ensure connection to the EarthRover SDK is successful.
@@ -214,10 +252,8 @@ def main() -> int:
                     observation_heading_deg=heading_deg,
                 )
 
-            # The runtime provides input for the local controller.
-            controller_input: LocalControllerInput = step_output["controller_input"]
-            # The controller computes the required linear and angular velocities.
-            command: ControlCommand = controller.compute_command(controller_input, observation_heading_deg=heading_deg)
+            controller_input = step_output["controller_input"]
+            command = controller.compute_command(controller_input, observation_heading_deg=heading_deg)
 
             # Safety check: if localization confidence is low, stop the robot.
             confidence: float = controller_input.confidence

@@ -115,7 +115,8 @@ class SimpleLocalController:
         """
         self.config = config
 
-    def compute_command(self, controller_input: LocalControllerInput, observation_heading_deg: Optional[float] = None,) -> ControlCommand:
+    def compute_command(self, controller_input: LocalControllerInput, observation_heading_deg: Optional[float] = None, frame_rgb: Optional[object] = None,) -> ControlCommand:
+
         """Computes a motor command from a high-level plan.
 
         Args:
@@ -138,6 +139,7 @@ class SimpleLocalController:
         held_previous: bool = controller_input.held_previous
 
         # --- 2. Safety checks based on localization confidence ---
+
         if confidence < self.config.confidence_stop_threshold:
             # If confidence is very low, stop completely.
             return ControlCommand(0.0, 0.0, "low_confidence_stop")
@@ -189,3 +191,15 @@ class SimpleLocalController:
         # --- 6. Finalize and return the command ---
         linear = clamp(linear, 0.0, self.config.max_linear)
         return ControlCommand(linear=linear, angular=angular, reason="simple_heading_controller")
+
+# class MBRALocalController(SimpleLocalController):
+#     """A simple local controller that also considers the previous action."""
+
+#     def compute_command(
+#         self,
+#         controller_input: dict,
+#         observation_heading_deg: Optional[float] = None,
+#     ) -> ControlCommand:
+#         command = super().compute_command(controller_input, observation_heading_deg=observation_heading_deg)
+#         # Here you could add additional logic to modify the command based on previous actions or other factors.
+#         return command

@@ -155,6 +155,79 @@ Contains:
    - CLI verified
    - defaults to dry-run for safety
 
+
+## How To Run After EarthRover Is Open
+
+Once the EarthRover SDK server is up and serving camera/data endpoints on
+`http://localhost:8000`, the indoor runtime can be launched directly.
+
+Recommended first pass:
+
+1. Start with dry-run and the simple controller:
+   ```bash
+   python3 live_indoor_runtime.py --target-step 120 --controller simple
+   ```
+2. If checkpoint execution is preferred instead of one final target:
+   ```bash
+   python3 live_indoor_runtime.py --checkpoint-steps 120 180 240 --controller simple
+   ```
+3. Only send real commands after dry-run behavior looks correct:
+   ```bash
+   python3 live_indoor_runtime.py --target-step 120 --controller simple --send-control
+   ```
+
+Controller options:
+
+- `--controller simple`
+  - current hand-written baseline controller
+  - lowest dependency risk
+- `--controller mbra`
+  - loads `mbra_repo_1/train/config/MBRA.yaml`
+  - loads `mbra_repo_1/deployment/model_weights/mbra.pth`
+- `--controller logonav`
+  - loads `mbra_repo_1/train/config/LogoNav.yaml`
+  - loads `mbra_repo_1/deployment/model_weights/logonav.pth`
+
+MBRA / LogoNav runtime examples:
+
+```bash
+python3 live_indoor_runtime.py --target-step 120 --controller mbra
+python3 live_indoor_runtime.py --target-step 120 --controller logonav
+```
+
+Useful overrides:
+
+- `--mbra-config /path/to/config.yaml`
+- `--mbra-checkpoint /path/to/checkpoint.pth`
+- `--mbra-device cpu`
+- `--mbra-device cuda:0`
+
+What the runtime does each loop:
+
+1. Reads the current front camera frame from the EarthRover SDK.
+2. Reads heading/orientation from the SDK if available.
+3. Runs corridor localization.
+4. Plans a graph path and picks a nearby subgoal.
+5. Passes `controller_input` into the chosen local controller.
+6. Prints or sends `(linear, angular)` commands.
+
+Important note on the MBRA controller currently wired in this repo:
+
+- it is integrated as a local-controller candidate, not as a replacement for
+  localization or graph planning
+- it uses the current graph subgoal to build a relative goal-pose input for the
+  MBRA/LogoNav model
+- this is appropriate for dry-run and controlled testing, but it is still an
+  engineering adaptation of the original deployment code rather than a fully
+  validated final controller
+
+Recommended validation order:
+
+1. `--controller simple` with dry-run
+2. `--controller mbra` with dry-run
+3. `--controller logonav` with dry-run
+4. only then retry with `--send-control`
+
 ## Known Issues Already Fixed
 
 1. `baseline.py` had a JSON serialization bug when writing NumPy scalar types.

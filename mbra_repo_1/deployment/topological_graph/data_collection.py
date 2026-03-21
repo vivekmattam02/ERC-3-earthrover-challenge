@@ -1,0 +1,1 @@
+# Collect the data for topological graph construction, including the RGB images and relative distances. 
