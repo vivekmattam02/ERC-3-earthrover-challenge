@@ -70,6 +70,10 @@ def calculate_relative_position(x_a, y_a, x_b, y_b):
     delta_y = y_b - y_a
     return delta_x, delta_y
 
+
+def calculate_distance(x_a, y_a, x_b, y_b):
+    return math.hypot(x_b - x_a, y_b - y_a)
+
 # Function to rotate the relative position to the robot's local coordinate system
 def rotate_to_local_frame(delta_x, delta_y, heading_a_rad):    
     # Apply the rotation matrix for the local frame
@@ -94,7 +98,8 @@ class LogoNav_run():
         
         self.linear = 0.0
         self.angular = 0.0
-        self.id_goal = 0          
+        self.id_goal = 0
+        self.navigation_complete = False
 
     def clear_obs(self):
         self.observations = []
@@ -116,6 +121,9 @@ class LogoNav_run():
             self.control_send(self.linear, self.angular) 
     
     def policy_calc(self):
+        if self.navigation_complete:
+            return 0.0, 0.0
+
         linear_vel = None
         angular_vel = None
         distances = None
@@ -171,7 +179,23 @@ class LogoNav_run():
             obs_images = obs_images.to(device)    
 
             metric_waypoint_spacing = 0.25
-            delta_x, delta_y = calculate_relative_position(cur_utm[0], cur_utm[1], goal_utm[self.id_goal][0], goal_utm[self.id_goal][1])
+            target_utm_x = self.goal_utm[self.id_goal][0]
+            target_utm_y = self.goal_utm[self.id_goal][1]
+            distance_to_target = calculate_distance(cur_utm[0], cur_utm[1], target_utm_x, target_utm_y)
+            print(
+                f"distance to target {self.id_goal}: {distance_to_target:.2f} m "
+                f"(current=({cur_utm[0]:.2f}, {cur_utm[1]:.2f}), "
+                f"target=({target_utm_x:.2f}, {target_utm_y:.2f}))"
+            )
+
+            is_final_goal = self.id_goal == len(self.goal_utm) - 1
+            stop_distance = 1.0  # meters
+            if is_final_goal and distance_to_target < stop_distance:
+                self.navigation_complete = True
+                print(f"Final goal reached within {stop_distance:.2f} m. Stopping robot.")
+                return 0.0, 0.0
+
+            delta_x, delta_y = calculate_relative_position(cur_utm[0], cur_utm[1], target_utm_x, target_utm_y)
             relative_x, relative_y = rotate_to_local_frame(delta_x, delta_y, cur_compass)
                 
             ## For multiple goal pose navigation: START ##
@@ -182,8 +206,8 @@ class LogoNav_run():
                 relative_x = relative_x/distance_goal*thres_dist
                 relative_y = relative_y/distance_goal*thres_dist   
             
-            goal_pose = np.array([relative_y/metric_waypoint_spacing, -relative_x/metric_waypoint_spacing, np.cos(goal_compass[self.id_goal]-cur_compass), np.sin(goal_compass[self.id_goal]-cur_compass)])  
-            if distance_goal < thres_update and self.id_goal != len(goal_compass)-1:
+            goal_pose = np.array([relative_y/metric_waypoint_spacing, -relative_x/metric_waypoint_spacing, np.cos(self.goal_compass[self.id_goal]-cur_compass), np.sin(self.goal_compass[self.id_goal]-cur_compass)])  
+            if distance_goal < thres_update and self.id_goal != len(self.goal_compass)-1:
                 self.id_goal += 1            
             
             goal_pose_torch = torch.from_numpy(goal_pose).unsqueeze(0).float().to(device)            
@@ -278,7 +302,7 @@ if __name__ == "__main__":
     model.eval()
     
     #Goal pose, this is under world coordinates
-    latlon_g = [[40.6940785, -73.9861829]] 
+    latlon_g = [[9.973703384399414,-84.37767028808594]] 
     yaw_ang_g = 0.0/180*3.14
     goal_compass_g = [yaw_ang_g] #clock-wise [deg]
     
