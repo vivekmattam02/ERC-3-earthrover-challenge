@@ -177,22 +177,24 @@ class NavigationRuntime:
         return {
             "localization": localization,
             "plan": plan,
-            "controller_input": {
-                "current_node": plan.current_node,
-                "current_step": plan.current_step,
-                "current_orientation": localization.get("node_orientation"),
-                "target_node": plan.target_node,
-                "target_step": plan.target_step,
-                "subgoal_node": plan.subgoal_node,
-                "subgoal_step": plan.subgoal_step,
-                "subgoal_image_name": plan.subgoal_image_name,
-                "subgoal_image_path": plan.subgoal_image_path,
-                "subgoal_image_rgb": subgoal_image_rgb,
-                "subgoal_orientation": None if plan.subgoal_metadata is None else plan.subgoal_metadata.get("orientation"),
-                "confidence": localization["confidence"],
-                "held_previous": localization["held_previous"],
-                "stable_steps": localization["stable_steps"],
-            },
+            "controller_input": LocalControllerInput(
+                current_node=plan.current_node,
+                current_step=plan.current_step,
+                current_orientation=localization.get("node_orientation"), # type: ignore
+                target_node=plan.target_node,
+                target_step=plan.target_step,
+                subgoal_node=plan.subgoal_node,
+                subgoal_step=plan.subgoal_step,
+                subgoal_image_name=plan.subgoal_image_name,
+                subgoal_image_path=plan.subgoal_image_path,
+                subgoal_image_rgb=subgoal_image_rgb, # type: ignore
+                subgoal_orientation=None if plan.subgoal_metadata is None else plan.subgoal_metadata.get("orientation"),
+                confidence=localization["confidence"],
+                held_previous=localization["held_previous"],
+                stable_steps=localization["stable_steps"],
+                checkpoint_reached=plan.checkpoint_reached,
+                next_active_checkpoint=None,
+            ),
         }
 
     def step_to_active_checkpoint(self, frame_rgb: np.ndarray, observation_heading_deg: Optional[float] = None, hops_ahead: Optional[int] = None,

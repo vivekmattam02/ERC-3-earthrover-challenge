@@ -283,6 +283,19 @@ def load_descriptor_config(npz_path: Path) -> DescriptorConfig:
     return DescriptorConfig(**data["descriptor_config"])
 
 
+class NpEncoder(json.JSONEncoder):
+    """Custom JSON encoder to handle numpy types."""
+
+    def default(self, o):
+        if isinstance(o, np.integer):
+            return int(o)
+        if isinstance(o, np.floating):
+            return float(o)
+        if isinstance(o, np.ndarray):
+            return o.tolist()
+        return super().default(o)
+
+
 def save_json(path: Path, payload: dict) -> None:
     """Save a dictionary to a JSON file with pretty-printing.
 
@@ -294,7 +307,7 @@ def save_json(path: Path, payload: dict) -> None:
     """
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as handle:
-        json.dump(payload, handle, indent=2)
+        json.dump(payload, handle, indent=2, cls=NpEncoder)
 
 
 def save_graph(path: Path, graph: nx.Graph | nx.DiGraph) -> None:

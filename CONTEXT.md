@@ -115,7 +115,7 @@ This was created with:
 
 ### Built database
 
-- `data/corrider_db/`
+- `data/corridor_db/`
 
 Contains:
 
@@ -138,7 +138,7 @@ Contains:
    - near match rate: `97.9%`
    - moving-frame exact match rate: `99.1%`
    - moving-frame near match rate: `100%`
-   - results file: `data/corrider_db_step5/temporal_eval.json`
+   - results file: `data/corridor_db_step5/temporal_eval.json`
    - most remaining large errors are concentrated in one ambiguous window around
      corridor steps `370--410`
    - inspection shows that window is largely a stationary / repeated-frame
@@ -274,7 +274,7 @@ Recommended validation order:
 - `tools/extract_h5_dataset.py`
 - `tools/evaluate_temporal_localization.py`
 - `data/corrider_extracted/metadata/data_info.json`
-- `data/corrider_db/`
+- `data/corridor_db/`
 
 ## Short Version
 
