@@ -142,7 +142,11 @@ class GraphPlanner:
         """
         with path.open("r", encoding="utf-8") as handle:
             data = json.load(handle)
-        graph = json_graph.node_link_graph(data, edges="links")
+        # graph = json_graph.node_link_graph(data)
+        graph = json_graph.node_link_graph(
+            data,
+            edges="edges" if "edges" in data else "links",
+        )
         return graph
 
     def resolve_target_node(self, target_node: Optional[int] = None, target_step: Optional[int] = None, target_image_name: Optional[str] = None,) -> int:

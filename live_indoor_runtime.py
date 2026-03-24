@@ -328,3 +328,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+# python live_indoor_runtime.py --target-step 1355 --max-steps 30 --send-control
