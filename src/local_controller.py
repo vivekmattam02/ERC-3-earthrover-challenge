@@ -15,6 +15,7 @@ class ControlCommand:
     linear: float
     angular: float
     reason: str
+    debug: Optional[dict] = None
 
 
 @dataclass
@@ -23,6 +24,7 @@ class SimpleLocalControllerConfig:
     min_linear: float = 0.10
     max_angular: float = 0.34
     min_turn_angular: float = 0.12
+    align_turn_angular: float = 0.22
     heading_gain: float = 0.010
     drive_heading_gain: float = 0.0
     step_gain: float = 0.02
@@ -41,6 +43,10 @@ class SimpleLocalControllerConfig:
     high_turn_rate_threshold_dps: float = 20.0
     high_turn_rate_linear_scale: float = 0.55
     rpm_motion_threshold: float = 2.0
+    motion_stale_stop: bool = True
+    no_progress_realign_ticks: int = 4
+    no_progress_crawl_linear_scale: float = 0.5
+    step_progress_epsilon: int = 1
 
 
 class SimpleLocalController:
@@ -55,6 +61,9 @@ class SimpleLocalController:
         self._align_ticks = 0
         self._filtered_heading_error = 0.0
         self._previous_angular = 0.0
+        self._last_current_step: Optional[int] = None
+        self._no_progress_ticks = 0
+        self._turn_direction = 1.0
 
     def _smooth_heading_error(self, heading_error: float) -> float:
         alpha = self.config.heading_filter_alpha
@@ -72,6 +81,18 @@ class SimpleLocalController:
             desired_angular = self._previous_angular - max_delta
         self._previous_angular = desired_angular
         return desired_angular
+
+    def _update_progress_state(self, current_step: int) -> None:
+        if self._last_current_step is None:
+            self._last_current_step = current_step
+            self._no_progress_ticks = 0
+            return
+
+        if current_step >= self._last_current_step + self.config.step_progress_epsilon:
+            self._no_progress_ticks = 0
+        else:
+            self._no_progress_ticks += 1
+        self._last_current_step = current_step
 
     def compute_command(
         self,
@@ -101,12 +122,18 @@ class SimpleLocalController:
 
         if current_step is None or subgoal_step is None:
             self._align_mode = False
-            return ControlCommand(0.0, 0.0, "missing_step_info")
+            return ControlCommand(0.0, 0.0, "missing_step_info", debug={"confidence": confidence})
 
         step_gap = int(subgoal_step) - int(current_step)
         if step_gap <= 0:
             self._align_mode = False
-            return ControlCommand(0.0, 0.0, "subgoal_reached_or_behind")
+            return ControlCommand(0.0, 0.0, "subgoal_reached_or_behind", debug={"step_gap": step_gap})
+
+        self._update_progress_state(int(current_step))
+
+        if motion_state_stale and self.config.motion_stale_stop:
+            self._align_mode = False
+            return ControlCommand(0.0, 0.0, "stale_motion_state_stop", debug={"step_gap": step_gap})
 
         heading_reference = observation_heading_deg
         if heading_reference is None:
@@ -165,6 +192,8 @@ class SimpleLocalController:
             linear *= self.config.high_turn_rate_linear_scale
         if 0.0 < rpm_mean < self.config.rpm_motion_threshold:
             linear *= 0.8
+        if self._no_progress_ticks >= self.config.no_progress_realign_ticks:
+            linear *= self.config.no_progress_crawl_linear_scale
         if held_previous:
             linear *= self.config.held_previous_linear_scale
 

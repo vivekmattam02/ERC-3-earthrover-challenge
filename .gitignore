@@ -17,6 +17,7 @@ earth-rovers-sdk/.env
 # Runtime outputs
 *.log
 *.out
+CONTEXT.md
 guide.md
 *.tex
 docs/
