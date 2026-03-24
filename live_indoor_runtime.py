@@ -26,11 +26,16 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from earthrover_interface import EarthRoverInterface  # type: ignore
-from local_controller import SimpleLocalController, SimpleLocalControllerConfig  # type: ignore
+from local_controller import ControlCommand, LocalControllerInput, SimpleLocalController, SimpleLocalControllerConfig  # type: ignore
 from navigation_runtime import NavigationRuntime, NavigationRuntimeConfig  # type: ignore
 
 
 def parse_args() -> argparse.Namespace:
+    """Parses command-line arguments for the live indoor navigation loop.
+
+    Returns:
+        argparse.Namespace: An object containing the parsed command-line arguments.
+    """
     parser = argparse.ArgumentParser(description="Run the ERC indoor baseline live loop.")
     parser.add_argument(
         "--database",
@@ -95,29 +100,57 @@ def parse_args() -> argparse.Namespace:
 
 
 def get_orientation_deg(data: Optional[dict]) -> Optional[float]:
+    """Extracts the rover's orientation in degrees from the SDK data payload.
+
+    Args:
+        data (Optional[dict]): The data payload from the EarthRover SDK.
+
+    Returns:
+        Optional[float]: The orientation in degrees, or None if not available or invalid.
+    """
     if not data:
         return None
+    # The 'orientation' key holds the compass heading.
     orientation = data.get("orientation")
     if orientation is None:
         return None
     try:
+        # Convert the orientation to a float.
         return float(orientation)
     except (TypeError, ValueError):
+        # Return None if the conversion fails.
         return None
 
 
 def build_runtime(args: argparse.Namespace) -> NavigationRuntime:
+    """Initializes the NavigationRuntime with the specified configuration.
+
+    Args:
+        args (argparse.Namespace): The parsed command-line arguments.
+
+    Returns:
+        NavigationRuntime: An instance of the NavigationRuntime.
+    """
     return NavigationRuntime(
         NavigationRuntimeConfig(
             database_npz=args.database,
             graph_json=args.graph,
             data_info_json=args.data_info_json,
-            max_subgoal_hops=args.max_subgoal_hops,
+            max_subgoal_search_hops=args.max_subgoal_search_hops,
+            max_subgoal_cost_threshold=args.max_subgoal_cost_threshold,
         )
     )
 
 
-def build_controller(args: argparse.Namespace):
+def build_controller(args: argparse.Namespace) -> SimpleLocalController:
+    """Initializes the SimpleLocalController with its default configuration.
+
+    Args:
+        args (argparse.Namespace): The parsed command-line arguments.
+
+    Returns:
+        SimpleLocalController: An instance of the SimpleLocalController.
+    """
     if args.controller == "simple":
         return SimpleLocalController(SimpleLocalControllerConfig())
 
@@ -125,33 +158,45 @@ def build_controller(args: argparse.Namespace):
 
     config_name = "MBRA.yaml" if args.controller == "mbra" else "LogoNav.yaml"
     checkpoint_name = "mbra.pth" if args.controller == "mbra" else "logonav.pth"
-    return MBRALocalController(
-        MBRALocalControllerConfig(
-            repo_root=REPO_ROOT,
+    return MBRALocalController(MBRALocalControllerConfig(repo_root=REPO_ROOT,
             model_config_path=args.mbra_config or REPO_ROOT / "mbra_repo_1" / "train" / "config" / config_name,
             checkpoint_path=args.mbra_checkpoint or REPO_ROOT / "mbra_repo_1" / "deployment" / "model_weights" / checkpoint_name,
             device=args.mbra_device,
-        )
+        ) # type: ignore
     )
 
 
 def main() -> int:
+    """Main function to run the live indoor navigation loop.
+
+    This function orchestrates the entire process:
+    1. Parses arguments.
+    2. Initializes the navigation runtime, local controller, and rover interface.
+    3. Runs a continuous loop to fetch sensor data, localize, plan, and control the robot.
+
+    Returns:
+        int: An exit code (0 for success).
+    """
     args = parse_args()
     if args.target_step is None and not args.checkpoint_steps:
         raise SystemExit("Provide --target-step or --checkpoint-steps.")
     if args.tick_hz <= 0:
         raise SystemExit("--tick-hz must be > 0")
 
+    # Initialize the core components for navigation, control, and rover communication.
     runtime = build_runtime(args)
     controller = build_controller(args)
     rover = EarthRoverInterface(base_url=args.sdk_url, timeout=args.sdk_timeout)
 
+    # Ensure connection to the EarthRover SDK is successful.
     if not rover.connect():
         raise SystemExit("Failed to connect to SDK.")
 
+    # If checkpoint navigation is enabled, set the checkpoints in the runtime.
     if args.checkpoint_steps:
         runtime.set_checkpoints(checkpoint_steps=list(args.checkpoint_steps))
 
+    # Determine if the script is in dry-run mode (no commands sent).
     dry_run = not args.send_control
     print("Live indoor runtime")
     print("=" * 60)
@@ -165,19 +210,24 @@ def main() -> int:
     print(f"Tick rate: {args.tick_hz:.2f} Hz")
     print("=" * 60)
 
+    # Calculate the time period for each loop iteration based on the desired frequency.
     period = 1.0 / args.tick_hz
     iteration = 0
 
     try:
+        # Main control loop.
         while True:
+            # Optional exit condition based on max iterations.
             if args.max_steps is not None and iteration >= args.max_steps:
                 break
 
             loop_start = time.time()
+            # Fetch the latest camera frame and sensor data from the rover.
             frame = rover.get_camera_frame()
             data = rover.get_data()
             heading_deg = get_orientation_deg(data)
 
+            # If no camera frame is received, stop the robot and wait for the next cycle.
             if frame is None:
                 if not dry_run:
                     rover.stop()
@@ -186,13 +236,16 @@ def main() -> int:
                 iteration += 1
                 continue
 
+            # Based on the navigation mode, either step towards the active checkpoint or a single target.
             if args.checkpoint_steps:
+                # Checkpoint navigation: progresses through a predefined sequence of points.
                 step_output = runtime.step_to_active_checkpoint(
                     frame_rgb=frame,
                     observation_heading_deg=heading_deg,
                     auto_advance_checkpoint=args.auto_advance_checkpoints,
                 )
             else:
+                # Target navigation: moves towards a single specified goal.
                 step_output = runtime.step_to_target(
                     frame_rgb=frame,
                     target_step=args.target_step,
@@ -200,38 +253,38 @@ def main() -> int:
                 )
 
             controller_input = step_output["controller_input"]
-            command = controller.compute_command(
-                controller_input,
-                observation_heading_deg=heading_deg,
-                frame_rgb=frame,
-            )
+            command = controller.compute_command(controller_input, observation_heading_deg=heading_deg)
 
-            confidence = float(controller_input.get("confidence", 0.0))
+            # Safety check: if localization confidence is low, stop the robot.
+            confidence: float = controller_input.confidence
             if args.stop_on_low_confidence and confidence < args.min_confidence:
                 command.linear = 0.0
                 command.angular = 0.0
                 command.reason = "runtime_low_confidence_stop"
 
+            # Send the command to the robot unless in dry-run mode.
             if dry_run:
                 sent = False
             else:
                 sent = rover.send_control(command.linear, command.angular)
 
+            # Assemble a payload of the current state for logging/debugging.
             payload = {
                 "iteration": iteration,
                 "heading_deg": heading_deg,
-                "current_step": controller_input.get("current_step"),
-                "target_step": controller_input.get("target_step"),
-                "subgoal_step": controller_input.get("subgoal_step"),
+                "current_step": controller_input.current_step,
+                "target_step": controller_input.target_step,
+                "subgoal_step": controller_input.subgoal_step,
                 "confidence": confidence,
-                "held_previous": controller_input.get("held_previous"),
-                "stable_steps": controller_input.get("stable_steps"),
+                "held_previous": controller_input.held_previous,
+                "stable_steps": controller_input.stable_steps,
                 "linear": command.linear,
                 "angular": command.angular,
                 "reason": command.reason,
                 "sent": sent,
             }
 
+            # Print the state to the console, either as JSON or a formatted string.
             if args.print_json:
                 print(json.dumps(payload))
             else:
@@ -243,6 +296,7 @@ def main() -> int:
                     f"reason={payload['reason']} sent={payload['sent']}"
                 )
 
+            # Wait for the remainder of the period to maintain the loop frequency.
             elapsed = time.time() - loop_start
             if elapsed < period:
                 time.sleep(period - elapsed)
@@ -251,6 +305,7 @@ def main() -> int:
     except KeyboardInterrupt:
         print("\nInterrupted by user.")
     finally:
+        # Graceful shutdown: stop the robot upon exit.
         if not dry_run:
             rover.stop()
             print("Robot stopped.")
