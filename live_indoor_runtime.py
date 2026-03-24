@@ -28,6 +28,7 @@ if str(SRC_DIR) not in sys.path:
 from earthrover_interface import EarthRoverInterface  # type: ignore
 from local_controller import ControlCommand, LocalControllerInput, SimpleLocalController, SimpleLocalControllerConfig  # type: ignore
 from navigation_runtime import NavigationRuntime, NavigationRuntimeConfig  # type: ignore
+from sensor_state import SensorStateFilter, SensorStateFilterConfig  # type: ignore
 
 
 def parse_args() -> argparse.Namespace:
@@ -70,33 +71,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sdk-url", default="http://localhost:8000", help="EarthRover SDK base URL.")
     parser.add_argument("--sdk-timeout", type=float, default=5.0, help="SDK request timeout in seconds.")
     parser.add_argument("--send-control", action="store_true", help="Actually send commands to the robot.")
+    parser.add_argument(
+        "--controller",
+        choices=("simple", "mbra"),
+        default="simple",
+        help="Local controller implementation to use.",
+    )
+    parser.add_argument(
+        "--mbra-weights",
+        type=Path,
+        default=REPO_ROOT / "mbra_repo" / "deployment" / "model_weights" / "mbra.pth",
+        help="Path to MBRA weights when --controller mbra is selected.",
+    )
     parser.add_argument("--auto-advance-checkpoints", action="store_true", help="Advance to next checkpoint automatically.")
     parser.add_argument("--stop-on-low-confidence", action="store_true", help="Stop when localization confidence is too low.")
     parser.add_argument("--min-confidence", type=float, default=0.35, help="Low-confidence stop threshold.")
     parser.add_argument("--print-json", action="store_true", help="Print each loop state as JSON.")
-    parser.add_argument(
-        "--controller",
-        choices=("simple", "mbra", "logonav"),
-        default="simple",
-        help="Choose the local controller implementation.",
-    )
-    parser.add_argument(
-        "--mbra-config",
-        type=Path,
-        default=None,
-        help="Optional override for the MBRA/LogoNav YAML config.",
-    )
-    parser.add_argument(
-        "--mbra-checkpoint",
-        type=Path,
-        default=None,
-        help="Optional override for the MBRA/LogoNav checkpoint path.",
-    )
-    parser.add_argument(
-        "--mbra-device",
-        default=None,
-        help="Optional torch device string for the MBRA/LogoNav controller, e.g. cpu or cuda:0.",
-    )
     return parser.parse_args()
 
 
@@ -143,7 +133,7 @@ def build_runtime(args: argparse.Namespace) -> NavigationRuntime:
     )
 
 
-def build_controller(args: argparse.Namespace) -> SimpleLocalController:
+def build_controller(args: argparse.Namespace):
     """Initializes the SimpleLocalController with its default configuration.
 
     Args:
@@ -152,19 +142,21 @@ def build_controller(args: argparse.Namespace) -> SimpleLocalController:
     Returns:
         SimpleLocalController: An instance of the SimpleLocalController.
     """
-    if args.controller == "simple":
-        return SimpleLocalController(SimpleLocalControllerConfig())
+    if args.controller == "mbra":
+        try:
+            from mbra_controller import MBRALocalController, MBRALocalControllerConfig  # type: ignore
+        except ModuleNotFoundError as exc:
+            raise SystemExit(
+                f"MBRA controller dependencies are not installed: missing module '{exc.name}'. "
+                "Install the mbra_repo environment/dependencies first."
+            ) from exc
 
-    from mbra_local_controller import MBRALocalController, MBRALocalControllerConfig  # type: ignore
-
-    config_name = "MBRA.yaml" if args.controller == "mbra" else "LogoNav.yaml"
-    checkpoint_name = "mbra.pth" if args.controller == "mbra" else "logonav.pth"
-    return MBRALocalController(MBRALocalControllerConfig(repo_root=REPO_ROOT,
-            model_config_path=args.mbra_config or REPO_ROOT / "mbra_repo_1" / "train" / "config" / config_name,
-            checkpoint_path=args.mbra_checkpoint or REPO_ROOT / "mbra_repo_1" / "deployment" / "model_weights" / checkpoint_name,
-            device=args.mbra_device,
-        ) # type: ignore
-    )
+        return MBRALocalController(
+            MBRALocalControllerConfig(
+                weights_path=args.mbra_weights,
+            )
+        )
+    return SimpleLocalController(SimpleLocalControllerConfig())
 
 
 def main() -> int:
@@ -186,7 +178,8 @@ def main() -> int:
 
     # Initialize the core components for navigation, control, and rover communication.
     runtime = build_runtime(args)
-    controller = build_controller(args)
+    controller: SimpleLocalController = build_controller(args)
+    sensor_filter = SensorStateFilter(SensorStateFilterConfig())
     rover = EarthRoverInterface(base_url=args.sdk_url, timeout=args.sdk_timeout)
 
     # Ensure connection to the EarthRover SDK is successful.
@@ -204,6 +197,7 @@ def main() -> int:
     print(f"Mode: {'DRY RUN' if dry_run else 'SEND CONTROL'}")
     print(f"Database: {args.database}")
     print(f"Graph: {args.graph}")
+    print(f"Controller: {args.controller}")
     if args.target_step is not None:
         print(f"Target step: {args.target_step}")
     if args.checkpoint_steps:
@@ -226,7 +220,8 @@ def main() -> int:
             # Fetch the latest camera frame and sensor data from the rover.
             frame = rover.get_camera_frame()
             data = rover.get_data()
-            heading_deg = get_orientation_deg(data)
+            motion_state = sensor_filter.update(data)
+            heading_deg = motion_state.get("heading_deg")
 
             # If no camera frame is received, stop the robot and wait for the next cycle.
             if frame is None:
@@ -252,11 +247,18 @@ def main() -> int:
                     target_step=args.target_step,
                     observation_heading_deg=heading_deg,
                 )
-            controller_input: LocalControllerInput = step_output["controller_input"]
-            command = controller.compute_command(controller_input, observation_heading_deg=heading_deg)
 
-            # Safety check: if localization confidence is low, stop the robot.
-            confidence: float = controller_input.confidence
+            controller_input: LocalControllerInput = step_output["controller_input"]
+            controller_input.heading_rate_dps = motion_state.get("heading_rate_dps") # type: ignore
+            controller_input.rpm_mean = motion_state.get("rpm_mean") # type: ignore
+            controller_input.motion_state_stale = motion_state.get("is_stale") # type: ignore
+            command = controller.compute_command(
+                controller_input,
+                observation_heading_deg=heading_deg,
+                frame_rgb=frame,
+            )
+
+            confidence = float(controller_input.confidence)
             if args.stop_on_low_confidence and confidence < args.min_confidence:
                 command.linear = 0.0
                 command.angular = 0.0
@@ -272,15 +274,20 @@ def main() -> int:
             payload = {
                 "iteration": iteration,
                 "heading_deg": heading_deg,
+                "heading_rate_dps": motion_state.get("heading_rate_dps"),
+                "rpm_mean": motion_state.get("rpm_mean"),
                 "current_step": controller_input.current_step,
                 "target_step": controller_input.target_step,
                 "subgoal_step": controller_input.subgoal_step,
                 "confidence": confidence,
                 "held_previous": controller_input.held_previous,
                 "stable_steps": controller_input.stable_steps,
+                "path_found": controller_input.path_found,
+                "path_error": controller_input.path_error,
                 "linear": command.linear,
                 "angular": command.angular,
                 "reason": command.reason,
+                "debug": command.debug or {},
                 "sent": sent,
             }
 
@@ -288,12 +295,18 @@ def main() -> int:
             if args.print_json:
                 print(json.dumps(payload))
             else:
+                path_error_suffix = ""
+                if payload["path_error"] is not None:
+                    path_error_suffix = f" path_error={payload['path_error']}"
                 print(
                     f"[{iteration:04d}] cur={payload['current_step']} "
                     f"target={payload['target_step']} subgoal={payload['subgoal_step']} "
                     f"conf={payload['confidence']:.3f} "
+                    f"hdg={payload['heading_deg'] if payload['heading_deg'] is not None else 'NA'} "
                     f"cmd=({payload['linear']:.3f}, {payload['angular']:.3f}) "
                     f"reason={payload['reason']} sent={payload['sent']}"
+                    f"{path_error_suffix}"
+                    f"{'' if not payload['debug'] else ' dbg=' + json.dumps(payload['debug'], sort_keys=True)}"
                 )
 
             # Wait for the remainder of the period to maintain the loop frequency.

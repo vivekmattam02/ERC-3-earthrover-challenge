@@ -194,6 +194,12 @@ class NavigationRuntime:
                 stable_steps=localization["stable_steps"],
                 checkpoint_reached=plan.checkpoint_reached,
                 next_active_checkpoint=None,
+                path_found= plan.path_found,
+                path_error= plan.path_error,
+                observation_rgb=None,
+                heading_rate_dps=None,
+                rpm_mean=None,
+                motion_state_stale=None,
             ),
         }
 
@@ -237,6 +243,7 @@ class NavigationRuntime:
             "localization": localization,
             "plan": plan,
             "controller_input": LocalControllerInput(
+                observation_rgb=frame_rgb,
                 current_node=plan.current_node,
                 current_step=plan.current_step,
                 current_orientation=localization["node_orientation"],
@@ -253,5 +260,7 @@ class NavigationRuntime:
                 stable_steps=localization["stable_steps"],
                 checkpoint_reached=plan.checkpoint_reached,
                 next_active_checkpoint=next_target,
+                path_found= plan.path_found,
+                path_error= plan.path_error,
             ),
         }
