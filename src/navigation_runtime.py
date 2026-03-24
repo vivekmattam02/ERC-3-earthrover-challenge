@@ -63,7 +63,7 @@ class NavigationRuntimeConfig:
 
     # --- GraphPlanner Pass-through ---
     max_subgoal_search_hops: int = 3
-    max_subgoal_cost_threshold: float = 0.4
+    max_subgoal_cost_threshold: float = 100.
     min_confidence_to_advance: float = 0.55
 
 

@@ -59,7 +59,7 @@ class GraphPlannerConfig:
     graph_json: Path
     data_info_json: Optional[Path] = None
     max_subgoal_search_hops: int = 10
-    max_subgoal_cost_threshold: float = 0.4
+    max_subgoal_cost_threshold: float = 100.
     min_confidence_to_advance: float = 0.55
 
 
