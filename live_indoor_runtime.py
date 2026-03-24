@@ -40,13 +40,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--database",
         type=Path,
-        default=REPO_ROOT / "data" / "corrider_db" / "descriptors.npz",
+        default=REPO_ROOT / "data" / "corridor_db" / "descriptors.npz",
         help="Path to the built descriptor database.",
     )
     parser.add_argument(
         "--graph",
         type=Path,
-        default=REPO_ROOT / "data" / "corrider_db" / "navigation_graph.json",
+        default=REPO_ROOT / "data" / "corridor_db" / "navigation_graph.json",
         help="Path to the runtime navigation graph JSON.",
     )
     parser.add_argument(
@@ -65,7 +65,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--tick-hz", type=float, default=2.0, help="Loop frequency in Hz.")
     parser.add_argument("--max-steps", type=int, default=None, help="Optional max loop iterations.")
-    parser.add_argument("--max-subgoal-hops", type=int, default=3, help="Graph hops ahead for subgoal selection.")
+    parser.add_argument("--max-subgoal-search-hops", type=int, default=3, help="Graph hops ahead for subgoal selection.")
+    parser.add_argument("--max-subgoal-cost-threshold", type=int, default=10, help="Maximum cost threshold for subgoal selection.")
     parser.add_argument("--sdk-url", default="http://localhost:8000", help="EarthRover SDK base URL.")
     parser.add_argument("--sdk-timeout", type=float, default=5.0, help="SDK request timeout in seconds.")
     parser.add_argument("--send-control", action="store_true", help="Actually send commands to the robot.")
@@ -251,8 +252,7 @@ def main() -> int:
                     target_step=args.target_step,
                     observation_heading_deg=heading_deg,
                 )
-
-            controller_input = step_output["controller_input"]
+            controller_input: LocalControllerInput = step_output["controller_input"]
             command = controller.compute_command(controller_input, observation_heading_deg=heading_deg)
 
             # Safety check: if localization confidence is low, stop the robot.

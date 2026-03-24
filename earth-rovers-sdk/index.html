@@ -346,6 +346,44 @@
     <script src="/static/basicVideoCall.js"></script>
     <script src="/static/agora-rtm-sdk-1.6.0.js"></script>
     <script src="/static/basicRtm.js" defer></script>
+
+    <script>
+      setInterval(function() {
+      if (window.rtm_data && window.rtm_data.latitude) {
+        fetch('/api/update_data', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(window.rtm_data)
+        }).catch(err => console.log('Data push failed:', err));
+      }
+      }, 1000);
+    </script>
+    <script>
+setInterval(function() {
+  try {
+    // Find the video element (adjust selector if needed)
+    var video = document.querySelector('video');
+    if (video && video.readyState >= 2 && video.videoWidth > 0) {
+      // Create a canvas to capture the current frame
+      var canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      // Convert to base64 JPEG
+      var frame_b64 = canvas.toDataURL('image/jpeg').split(',')[1];
+      // Send to backend
+      fetch('/api/update_frame', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({frame: frame_b64})
+      }).catch(err => console.log('Frame push failed:', err));
+    }
+  } catch (e) {
+    console.log('Frame push error:', e);
+  }
+}, 1000);
+</script>
   </body>
 </html>
 

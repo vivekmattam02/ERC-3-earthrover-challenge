@@ -283,6 +283,19 @@ def load_descriptor_config(npz_path: Path) -> DescriptorConfig:
     return DescriptorConfig(**data["descriptor_config"])
 
 
+class NpEncoder(json.JSONEncoder):
+    """Custom JSON encoder to handle numpy types."""
+
+    def default(self, o):
+        if isinstance(o, np.integer):
+            return int(o)
+        if isinstance(o, np.floating):
+            return float(o)
+        if isinstance(o, np.ndarray):
+            return o.tolist()
+        return super().default(o)
+
+
 def save_json(path: Path, payload: dict) -> None:
     """Save a dictionary to a JSON file with pretty-printing.
 
@@ -294,7 +307,7 @@ def save_json(path: Path, payload: dict) -> None:
     """
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as handle:
-        json.dump(payload, handle, indent=2)
+        json.dump(payload, handle, indent=2, cls=NpEncoder)
 
 
 def save_graph(path: Path, graph: nx.Graph | nx.DiGraph) -> None:
@@ -759,11 +772,14 @@ def attach_actions_to_graph(graph: nx.Graph, action_edges: list[tuple[int, int, 
         nav_graph.add_node(node, **attrs)
 
     for u, v, actions in action_edges:
+        edge_data = graph.get_edge_data(u, v, default={})
         if nav_graph.has_edge(u, v):
-            merged = sorted(set(nav_graph[u][v].get("actions", [])) | set(actions))
-            nav_graph[u][v]["actions"] = merged
+            merged_actions = sorted(set(nav_graph[u][v].get("actions", [])) | set(actions))
+            nav_graph[u][v]["actions"] = merged_actions
         else:
-            nav_graph.add_edge(u, v, actions=list(actions), from_json=True)
+            nav_graph.add_edge(u, v, **edge_data)
+            nav_graph[u][v]["actions"] = list(actions)
+            nav_graph[u][v]["from_json"] = True
 
     return nav_graph
 
