@@ -1,9 +1,9 @@
 # ERC-3 EarthRover Challenge
 
-![NYU](https://img.shields.io/badge/NYU-EarthRover-57068C)
-![Indoor](https://img.shields.io/badge/Indoor-MBRA%20%2B%20Corridor%20Graph-1f6feb)
-![Outdoor](https://img.shields.io/badge/Outdoor-LogoNav%20%2B%20OSM%20Routing-0a7f5a)
-![Safety](https://img.shields.io/badge/Safety-Depth%20%7C%20IMU%20%7C%20Semantic-c26d00)
+[![NYU](https://img.shields.io/badge/NYU-EarthRover-57068C)](#erc-3-earthrover-challenge)
+[![Indoor](https://img.shields.io/badge/Indoor-MBRA%20%2B%20Corridor%20Graph-1f6feb)](#indoor-stack)
+[![Outdoor](https://img.shields.io/badge/Outdoor-LogoNav%20%2B%20OSM%20Routing-0a7f5a)](#outdoor-stack)
+[![Safety](https://img.shields.io/badge/Safety-Depth%20%7C%20IMU%20%7C%20Semantic-c26d00)](#safety-and-perception)
 
 Indoor and outdoor autonomy workspace for the NYU EarthRover Challenge.
 
@@ -21,17 +21,6 @@ The main methods behind the stack are:
 - [SegFormer](https://huggingface.co/nvidia/segformer-b0-finetuned-ade-512-512) for semantic segmentation experiments and runtime semantic scoring
 - [OpenStreetMap](https://www.openstreetmap.org/) for outdoor route expansion
 
-## Status
-
-This repository is an active project workspace, not a polished public release.
-
-| What this repo does well | What this repo is not |
-|---|---|
-| working indoor and outdoor runtime code | a pip-installable package |
-| controller wrappers and safety modules | a full dataset archive |
-| calibration and diagnostic scripts | a checkpoint storage repo |
-| technical reports explaining system evolution | a cleaned benchmark release |
-
 ## What This Repository Is For
 
 This repo was used to:
@@ -40,7 +29,7 @@ This repo was used to:
 - test safety modules such as depth-based traversability, IMU protection, and semantic risk estimation
 - keep the code, SDK bridge, wrappers, scripts, and supporting docs in one place
 
-It is not intended to store large recorded datasets, model checkpoints, or generated debug media in git.
+Large recorded datasets, model checkpoints, and generated debug media are kept out of git.
 
 ## Quick Start
 
