@@ -32,7 +32,7 @@ from sensor_state import SensorStateFilter, SensorStateFilterConfig  # type: ign
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run the ERC indoor baseline live loop.")
+    parser = argparse.ArgumentParser(description="Run the ERC indoor MBRA-first live loop.")
     parser.add_argument(
         "--database",
         type=Path,
@@ -83,7 +83,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--controller",
         choices=("simple", "mbra"),
-        default="simple",
+        default="mbra",
         help="Local controller implementation to use.",
     )
     parser.add_argument(
@@ -97,8 +97,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-confidence", type=float, default=0.35, help="Low-confidence stop threshold.")
     parser.add_argument("--print-json", action="store_true", help="Print each loop state as JSON.")
     parser.add_argument("--depth-safety", action="store_true", help="Enable monocular depth forward-clearance veto.")
-    parser.add_argument("--depth-slow-m", type=float, default=None, help="Slow down when forward clearance below this (meters). Default: 0.6 for mbra, 0.8 for simple.")
-    parser.add_argument("--depth-stop-m", type=float, default=None, help="Stop when forward clearance below this (meters). Default: 0.25 for mbra, 0.4 for simple.")
+    parser.add_argument("--depth-slow-m", type=float, default=0.8, help="Slow down when forward clearance below this (meters).")
+    parser.add_argument("--depth-stop-m", type=float, default=0.4, help="Stop when forward clearance below this (meters).")
     return parser.parse_args()
 
 
@@ -134,13 +134,9 @@ def build_controller(args: argparse.Namespace):
 def main() -> int:
     args = parse_args()
     if args.max_subgoal_hops is None:
-        args.max_subgoal_hops = 8 if args.controller == "mbra" else 15
+        args.max_subgoal_hops = 4 if args.controller == "mbra" else 15
     if args.tick_hz is None:
         args.tick_hz = 3.0 if args.controller == "mbra" else 2.0
-    if args.depth_stop_m is None:
-        args.depth_stop_m = 0.25 if args.controller == "mbra" else 0.4
-    if args.depth_slow_m is None:
-        args.depth_slow_m = 0.6 if args.controller == "mbra" else 0.8
 
     has_target = (
         args.target_step is not None
@@ -187,7 +183,7 @@ def main() -> int:
     if args.depth_safety:
         try:
             from depth_estimator import DepthEstimator  # type: ignore
-            depth_estimator = DepthEstimator(model_size='small', max_depth=5.0)
+            depth_estimator = DepthEstimator(model_size='small', checkpoint_domain='indoor')
             print("Depth safety: ENABLED")
         except Exception as exc:
             print(f"[warn] Depth safety disabled — could not load model: {exc}")
@@ -201,7 +197,7 @@ def main() -> int:
     dry_run = not args.send_control
     is_checkpoint_mode = bool(args.checkpoint_steps or args.checkpoint_images)
 
-    print("Live indoor runtime")
+    print("Live indoor runtime (MBRA-first)")
     print("=" * 60)
     print(f"Mode: {'DRY RUN' if dry_run else 'SEND CONTROL'}")
     if dry_run:
@@ -218,8 +214,6 @@ def main() -> int:
         print(f"Checkpoint steps: {args.checkpoint_steps}")
     if args.checkpoint_images:
         print(f"Checkpoint images: {args.checkpoint_images}")
-    if args.depth_safety:
-        print(f"Depth safety: stop={args.depth_stop_m:.2f}m slow={args.depth_slow_m:.2f}m")
     print(f"Tick rate: {args.tick_hz:.2f} Hz")
     print("=" * 60)
 

@@ -455,7 +455,11 @@ async function _pushFrameLoop() {
         fetch("/api/update_frame", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ frame: base64Only }),
+          body: JSON.stringify({
+            frame: base64Only,
+            _bot_uid: String($("#bot_uid").val() || ""),
+            _channel: String($("#channel").val() || ""),
+          }),
         }).catch(() => {});
       }
     } catch (e) {

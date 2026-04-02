@@ -16,8 +16,8 @@ from typing import Optional
 
 @dataclass
 class TemporalLocalizerConfig:
-    top_k: int = 5
-    max_step_jump: int = 15
+    top_k: int = 10
+    max_step_jump: int = 20
     distance_weight: float = 1.0
     jump_penalty: float = 0.05
     backward_penalty: float = 0.15

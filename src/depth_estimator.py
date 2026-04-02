@@ -32,7 +32,7 @@ class DepthEstimator:
     Estimates metric depth (in meters) from a single RGB image.
     """
 
-    def __init__(self, model_size='small', device=None, max_depth=20.0):
+    def __init__(self, model_size='small', device=None, max_depth=None, checkpoint_domain=None):
         """
         Initialize depth estimator.
 
@@ -42,17 +42,23 @@ class DepthEstimator:
                 - base: balanced, ~97M params
                 - large: most accurate, ~335M params
             device: 'cuda' or 'cpu'. Auto-detects if None.
-            max_depth: Maximum depth in meters (default 20m for outdoor)
+            max_depth: Maximum depth in meters.  If None, auto-detected from
+                the checkpoint name (vkitti=80, hypersim=20, fallback=20).
         """
         if device is None:
             self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         else:
             self.device = torch.device(device)
 
-        self.max_depth = max_depth
         self.model_size = model_size
 
-        print(f"Loading Depth Anything V2 ({model_size}) on {self.device}...")
+        # Find checkpoint first so we can infer max_depth from it.
+        checkpoint_path = self._find_checkpoint(model_size, checkpoint_domain=checkpoint_domain)
+        if max_depth is None:
+            max_depth = self._infer_max_depth(checkpoint_path)
+        self.max_depth = max_depth
+
+        print(f"Loading Depth Anything V2 ({model_size}) on {self.device}, max_depth={self.max_depth}...")
 
         # Model configurations
         model_configs = {
@@ -82,8 +88,7 @@ class DepthEstimator:
             max_depth=max_depth
         )
 
-        # Try to load checkpoint
-        checkpoint_path = self._find_checkpoint(model_size)
+        # Load checkpoint
         if checkpoint_path:
             state_dict = torch.load(checkpoint_path, map_location=self.device)
             self.model.load_state_dict(state_dict)
@@ -97,17 +102,23 @@ class DepthEstimator:
         self.model.to(self.device)
         print("Depth estimator ready!")
 
-    def _find_checkpoint(self, model_size):
+    def _find_checkpoint(self, model_size, checkpoint_domain=None):
         """Search for checkpoint file in common locations."""
         base_dir = os.path.join(os.path.dirname(__file__), '..')
         ckpt_dir = os.path.join(base_dir, 'third_party', 'Depth-Anything-V2', 'checkpoints')
         # Map model_size → ViT encoder suffix used in actual HuggingFace filenames
         encoder_map = {'small': 'vits', 'base': 'vitb', 'large': 'vitl'}
         enc = encoder_map.get(model_size, model_size)
-        search_paths = [
-            # Actual HuggingFace filenames (hypersim = indoor metric)
-            os.path.join(ckpt_dir, f'depth_anything_v2_metric_hypersim_{enc}.pth'),
+        metric_search = [
             os.path.join(ckpt_dir, f'depth_anything_v2_metric_vkitti_{enc}.pth'),
+            os.path.join(ckpt_dir, f'depth_anything_v2_metric_hypersim_{enc}.pth'),
+        ]
+        if checkpoint_domain == 'indoor':
+            metric_search = [metric_search[1], metric_search[0]]
+        elif checkpoint_domain == 'outdoor':
+            metric_search = [metric_search[0], metric_search[1]]
+
+        search_paths = metric_search + [
             # Legacy / renamed variants
             os.path.join(ckpt_dir, f'depth_anything_v2_metric_{model_size}.pth'),
             os.path.join(ckpt_dir, f'depth_anything_v2_{model_size}.pth'),
@@ -119,6 +130,22 @@ class DepthEstimator:
             if os.path.exists(path):
                 return path
         return None
+
+    @staticmethod
+    def _infer_max_depth(checkpoint_path) -> float:
+        """Infer the correct max_depth from checkpoint filename.
+
+        Per the Depth Anything V2 metric_depth README:
+          - vkitti  (outdoor driving) → max_depth = 80
+          - hypersim (indoor scenes)  → max_depth = 20
+        """
+        if checkpoint_path is not None:
+            name = os.path.basename(checkpoint_path).lower()
+            if "vkitti" in name:
+                return 80.0
+            if "hypersim" in name:
+                return 20.0
+        return 20.0  # conservative fallback
 
     def estimate(self, image, target_size=None):
         """

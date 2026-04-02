@@ -286,6 +286,130 @@ class EarthRoverInterface:
             'mags': data.get('mags', [])
         }
 
+    # ------------------------------------------------------------------
+    # Mission API
+    # ------------------------------------------------------------------
+
+    def start_mission(self):
+        """Start mission and return checkpoint list sorted by sequence.
+
+        Returns:
+            list of checkpoint dicts (keys: id, sequence, latitude, longitude),
+            or None on failure.
+        """
+        try:
+            response = requests.post(
+                f"{self.base_url}/start-mission",
+                timeout=self.timeout,
+            )
+            if response.status_code == 200:
+                data = response.json()
+                checkpoints = (
+                    data.get("checkpoints_list", {})
+                    .get("checkpoints_list", [])
+                )
+                checkpoints.sort(key=lambda x: x["sequence"])
+                return checkpoints
+            print(f"[mission] start_mission HTTP {response.status_code}: {response.text[:200]}")
+            return None
+        except Exception as exc:
+            print(f"[mission] start_mission error: {exc}")
+            return None
+
+    def checkpoint_reached(self):
+        """Report current checkpoint reached.
+
+        Returns:
+            (True, next_sequence: int)   — server accepted the report
+            (False, reason: str)         — server rejected (too far, etc.)
+        """
+        try:
+            response = requests.post(
+                f"{self.base_url}/checkpoint-reached",
+                json={},
+                timeout=self.timeout,
+            )
+            if response.status_code == 200:
+                data = response.json()
+                return True, data.get("next_checkpoint_sequence")
+            data = response.json()
+            detail = data.get("detail", {})
+            if isinstance(detail, dict):
+                dist = detail.get("proximate_distance_to_checkpoint", "?")
+                return False, f"too_far({dist}m)"
+            return False, str(detail)
+        except Exception as exc:
+            return False, str(exc)
+
+    def get_checkpoints_list(self):
+        """Get current checkpoint list and latest_scanned_checkpoint.
+
+        Returns:
+            dict from SDK, or None on failure.
+        """
+        try:
+            response = requests.get(
+                f"{self.base_url}/checkpoints-list",
+                timeout=self.timeout,
+            )
+            if response.status_code == 200:
+                return response.json()
+            return None
+        except Exception:
+            return None
+
+    def end_mission(self):
+        """Emergency: end mission and release the bot.
+
+        Returns:
+            True if the server acknowledged, False otherwise.
+        """
+        try:
+            response = requests.post(
+                f"{self.base_url}/end-mission",
+                timeout=self.timeout,
+            )
+            return response.status_code == 200
+        except Exception:
+            return False
+
+
+    def start_intervention(self):
+        """Report operator intervention start to the SDK.
+
+        Returns:
+            (True, payload) on success, (False, reason) on failure.
+        """
+        try:
+            response = requests.post(
+                f"{self.base_url}/interventions/start",
+                json={},
+                timeout=self.timeout,
+            )
+            if response.status_code == 200:
+                return True, response.json()
+            return False, response.text[:200]
+        except Exception as exc:
+            return False, str(exc)
+
+    def end_intervention(self):
+        """Report operator intervention end to the SDK.
+
+        Returns:
+            (True, payload) on success, (False, reason) on failure.
+        """
+        try:
+            response = requests.post(
+                f"{self.base_url}/interventions/end",
+                json={},
+                timeout=self.timeout,
+            )
+            if response.status_code == 200:
+                return True, response.json()
+            return False, response.text[:200]
+        except Exception as exc:
+            return False, str(exc)
+
 
 # Quick test if run directly
 if __name__ == "__main__":

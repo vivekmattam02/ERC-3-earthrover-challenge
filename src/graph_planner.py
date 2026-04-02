@@ -17,6 +17,7 @@ class GraphPlannerConfig:
     data_info_json: Optional[Path] = None
     max_subgoal_hops: int = 3
     min_confidence_to_advance: float = 0.55
+    checkpoint_reach_tolerance: int = 3
 
 
 class GraphPlanner:
@@ -135,7 +136,13 @@ class GraphPlanner:
         if current_node is None:
             return False
         confidence = float(localization_result.get("confidence", 0.0))
-        return int(current_node) == int(target_node) and confidence >= self.config.min_confidence_to_advance
+        if confidence < self.config.min_confidence_to_advance:
+            return False
+        cur_step = self.node_to_step.get(int(current_node))
+        tgt_step = self.node_to_step.get(int(target_node))
+        if cur_step is not None and tgt_step is not None:
+            return abs(cur_step - tgt_step) <= self.config.checkpoint_reach_tolerance
+        return int(current_node) == int(target_node)
 
     def plan(
         self,
@@ -156,6 +163,9 @@ class GraphPlanner:
         )
         path_nodes = self.shortest_path(int(current_node), resolved_target)
         if path_nodes is None:
+            # Even with no path (e.g. already past the target in a directed graph),
+            # check if the checkpoint should be considered reached.
+            reached = self.checkpoint_reached(localization_result, resolved_target)
             return {
                 "current_node": int(current_node),
                 "current_step": self.node_to_step.get(int(current_node)),
@@ -168,7 +178,7 @@ class GraphPlanner:
                 "subgoal_image_name": None,
                 "subgoal_image_path": None,
                 "subgoal_metadata": None,
-                "checkpoint_reached": False,
+                "checkpoint_reached": reached,
                 "path_found": False,
                 "path_error": f"no_path:{int(current_node)}->{resolved_target}",
             }

@@ -40,8 +40,8 @@ class CorridorLocalizerConfig:
     database_npz: Path
     cosplace_repo: Optional[Path] = None
     data_info_json: Optional[Path] = None
-    top_k: int = 5
-    max_step_jump: int = 15
+    top_k: int = 10
+    max_step_jump: int = 20
     jump_penalty: float = 0.05
     backward_penalty: float = 0.15
     heading_penalty: float = 0.002
@@ -175,39 +175,78 @@ class CorridorLocalizer:
         self,
         frame_rgb: np.ndarray,
         observation_heading_deg: Optional[float] = None,
+        step_min: Optional[int] = None,
+        step_max: Optional[int] = None,
     ) -> dict:
         image = Image.fromarray(frame_rgb.astype(np.uint8), mode="RGB")
-        return self.localize_pil(image, observation_heading_deg=observation_heading_deg)
+        return self.localize_pil(
+            image,
+            observation_heading_deg=observation_heading_deg,
+            step_min=step_min,
+            step_max=step_max,
+        )
 
     def localize_image_path(
         self,
         image_path: Path,
         observation_heading_deg: Optional[float] = None,
+        step_min: Optional[int] = None,
+        step_max: Optional[int] = None,
     ) -> dict:
         image = Image.open(image_path).convert("RGB")
-        return self.localize_pil(image, observation_heading_deg=observation_heading_deg)
+        return self.localize_pil(
+            image,
+            observation_heading_deg=observation_heading_deg,
+            step_min=step_min,
+            step_max=step_max,
+        )
 
     def localize_pil(
         self,
         image: Image.Image,
         observation_heading_deg: Optional[float] = None,
+        step_min: Optional[int] = None,
+        step_max: Optional[int] = None,
     ) -> dict:
         query_desc = self.encode_pil(image)
-        candidates = descriptor_distance_search(self.descriptors, query_desc, top_k=self.config.top_k)
+        search_top_k = self.config.top_k
+        if step_min is not None or step_max is not None:
+            search_top_k = min(len(self.descriptors), max(self.config.top_k * 40, 200))
+        candidates = descriptor_distance_search(self.descriptors, query_desc, top_k=search_top_k)
 
         candidate_rows = []
         for index, distance in candidates:
             image_name = self.image_names[index]
+            step = self.step_by_index.get(int(index))
+            if step is not None:
+                if step_min is not None and step < step_min:
+                    continue
+                if step_max is not None and step > step_max:
+                    continue
             candidate_rows.append(
                 {
                     "index": int(index),
                     "distance": float(distance),
                     "image_name": image_name,
                     "image_path": self.image_paths[index],
-                    "step": self.step_by_index.get(int(index)),
+                    "step": step,
                     "orientation": self.heading_by_index.get(int(index)),
                 }
             )
+
+        if not candidate_rows and (step_min is not None or step_max is not None):
+            for index, distance in candidates[: self.config.top_k]:
+                image_name = self.image_names[index]
+                candidate_rows.append(
+                    {
+                        "index": int(index),
+                        "distance": float(distance),
+                        "image_name": image_name,
+                        "image_path": self.image_paths[index],
+                        "step": self.step_by_index.get(int(index)),
+                        "orientation": self.heading_by_index.get(int(index)),
+                    }
+                )
 
         self.temporal_localizer.save_state()
         temporal_state = self.temporal_localizer.update(

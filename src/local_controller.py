@@ -20,17 +20,19 @@ class ControlCommand:
 
 @dataclass
 class SimpleLocalControllerConfig:
-    max_linear: float = 0.24
-    min_linear: float = 0.10
+    max_linear: float = 0.40
+    min_linear: float = 0.20
     max_angular: float = 0.34
     min_turn_angular: float = 0.12
     align_turn_angular: float = 0.22
     heading_gain: float = 0.010
     drive_heading_gain: float = 0.0
+    gyro_drive_correction_gain: float = 0.008
+    gyro_drive_correction_deadband_dps: float = 3.0
     step_gain: float = 0.02
     confidence_stop_threshold: float = 0.35
     confidence_slow_threshold: float = 0.6
-    align_enter_threshold_deg: float = 65.0
+    align_enter_threshold_deg: float = 45.0
     align_exit_threshold_deg: float = 20.0
     max_align_ticks: int = 8
     slow_heading_threshold_deg: float = 20.0
@@ -64,6 +66,8 @@ class SimpleLocalController:
         self._last_current_step: Optional[int] = None
         self._no_progress_ticks = 0
         self._turn_direction = 1.0
+        self._align_start_heading_deg: Optional[float] = None
+        self._align_target_delta_deg: Optional[float] = None
 
     def _smooth_heading_error(self, heading_error: float) -> float:
         alpha = self.config.heading_filter_alpha
@@ -113,27 +117,31 @@ class SimpleLocalController:
             self._align_mode = False
             self._align_ticks = 0
             self._previous_angular = 0.0
+            self._align_start_heading_deg = None
+            self._align_target_delta_deg = None
             return ControlCommand(0.0, 0.0, "motion_state_stale_stop")
 
         if confidence < self.config.confidence_stop_threshold:
             self._align_mode = False
             self._align_ticks = 0
+            self._align_start_heading_deg = None
+            self._align_target_delta_deg = None
             return ControlCommand(0.0, 0.0, "low_confidence_stop")
 
         if current_step is None or subgoal_step is None:
             self._align_mode = False
+            self._align_start_heading_deg = None
+            self._align_target_delta_deg = None
             return ControlCommand(0.0, 0.0, "missing_step_info", debug={"confidence": confidence})
 
         step_gap = int(subgoal_step) - int(current_step)
         if step_gap <= 0:
             self._align_mode = False
+            self._align_start_heading_deg = None
+            self._align_target_delta_deg = None
             return ControlCommand(0.0, 0.0, "subgoal_reached_or_behind", debug={"step_gap": step_gap})
 
         self._update_progress_state(int(current_step))
-
-        if motion_state_stale and self.config.motion_stale_stop:
-            self._align_mode = False
-            return ControlCommand(0.0, 0.0, "stale_motion_state_stop", debug={"step_gap": step_gap})
 
         heading_reference = observation_heading_deg
         if heading_reference is None:
@@ -150,16 +158,31 @@ class SimpleLocalController:
             if held_previous:
                 linear *= self.config.held_previous_linear_scale
             self._previous_angular = 0.0
+            self._align_start_heading_deg = None
+            self._align_target_delta_deg = None
             linear = max(self.config.min_linear, linear)
             return ControlCommand(linear, 0.0, "no_heading_forward_crawl")
 
+        desired_turn_delta = None
+        if current_orientation is not None and subgoal_orientation is not None:
+            desired_turn_delta = wrap_angle_deg(float(subgoal_orientation) - float(current_orientation))
+
         raw_heading_error = wrap_angle_deg(float(subgoal_orientation) - float(heading_reference))
+        if self._align_mode and observation_heading_deg is not None and self._align_start_heading_deg is not None and self._align_target_delta_deg is not None:
+            turned_so_far = wrap_angle_deg(float(observation_heading_deg) - float(self._align_start_heading_deg))
+            raw_heading_error = wrap_angle_deg(float(self._align_target_delta_deg) - turned_so_far)
+        elif desired_turn_delta is not None:
+            raw_heading_error = desired_turn_delta
+
         heading_error = self._smooth_heading_error(raw_heading_error)
 
         if self._align_mode:
             self._align_mode = abs(heading_error) > self.config.align_exit_threshold_deg
         else:
             self._align_mode = abs(heading_error) > self.config.align_enter_threshold_deg
+            if self._align_mode:
+                self._align_start_heading_deg = observation_heading_deg
+                self._align_target_delta_deg = desired_turn_delta
 
         if self._align_mode and self._align_ticks >= self.config.max_align_ticks:
             self._align_mode = False
@@ -177,6 +200,8 @@ class SimpleLocalController:
 
         self._align_ticks = 0
         self._previous_angular = 0.0
+        self._align_start_heading_deg = None
+        self._align_target_delta_deg = None
 
         desired_linear = min(
             self.config.max_linear,
@@ -184,7 +209,15 @@ class SimpleLocalController:
         )
 
         linear = desired_linear
+
+        # Gyro-based heading correction: counteract unwanted rotation
+        # during forward drive.  Compass is disabled indoors, so this is
+        # the only course-correction signal.
         angular = 0.0
+        if abs(heading_rate_dps) > self.config.gyro_drive_correction_deadband_dps:
+            angular = -self.config.gyro_drive_correction_gain * heading_rate_dps
+            angular = max(-self.config.max_angular * 0.5,
+                          min(self.config.max_angular * 0.5, angular))
 
         if confidence < self.config.confidence_slow_threshold:
             linear *= self.config.low_confidence_linear_scale

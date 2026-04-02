@@ -99,6 +99,46 @@ app.mount("/static", StaticFiles(directory="./static"), name="static")
 browser_service = BrowserService()
 
 
+def _fresh_data_cache():
+    return {"last_update": 0}
+
+
+def _fresh_frame_cache():
+    return {"last_update": 0, "frame": None}
+
+
+async def reset_live_runtime_state(close_browser: bool = False):
+    """Clear cached auth / telemetry / frame state between mission sessions."""
+    global auth_response_data, checkpoints_list_data
+    global simple_data_cache, simple_frame_cache, pending_control
+
+    auth_response_data = {}
+    checkpoints_list_data = {}
+    simple_data_cache = _fresh_data_cache()
+    simple_frame_cache = _fresh_frame_cache()
+    pending_control = {"command": None, "timestamp": 0}
+
+    if close_browser:
+        await browser_service.close_browser()
+
+
+def payload_matches_active_session(data: dict) -> bool:
+    """Accept JS-pushed telemetry/frames only from the active bot/channel."""
+    if not auth_response_data:
+        return True
+
+    expected_bot_uid = str(auth_response_data.get("BOT_UID", "") or "")
+    expected_channel = str(auth_response_data.get("CHANNEL_NAME", "") or "")
+    payload_bot_uid = str(data.get("_bot_uid", "") or "")
+    payload_channel = str(data.get("_channel", "") or "")
+
+    if expected_bot_uid and payload_bot_uid != expected_bot_uid:
+        return False
+    if expected_channel and payload_channel != expected_channel:
+        return False
+    return True
+
+
 async def auth_common():
     global auth_response_data
     auth_response_data = get_env_tokens()
@@ -172,9 +212,13 @@ async def start_ride(headers, bot_slug, mission_slug):
     )
 
     if start_ride_response.status_code != 200:
+        try:
+            upstream_detail = start_ride_response.json()
+        except Exception:
+            upstream_detail = start_ride_response.text[:200]
         raise HTTPException(
             status_code=start_ride_response.status_code,
-            detail="Bot unavailable for SDK",
+            detail={"error": "start_ride failed", "upstream_status": start_ride_response.status_code, "upstream": upstream_detail},
         )
 
     return start_ride_response.json()
@@ -292,10 +336,11 @@ async def start_mission():
             detail=f"Missing required environment variables: {', '.join(missing_vars)}",
         )
 
-    if not auth_response_data:
-        await auth()
-    if not checkpoints_list_data:
-        await get_checkpoints_list()
+    # Always start a fresh mission session. This prevents stale auth/browser/cache
+    # state from a previous bot or browser tab from leaking into the new run.
+    await reset_live_runtime_state(close_browser=True)
+    await auth()
+    await get_checkpoints_list()
     return JSONResponse(
         status_code=200,
         content={
@@ -327,10 +372,7 @@ async def end_mission():
 
     try:
         end_ride_response = await end_ride(headers, bot_slug, mission_slug)
-        # Clear the stored auth and checkpoints data
-        global auth_response_data, checkpoints_list_data
-        auth_response_data = {}
-        checkpoints_list_data = {}
+        await reset_live_runtime_state(close_browser=True)
         return JSONResponse(content={"message": "Mission ended successfully"})
     except HTTPException as e:
         raise e
@@ -490,6 +532,12 @@ async def update_data(request: Request):
     global simple_data_cache
     import time
     data = await request.json()
+    if not isinstance(data, dict):
+        raise HTTPException(status_code=400, detail="Telemetry payload must be a JSON object")
+    if not payload_matches_active_session(data):
+        return JSONResponse(status_code=202, content={"status": "ignored", "reason": "session_mismatch"})
+    data.pop("_bot_uid", None)
+    data.pop("_channel", None)
     data["last_update"] = time.time()
     simple_data_cache = data
     return JSONResponse(content={"status": "ok"})
@@ -500,6 +548,10 @@ async def update_frame(request: Request):
     global simple_frame_cache
     import time
     data = await request.json()
+    if not isinstance(data, dict):
+        raise HTTPException(status_code=400, detail="Frame payload must be a JSON object")
+    if not payload_matches_active_session(data):
+        return JSONResponse(status_code=202, content={"status": "ignored", "reason": "session_mismatch"})
     simple_frame_cache = {
         "frame": data.get("frame"),
         "last_update": time.time()

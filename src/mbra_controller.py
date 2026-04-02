@@ -42,8 +42,8 @@ from utils_logonav import load_model, to_numpy, transform_images, transform_imag
 class MBRALocalControllerConfig:
     weights_path: Path = REPO_ROOT / "mbra_repo" / "deployment" / "model_weights" / "mbra.pth"
     model_config_path: Path = REPO_ROOT / "mbra_repo" / "train" / "config" / "MBRA.yaml"
-    max_linear: float = 0.24
-    min_linear: float = 0.10
+    max_linear: float = 0.40
+    min_linear: float = 0.18
     max_angular: float = 0.34
     min_confidence: float = 0.45
     low_confidence_linear_scale: float = 0.7
@@ -125,9 +125,12 @@ class MBRALocalController:
         if observation_rgb is None or subgoal_image_rgb is None:
             return ControlCommand(0.0, 0.0, "mbra_missing_images")
 
-        self._obs_history.append(self._to_pil(observation_rgb))
+        obs_pil = self._to_pil(observation_rgb)
+        self._obs_history.append(obs_pil)
         if len(self._obs_history) < self.context_size + 1:
-            return ControlCommand(0.0, 0.0, "mbra_warmup")
+            # Pre-fill context with copies of current frame so MBRA starts immediately
+            while len(self._obs_history) < self.context_size + 1:
+                self._obs_history.appendleft(obs_pil)
 
         # Observation: context_size+1 images → [1, 3*(context_size+1), 96, 96]
         obs_tensor = transform_images_mbra(list(self._obs_history)).to(self.device)
@@ -154,10 +157,9 @@ class MBRALocalController:
         linear_cmd = float(np.clip(linear_cmd, 0.0, self.config.max_linear))
         angular_cmd = float(np.clip(angular_cmd, -self.config.max_angular, self.config.max_angular))
 
-        # Enforce minimum forward speed — same principle as the simple controller.
-        # Without this, MBRA can output near-zero linear when current and goal
-        # views look similar (corridor aliasing), causing the robot to stall.
-        # Stalled robot → stale context frames → model keeps stalling = deadlock.
-        linear_cmd = max(self.config.min_linear, linear_cmd)
+        # Allow MBRA to output low/zero linear — it may be stopping intentionally
+        # for obstacles or confusion. Forcing forward causes crashes.
+        if linear_cmd < 0.02:
+            linear_cmd = 0.0
 
         return ControlCommand(linear_cmd, angular_cmd, "mbra_controller")

@@ -107,10 +107,14 @@ class NavigationRuntime:
         observation_heading_deg: Optional[float] = None,
         hops_ahead: Optional[int] = None,
         load_subgoal_image: bool = True,
+        localization_step_min: Optional[int] = None,
+        localization_step_max: Optional[int] = None,
     ) -> dict:
         localization = self.localizer.localize_frame(
             frame_rgb,
             observation_heading_deg=observation_heading_deg,
+            step_min=localization_step_min,
+            step_max=localization_step_max,
         )
         plan = self.planner.plan(
             localization,
@@ -151,10 +155,14 @@ class NavigationRuntime:
         hops_ahead: Optional[int] = None,
         load_subgoal_image: bool = True,
         auto_advance_checkpoint: bool = False,
+        localization_step_min: Optional[int] = None,
+        localization_step_max: Optional[int] = None,
     ) -> dict:
         localization = self.localizer.localize_frame(
             frame_rgb,
             observation_heading_deg=observation_heading_deg,
+            step_min=localization_step_min,
+            step_max=localization_step_max,
         )
         plan = self.planner.plan_to_active_checkpoint(localization, hops_ahead=hops_ahead)
         if auto_advance_checkpoint and plan["checkpoint_reached"]:

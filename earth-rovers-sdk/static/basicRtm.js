@@ -43,7 +43,11 @@ $(document).ready(function () {
     fetch("/api/update_data", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(controls),
+      body: JSON.stringify({
+        ...controls,
+        _bot_uid: String(botUid || ""),
+        _channel: String(channelName || ""),
+      }),
     }).catch(() => {});
 
     console.log(
