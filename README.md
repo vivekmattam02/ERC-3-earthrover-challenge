@@ -1,95 +1,71 @@
 # ERC-3 EarthRover Challenge
 
-Standalone indoor-navigation workspace for the NYU EarthRover Challenge effort.
+This repository contains the rover runtime, controller wrappers, safety modules, and supporting scripts for the NYU EarthRover Challenge.
 
-This directory is meant to be pushed, cloned, and worked on as its own project. It should not depend on files outside this directory.
+The goal of the workspace is simple:
+- run the indoor stack cleanly
+- run the outdoor stack safely
+- keep the project self-contained
+- keep large data and model files out of git
 
-## What Is In Here
+## Repository Layout
 
-- `earth-rovers-sdk/`: FrodoBots / EarthRover browser + FastAPI bridge.
-- `mbra_repo/`: MBRA / LogoNav research code. MBRA is the relabeling expert from the paper; LogoNav is the deployed-policy side of that codebase.
-- `src/`: shared runtime modules copied for this project, including rover interface and safety helpers.
-- `third_party/Depth-Anything-V2/`: vendored depth-estimation dependency for optional runtime safety.
-- `models/`: local checkpoint location for project-specific model files.
+- `earth-rovers-sdk/`: browser and FastAPI bridge for the rover
+- `src/`: shared runtime modules, controllers, localization, and safety code
+- `scripts/`: calibration, diagnostics, and evaluation helpers
+- `mbra_repo/`: local copy of the MBRA / LogoNav research workspace
+- `third_party/Depth-Anything-V2/`: vendored depth-estimation dependency
+- `models/`: local model checkpoints and project-specific weights
+- `docs/`: written reports and technical notes
 
-## Local Setup
+## Current System
 
-### 1. Clone the repo and enter this directory
+- Indoor: MBRA with corridor localization and checkpoint-step progression
+- Outdoor: LogoNav with OSM-expanded waypoints and runtime safety layers
+- Marathon: outdoor runtime with stricter safety and recovery handling
+
+## Setup
+
+1. Clone the repo and enter the workspace.
 
 ```bash
 cd ERC-3-earthrover-challenge
 ```
 
-### 2. Create your local SDK config
-
-Do not commit a real `.env` file. Each teammate must create their own local copy:
+2. Create the local SDK config.
 
 ```bash
 cp earth-rovers-sdk/.env.sample earth-rovers-sdk/.env
 ```
 
-Then edit `earth-rovers-sdk/.env` with your actual SDK values:
+Edit `earth-rovers-sdk/.env` with your local values.
+Do not commit that file.
 
-- `SDK_API_TOKEN`
-- `BOT_SLUG`
-- `CHROME_EXECUTABLE_PATH`
-- `MAP_ZOOM_LEVEL`
-- `MISSION_SLUG`
+3. Put model weights in the expected local directories.
 
-The committed file is only the template: `earth-rovers-sdk/.env.sample`
+- MBRA / LogoNav weights: `mbra_repo/deployment/model_weights/`
+- Project checkpoints: `models/`
+- Depth Anything V2 checkpoints: `third_party/Depth-Anything-V2/checkpoints/`
 
-The local file is ignored by git: `earth-rovers-sdk/.env`
-
-### 3. Place model weights locally
-
-This repo contains code and weight directories, but not the actual large checkpoints.
-
-Expected locations:
-
-- MBRA / LogoNav experiment and deployment weights:
-  - `mbra_repo/deployment/model_weights/`
-- Project-level checkpoints:
-  - `models/`
-- Optional depth checkpoints for safety:
-  - `third_party/Depth-Anything-V2/checkpoints/`
-
-### 4. Verify the workspace
-
-Run:
+4. Verify the workspace.
 
 ```bash
 python3 verify_workspace.py
 ```
 
-The script checks:
+## Working Rules
 
-- required folders and files exist
-- the local SDK `.env` exists and is not still using placeholder values
-- runtime weight directories exist and contain checkpoints
-- no hardcoded parent-repo paths remain in important project files
-
-If the script exits nonzero, the setup is not ready yet.
-
-## Path Discipline
-
-This workspace should be treated as a standalone project.
-
-- New code should use paths relative to this directory.
-- Do not add imports or runtime dependencies that reach back into the parent repo.
 - Keep secrets out of git.
-- Keep large checkpoints local or in approved artifact storage, not committed directly.
+- Keep large checkpoints out of git.
+- Treat this repo as standalone.
+- Use relative paths inside the workspace.
+- Do not depend on files outside this directory unless they are explicitly vendored here.
 
-## Current Intended Stack
+## Notes
 
-- Global navigation: topological graph + visual localization
-- Local control: a validated online short-horizon controller, with MBRA / LogoNav as the main research reference
-- Safety: conservative override layer, optionally with depth and pedestrian checks
-- Goal completion: separate image-based checkpoint verification
+- The main engineering work in this repo is split between indoor and outdoor autonomy.
+- The indoor stack is centered on localization, graph progression, and MBRA.
+- The outdoor stack is centered on LogoNav, mission checkpoints, route expansion, and safety layers.
+- The `.tex` files in `docs/` are technical reports and story-style writeups.
+- The Markdown files are for quick reference and operator notes.
 
-## Important Notes
-
-- `mbra_repo/` here is a copied workspace version, not the original root copy.
-- The local `.env` is intentionally not committed.
-- Training configs inside `mbra_repo/train/config/` still contain dataset placeholders; that is expected.
-- `verify_workspace.py` is the first check teammates should run after cloning.
-# ERC-3-earthrover-challenge

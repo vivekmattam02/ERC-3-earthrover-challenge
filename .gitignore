@@ -13,6 +13,7 @@ venv/
 
 # Local secrets / machine-specific config
 earth-rovers-sdk/.env
+CLAUDE.md
 
 # Runtime outputs
 *.log
@@ -31,10 +32,12 @@ chat_session_reconstructed.md
 codex_handoff_prompt.md
 professor_presentation_2026_03_31_notes.md
 professor_presentation_*_notes.md
+professor_presentation_*.tex
+competition_technical_report_*.tex
+nyutemplate/
 
 # Local extra clones / side worktrees
 nyu-earthrover-main/
-nyutemplate/
 nyu_template/
 
 # Generated baseline artifacts and experiment outputs
@@ -43,6 +46,11 @@ outputs/
 runs/
 data/
 recordings/
+scripts/semantic_corridor_debug/
+scripts/semantic_debug/
+scripts/semantic_debug_v2/
+scripts/trav_debug/
+test_outdoor/
 *.npz
 *.npy
 *.mp4
