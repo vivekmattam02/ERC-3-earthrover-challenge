@@ -1,0 +1,33 @@
+# ERC-3 Obsidian Vault
+
+Master note:
+- [[erc3_full_documentation]]
+
+Converted notes:
+- [[competition_results]]
+- [[competition_technical_report_2026_03_31]]
+- [[docs/current_codebase_deep_read]]
+- [[docs/discoveries]]
+- [[docs/indoor_navigation_strategy]]
+- [[docs/known_corridor_runtime_plan]]
+- [[docs/laserfocus]]
+- [[docs/march19]]
+- [[docs/nyu_indoor_track]]
+- [[docs/our_approach]]
+- [[docs/our_mbra_discoveries]]
+- [[docs/stack_breakdown]]
+- [[docs/team_start_here]]
+- [[erc3_full_documentation]]
+- [[final_system_overview]]
+- [[live_indoor_runtime_story]]
+- [[live_outdoor_runtime_explained]]
+- [[live_outdoor_ultra_marathon_story]]
+- [[nyutemplate/document]]
+- [[nyutemplate/main]]
+- [[nyutemplate/professor_presentation_nyu]]
+- [[nyutemplate/professor_presentation_nyu_cheatsheet]]
+- [[nyutemplate/professor_presentation_nyu_notes_detailed]]
+- [[nyutemplate/professor_presentation_nyu_speaker_notes]]
+- [[outdoor_perception_review]]
+- [[professor_presentation_2026_03_31]]
+- [[semantic_segmentation_research_review]]
