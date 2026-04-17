@@ -1,9 +1,32 @@
 # ERC-3 Obsidian Vault
 
-Master note:
-- [[erc3_full_documentation]]
+Primary entry points:
 
-Converted notes:
+- [[00 Home/Vault Home]]
+- [[erc3_full_documentation]]
+- [[01 Source of Truth/Source of Truth Map]]
+
+Personal notes:
+
+- [[03 Personal Notes/Current Truth]]
+- [[03 Personal Notes/Architecture in My Words]]
+- [[03 Personal Notes/Things I Keep Forgetting]]
+
+Run and failure notes:
+
+- [[04 Runs and Failures/Run Outcomes]]
+- [[04 Runs and Failures/Marathon Failure - What Actually Happened]]
+
+Core concepts:
+
+- [[02 Core Concepts/MBRA vs LogoNav]]
+
+Archive:
+
+- [[90 Archive/Archive Map]]
+
+Converted long-form notes:
+
 - [[competition_results]]
 - [[competition_technical_report_2026_03_31]]
 - [[docs/current_codebase_deep_read]]
@@ -17,17 +40,17 @@ Converted notes:
 - [[docs/our_mbra_discoveries]]
 - [[docs/stack_breakdown]]
 - [[docs/team_start_here]]
-- [[erc3_full_documentation]]
 - [[final_system_overview]]
 - [[live_indoor_runtime_story]]
 - [[live_outdoor_runtime_explained]]
 - [[live_outdoor_ultra_marathon_story]]
-- [[nyutemplate/document]]
-- [[nyutemplate/main]]
+- [[outdoor_perception_review]]
+- [[semantic_segmentation_research_review]]
+
+Presentation notes:
+
+- [[professor_presentation_2026_03_31]]
 - [[nyutemplate/professor_presentation_nyu]]
 - [[nyutemplate/professor_presentation_nyu_cheatsheet]]
 - [[nyutemplate/professor_presentation_nyu_notes_detailed]]
 - [[nyutemplate/professor_presentation_nyu_speaker_notes]]
-- [[outdoor_perception_review]]
-- [[professor_presentation_2026_03_31]]
-- [[semantic_segmentation_research_review]]
