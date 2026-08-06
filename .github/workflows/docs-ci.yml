@@ -1,0 +1,43 @@
+name: docs-ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  docs-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install TeX toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            latexmk \
+            texlive-latex-base \
+            texlive-latex-extra \
+            texlive-fonts-recommended
+
+      - name: TeX lint
+        run: python3 scripts/docs/lint_tex_docs.py
+
+      - name: Link check
+        run: python3 scripts/docs/check_links.py
+
+      - name: Command reference check
+        run: python3 scripts/docs/check_command_references.py
+
+      - name: Build master documentation
+        run: |
+          latexmk -pdf -interaction=nonstopmode -halt-on-error erc3_full_documentation.tex
+

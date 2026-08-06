@@ -363,6 +363,19 @@ def attach_actions_to_graph(graph: nx.Graph, action_edges: list[tuple[int, int, 
     for node, attrs in graph.nodes(data=True):
         nav_graph.add_node(node, **attrs)
 
+    # Always preserve the forward sequence chain as a directed backbone.
+    # Manual collection bags often have no teleop control logs, which means
+    # action_edges will be empty. Without a directed fallback chain, the
+    # navigation graph becomes disconnected and the live runtime cannot plan.
+    for u, v, attrs in graph.edges(data=True):
+        if not attrs.get("sequence", False):
+            continue
+        src, dst = (int(u), int(v)) if int(u) <= int(v) else (int(v), int(u))
+        if nav_graph.has_edge(src, dst):
+            nav_graph[src][dst]["sequence_default"] = True
+        else:
+            nav_graph.add_edge(src, dst, actions=[], sequence_default=True)
+
     for u, v, actions in action_edges:
         if nav_graph.has_edge(u, v):
             merged = sorted(set(nav_graph[u][v].get("actions", [])) | set(actions))

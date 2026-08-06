@@ -30,6 +30,35 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-dir", type=Path, required=True, help="Directory to write the extracted dataset.")
     parser.add_argument("--frame-step", type=int, default=1, help="Keep every Nth front frame.")
     parser.add_argument(
+        "--start-time-sec",
+        type=float,
+        default=None,
+        help="Optional relative start time in seconds from the first front frame.",
+    )
+    parser.add_argument(
+        "--end-time-sec",
+        type=float,
+        default=None,
+        help="Optional relative end time in seconds from the first front frame.",
+    )
+    parser.add_argument(
+        "--auto-trim-motion",
+        action="store_true",
+        help="Automatically trim to the first/last non-trivial RPM motion window.",
+    )
+    parser.add_argument(
+        "--motion-rpm-threshold",
+        type=float,
+        default=1.0,
+        help="Absolute summed RPM threshold used by --auto-trim-motion.",
+    )
+    parser.add_argument(
+        "--motion-pad-sec",
+        type=float,
+        default=2.0,
+        help="Seconds of padding before and after the detected motion window.",
+    )
+    parser.add_argument(
         "--image-ext",
         choices=["png", "jpg", "jpeg"],
         default="png",
@@ -97,6 +126,64 @@ def normalize_timestamps(timestamps: np.ndarray) -> np.ndarray:
         return np.array([], dtype=np.float64)
     base = float(timestamps[0])
     return timestamps.astype(np.float64) - base
+
+
+def compute_motion_time_window(
+    front_frame_timestamps: np.ndarray,
+    rpms: np.ndarray,
+    rpm_threshold: float,
+    pad_sec: float,
+) -> tuple[float, float] | None:
+    if len(front_frame_timestamps) == 0 or len(rpms) == 0:
+        return None
+
+    motion_strength = (
+        np.abs(rpms["front_left"])
+        + np.abs(rpms["front_right"])
+        + np.abs(rpms["rear_left"])
+        + np.abs(rpms["rear_right"])
+    )
+    moving = motion_strength > float(rpm_threshold)
+    if not np.any(moving):
+        return None
+
+    rpm_times = rpms["t"].astype(np.float64)
+    rpm_times_rel = normalize_timestamps(rpm_times)
+    start_ts = float(rpm_times_rel[np.argmax(moving)]) - float(pad_sec)
+    end_ts = float(rpm_times_rel[len(moving) - 1 - np.argmax(moving[::-1])]) + float(pad_sec)
+
+    start_rel = max(0.0, start_ts)
+    end_rel = max(start_rel, end_ts)
+    return start_rel, end_rel
+
+
+def slice_by_time_field(dataset: np.ndarray, field_name: str, start_sec: float | None, end_sec: float | None) -> np.ndarray:
+    if len(dataset) == 0:
+        return dataset
+    values = normalize_timestamps(dataset[field_name].astype(np.float64))
+    mask = np.ones(len(dataset), dtype=bool)
+    if start_sec is not None:
+        mask &= values >= float(start_sec)
+    if end_sec is not None:
+        mask &= values <= float(end_sec)
+    return dataset[mask]
+
+
+def slice_frames_by_time(
+    frame_bytes: np.ndarray,
+    frame_timestamps: np.ndarray,
+    start_sec: float | None,
+    end_sec: float | None,
+) -> tuple[np.ndarray, np.ndarray]:
+    if len(frame_timestamps) == 0:
+        return frame_bytes, frame_timestamps
+    values = normalize_timestamps(frame_timestamps.astype(np.float64))
+    mask = np.ones(len(frame_timestamps), dtype=bool)
+    if start_sec is not None:
+        mask &= values >= float(start_sec)
+    if end_sec is not None:
+        mask &= values <= float(end_sec)
+    return frame_bytes[mask], frame_timestamps[mask]
 
 
 def build_action_strings(control: np.void | None) -> list[str]:
@@ -199,6 +286,8 @@ def build_summary(
     mags: np.ndarray,
     rpms: np.ndarray,
     frame_step: int,
+    trim_start_sec: float | None,
+    trim_end_sec: float | None,
 ) -> dict[str, Any]:
     frame_rate = None
     if len(frame_rows) > 1:
@@ -229,6 +318,8 @@ def build_summary(
     return {
         "input_h5": str(input_h5.resolve()),
         "frame_step": frame_step,
+        "trim_start_sec": trim_start_sec,
+        "trim_end_sec": trim_end_sec,
         "num_front_frames_kept": len(frame_rows),
         "num_controls": int(len(controls)),
         "num_telemetry": int(len(telemetry)),
@@ -264,6 +355,44 @@ def main() -> None:
         telemetry = handle["telemetry"][:]
         front_frame_data = handle["front_frames/data"][:]
         front_frame_timestamps = handle["front_frames/timestamps"][:]
+
+    trim_start_sec = args.start_time_sec
+    trim_end_sec = args.end_time_sec
+    if args.auto_trim_motion:
+        motion_window = compute_motion_time_window(
+            front_frame_timestamps=front_frame_timestamps,
+            rpms=rpms,
+            rpm_threshold=args.motion_rpm_threshold,
+            pad_sec=args.motion_pad_sec,
+        )
+        if motion_window is None:
+            raise RuntimeError("No non-trivial RPM motion window found for --auto-trim-motion")
+        motion_start_sec, motion_end_sec = motion_window
+        trim_start_sec = motion_start_sec if trim_start_sec is None else max(trim_start_sec, motion_start_sec)
+        trim_end_sec = motion_end_sec if trim_end_sec is None else min(trim_end_sec, motion_end_sec)
+
+    if trim_start_sec is not None and trim_start_sec < 0:
+        raise ValueError("--start-time-sec must be >= 0")
+    if trim_end_sec is not None and trim_end_sec < 0:
+        raise ValueError("--end-time-sec must be >= 0")
+    if trim_start_sec is not None and trim_end_sec is not None and trim_end_sec < trim_start_sec:
+        raise ValueError("--end-time-sec must be >= --start-time-sec")
+
+    front_frame_data, front_frame_timestamps = slice_frames_by_time(
+        front_frame_data,
+        front_frame_timestamps,
+        trim_start_sec,
+        trim_end_sec,
+    )
+    controls = slice_by_time_field(controls, "timestamp", trim_start_sec, trim_end_sec)
+    telemetry = slice_by_time_field(telemetry, "timestamp", trim_start_sec, trim_end_sec)
+    accels = slice_by_time_field(accels, "t", trim_start_sec, trim_end_sec)
+    gyros = slice_by_time_field(gyros, "t", trim_start_sec, trim_end_sec)
+    mags = slice_by_time_field(mags, "t", trim_start_sec, trim_end_sec)
+    rpms = slice_by_time_field(rpms, "t", trim_start_sec, trim_end_sec)
+
+    if len(front_frame_timestamps) == 0:
+        raise RuntimeError("No front frames remain after applying the requested trim window")
 
     frame_rows, data_info = export_front_frames(
         frame_bytes=front_frame_data,
@@ -333,6 +462,8 @@ def main() -> None:
         mags=mags,
         rpms=rpms,
         frame_step=args.frame_step,
+        trim_start_sec=trim_start_sec,
+        trim_end_sec=trim_end_sec,
     )
     with (metadata_dir / "summary.json").open("w", encoding="utf-8") as handle:
         json.dump(summary, handle, indent=2)

@@ -23,6 +23,16 @@ from imu_safety import IMUSafetyMonitor  # type: ignore
 from vision_safety_monitor import VisionSafetyConfig, VisionSafetyMonitor  # type: ignore
 
 
+def is_valid_latlon(lat: float, lon: float) -> bool:
+    return (
+        math.isfinite(lat)
+        and math.isfinite(lon)
+        and -80.0 <= float(lat) <= 84.0
+        and -180.0 <= float(lon) <= 180.0
+        and not (float(lat) == 0.0 and float(lon) == 0.0)
+    )
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Validate SDK, mission, sensors, and routing before an outdoor ultra-marathon run.")
     parser.add_argument("--sdk-url", default="http://localhost:8000", help="EarthRover SDK base URL.")
@@ -94,7 +104,7 @@ def main() -> int:
         lon = float(data.get("longitude"))
     except Exception:
         return fail("Latitude/longitude missing from telemetry.")
-    if not (math.isfinite(lat) and math.isfinite(lon)) or lat == 0.0 or lon == 0.0:
+    if not is_valid_latlon(lat, lon):
         return fail(f"GPS is not live yet: ({lat}, {lon})")
     ok(f"GPS live: ({lat:.6f}, {lon:.6f})")
 

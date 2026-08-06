@@ -20,6 +20,18 @@ This note is the shortest clean summary of how the project actually performed.
 - achieved: first checkpoint reached
 - failure: transition-spin instability and platform tipping risk
 
+## Current Off-Road Branch
+
+- target: no-GPS repeated-route autonomy on rough terrain
+- achieved: manual bag collection, prepared routes, front-camera live localization, and sent motion commands
+- field result: no reliable autonomous repeat yet; runs repeatedly stalled near startup steps and cycled through relocalization behavior
+- current limitation: reference/start mismatch, localization stability, and terrain recovery matter more than adding modules
+- strongest coverage/reference candidate: `smoke_run01_c`
+- current best post-processed comparison route: `run_01_1521_pp_v3`
+
+See [[01 Source of Truth/No-GPS Field Trial - Findings]] for the evidence and
+the required proof before calling this branch field-ready.
+
 ## Best Supporting Notes
 
 - [[competition_results]]

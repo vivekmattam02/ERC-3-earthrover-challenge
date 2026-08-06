@@ -40,6 +40,16 @@ LatLon = tuple[float, float]
 TargetItem = dict[str, Any]
 
 
+def is_valid_latlon(lat: float, lon: float) -> bool:
+    return (
+        math.isfinite(lat)
+        and math.isfinite(lon)
+        and -80.0 <= float(lat) <= 84.0
+        and -180.0 <= float(lon) <= 180.0
+        and not (float(lat) == 0.0 and float(lon) == 0.0)
+    )
+
+
 def wrap_angle_rad(delta: float) -> float:
     return (delta + math.pi) % (2.0 * math.pi) - math.pi
 
@@ -347,9 +357,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sdk-timeout", type=float, default=10.0, help="SDK request timeout in seconds.")
     parser.add_argument("--send-control", action="store_true", help="Actually send commands to the robot.")
     parser.add_argument("--print-json", action="store_true", help="Print each loop state as JSON.")
+    parser.add_argument("--log-dir", type=Path, default=None, help="Optional directory to save run metadata, per-tick JSONL, and event records for later analysis.")
     parser.add_argument("--goal-radius-m", type=float, default=8.0, help="Distance threshold for checkpoint reach.")
     parser.add_argument("--intermediate-goal-radius-m", type=float, default=3.0, help="Maximum distance threshold for routed intermediate waypoint updates. The runtime further tightens this dynamically from actual waypoint spacing so it does not skip ahead too early.")
-    parser.add_argument("--checkpoint-confirm-ticks", type=int, default=1, help="How many consecutive ticks inside radius are required.")
+    parser.add_argument("--checkpoint-confirm-ticks", type=int, default=2, help="How many consecutive ticks inside radius are required.")
     parser.add_argument("--max-linear", type=float, default=0.38, help="Controller max linear speed.")
     parser.add_argument("--min-linear", type=float, default=0.08, help="Controller min forward speed.")
     parser.add_argument("--nominal-linear", type=float, default=0.33, help="Nominal cruise speed.")
@@ -372,6 +383,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--logonav-align-min-angular", type=float, default=0.18, help="LogoNav: minimum angular command while turn-priority mode is active.")
     parser.add_argument("--logonav-align-distance-m", type=float, default=6.0, help="LogoNav: only force turn-priority below this waypoint distance unless bearing error is very large.")
     parser.add_argument("--logonav-align-extreme-deg", type=float, default=60.0, help="LogoNav: always allow turn-priority above this bearing error, even for farther waypoints.")
+    parser.add_argument("--logonav-align-max-ticks", type=int, default=14, help="LogoNav: maximum consecutive align ticks before forcing recovery/reroute instead of spinning indefinitely.")
     parser.add_argument("--osm-prune-behind-waypoints", action="store_true", help="Drop initial routed waypoints that are very close and behind the rover after OSM re-routing.")
     parser.add_argument("--osm-prune-behind-distance-m", type=float, default=18.0, help="Maximum distance for pruning a behind-the-rover initial waypoint after OSM routing or waypoint handoff.")
     parser.add_argument("--osm-prune-behind-bearing-deg", type=float, default=100.0, help="Prune initial routed waypoints if they lie farther than this angle behind the rover heading.")
@@ -633,6 +645,8 @@ def main() -> int:
         args.stuck_command_linear = min(args.stuck_command_linear, 0.08)
         if args.logonav_device == "cpu":
             args.logonav_device = "auto"
+    if args.ultra_marathon or args.night_safe:
+        args.operator_confirm_hard_stop = True
     if args.no_reverse:
         args.recovery_reverse_ticks = 0
         args.recovery_reverse_linear = 0.0
@@ -683,11 +697,7 @@ def main() -> int:
                     _lat = float(_d.get("latitude", float("nan")))
                     _lon = float(_d.get("longitude", float("nan")))
                     _ts = float(_d.get("timestamp", 0.0))
-                    if (
-                        math.isfinite(_lat) and math.isfinite(_lon)
-                        and _lat != 0.0 and _lon != 0.0
-                        and _last_ts is not None and _ts > _last_ts
-                    ):
+                    if is_valid_latlon(_lat, _lon) and _last_ts is not None and _ts > _last_ts:
                         _telemetry_ready = True
                         print(f"[mission] telemetry live — GPS=({_lat:.6f},{_lon:.6f}) ts={_ts:.3f}")
                         break
@@ -733,7 +743,7 @@ def main() -> int:
         try:
             start_lat = float(startup_data.get("latitude"))
             start_lon = float(startup_data.get("longitude"))
-            if math.isfinite(start_lat) and math.isfinite(start_lon):
+            if is_valid_latlon(start_lat, start_lon):
                 startup_latlon = (start_lat, start_lon)
         except Exception:
             startup_latlon = None
@@ -768,7 +778,10 @@ def main() -> int:
                 dist = math.hypot(dx, dy)
                 bear = math.atan2(dy, dx)
                 err_deg = abs(math.degrees(wrap_angle_rad(bear - current_heading_rad_for_prune)))
-                if dist <= args.osm_prune_behind_distance_m and err_deg >= args.osm_prune_behind_bearing_deg and not bool(item0.get("mission_checkpoint", False)):
+                _behind_bearing_deg = args.osm_prune_behind_bearing_deg
+                if args.controller == "logonav":
+                    _behind_bearing_deg = min(_behind_bearing_deg, max(args.logonav_align_extreme_deg + 5.0, 75.0))
+                if dist <= args.osm_prune_behind_distance_m and err_deg >= _behind_bearing_deg and not bool(item0.get("mission_checkpoint", False)):
                     nav_targets.pop(0)
                     _pruned += 1
                     continue
@@ -889,6 +902,30 @@ def main() -> int:
     dry_run = not args.send_control
 
     intervention_active = False
+    run_log_dir = args.log_dir
+    tick_log_path: Path | None = None
+    event_log_path: Path | None = None
+    if run_log_dir is not None:
+        run_log_dir.mkdir(parents=True, exist_ok=True)
+        tick_log_path = run_log_dir / "ticks.jsonl"
+        event_log_path = run_log_dir / "events.jsonl"
+        meta_path = run_log_dir / "meta.json"
+        meta_payload = {
+            "created_at_epoch_s": time.time(),
+            "mode": "dry_run" if dry_run else "send_control",
+            "argv": sys.argv,
+            "args": {k: (str(v) if isinstance(v, Path) else v) for k, v in vars(args).items()},
+            "mission_checkpoint_count": mission_checkpoint_count,
+            "navigation_target_count": len(navigation_targets),
+            "routing_debug": routing_debug,
+        }
+        meta_path.write_text(json.dumps(meta_payload, indent=2))
+
+    def append_event(event: dict[str, Any]) -> None:
+        if event_log_path is None:
+            return
+        with event_log_path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(event) + "\n")
 
     def safe_stop() -> bool:
         if dry_run:
@@ -918,7 +955,7 @@ def main() -> int:
         nonlocal sidewalk_stop_ticks, gps_safety_ticks, recovery_ticks_remaining, recovery_phase
         nonlocal recovery_attempt_count, _camera_fail_count, previous_raw_current_utm, previous_raw_timestamp
         nonlocal _smooth_linear, _smooth_angular, hard_stop_cooldown_ticks, last_vis_result, last_sem_result
-        nonlocal nav_ready_ticks, nav_ready_passed, _camera_hard_stop_latched, logonav_align_mode
+        nonlocal nav_ready_ticks, nav_ready_passed, _camera_hard_stop_latched, logonav_align_mode, logonav_align_ticks
         frozen_telemetry_ticks = 0
         route_corridor_violation_ticks = 0
         semantic_stop_ticks = 0
@@ -948,6 +985,7 @@ def main() -> int:
         nav_ready_ticks = 0
         nav_ready_passed = not args.nav_ready_gate
         logonav_align_mode = False
+        logonav_align_ticks = 0
         _camera_hard_stop_latched = False
         hard_stop_cooldown_ticks = 2
 
@@ -982,7 +1020,10 @@ def main() -> int:
             dist = math.hypot(dx, dy)
             bear = math.atan2(dy, dx)
             err_deg = abs(math.degrees(wrap_angle_rad(bear - heading_rad_for_prune)))
-            if dist <= args.osm_prune_behind_distance_m and err_deg >= args.osm_prune_behind_bearing_deg:
+            _behind_bearing_deg = args.osm_prune_behind_bearing_deg
+            if args.controller == "logonav":
+                _behind_bearing_deg = min(_behind_bearing_deg, max(args.logonav_align_extreme_deg + 5.0, 75.0))
+            if dist <= args.osm_prune_behind_distance_m and err_deg >= _behind_bearing_deg:
                 navigation_targets.pop(active_idx)
                 target_utms.pop(active_idx)
                 pruned += 1
@@ -1017,6 +1058,14 @@ def main() -> int:
         )
         active_idx = 0
         prune_active_behind_waypoints(start_latlon_for_leg, current_heading_rad, context=reason)
+        append_event({
+            "event": "reroute",
+            "reason": reason,
+            "start_lat": start_latlon_for_leg[0],
+            "start_lon": start_latlon_for_leg[1],
+            "new_target_count": len(navigation_targets),
+            "leg_label": leg_label,
+        })
         reset_after_hard_stop()
         return True
 
@@ -1124,6 +1173,7 @@ def main() -> int:
     recent_distances: deque[float] = deque(maxlen=max(2, args.stuck_window_ticks))
     recent_forward_flags: deque[bool] = deque(maxlen=max(2, args.stuck_window_ticks))
     logonav_align_mode = False
+    logonav_align_ticks = 0
     fast_block_positions: deque[tuple[float, float]] = deque(maxlen=3)  # wall-hit fast check
     recovery_ticks_remaining = 0
     recovery_phase = ""
@@ -1283,6 +1333,16 @@ def main() -> int:
                     gps_safety_ticks = 0
                 if gps_safety_ticks >= args.gps_safety_confirm_ticks:
                     safe_stop()
+                    append_event({
+                        "event": "gps_safety_stop",
+                        "iteration": iteration,
+                        "gps_signal": data.get("gps_signal"),
+                        "cell_signal": _cell_signal,
+                        "ticks": gps_safety_ticks,
+                        "reasons": _gps_reason,
+                        "lat": lat,
+                        "lon": lon,
+                    })
                     print(
                         f"[{iteration:04d}] gps_safety_stop {' '.join(_gps_reason) if _gps_reason else ''} "
                         f"gps_signal={data.get('gps_signal')} cell={_cell_signal} ticks={gps_safety_ticks}"
@@ -1304,6 +1364,14 @@ def main() -> int:
             ):
                 if not dry_run:
                     safe_stop()
+                append_event({
+                    "event": "battery_stop",
+                    "iteration": iteration,
+                    "battery_pct": battery_pct,
+                    "threshold": float(args.battery_stop_pct),
+                    "lat": lat,
+                    "lon": lon,
+                })
                 print(
                     f"[{iteration:04d}] battery_stop battery={battery_pct:.1f}% "
                     f"threshold={float(args.battery_stop_pct):.1f}%"
@@ -1318,6 +1386,13 @@ def main() -> int:
             ):
                 if not dry_run:
                     safe_stop()
+                append_event({
+                    "event": "telemetry_frozen_stop",
+                    "iteration": iteration,
+                    "telemetry_timestamp": telemetry_timestamp,
+                    "frozen_ticks": frozen_telemetry_ticks,
+                    "stale_s": telemetry_stale_s,
+                })
                 print(
                     f"[{iteration:04d}] telemetry_frozen_stop "
                     f"ts={telemetry_timestamp:.3f} frozen_ticks={frozen_telemetry_ticks} stale_s={telemetry_stale_s:.1f}"
@@ -1331,6 +1406,16 @@ def main() -> int:
                 _imu = imu_monitor.update(data)
                 if _imu.emergency_stop:
                     safe_stop()
+                    append_event({
+                        "event": "imu_emergency",
+                        "iteration": iteration,
+                        "reason": _imu.reason,
+                        "tilt_deg": _imu.tilt_deg,
+                        "pitch_roll_rate_dps": _imu.pitch_roll_rate_dps,
+                        "vibration": _imu.vibration,
+                        "lat": lat,
+                        "lon": lon,
+                    })
                     print(
                         f"[{iteration:04d}] [IMU EMERGENCY] {_imu.reason} "
                         f"tilt={_imu.tilt_deg:.1f}deg gyro={_imu.pitch_roll_rate_dps:.1f}dps vib={_imu.vibration:.2f}"
@@ -1348,6 +1433,17 @@ def main() -> int:
                 last_vis_result = vision_monitor.update(frame)
                 if last_vis_result.emergency_stop:
                     safe_stop()
+                    append_event({
+                        "event": "vision_safety_stop",
+                        "iteration": iteration,
+                        "reason": last_vis_result.reason,
+                        "brightness": last_vis_result.mean_brightness,
+                        "dark_fraction": last_vis_result.dark_fraction,
+                        "glare_fraction": last_vis_result.glare_fraction,
+                        "texture_score": last_vis_result.texture_score,
+                        "lat": lat,
+                        "lon": lon,
+                    })
                     print(
                         f"[{iteration:04d}] vision_safety_stop {last_vis_result.reason} "
                         f"brightness={last_vis_result.mean_brightness:.1f} dark={last_vis_result.dark_fraction:.2f} "
@@ -1364,6 +1460,9 @@ def main() -> int:
                 if args.controller == "logonav" and frame is None:
                     _ready_ok = False
                     _ready_reasons.append("camera")
+                if imu_monitor is not None and not imu_monitor.is_ready:
+                    _ready_ok = False
+                    _ready_reasons.append("imu_cal")
                 try:
                     _gps_signal = data.get("gps_signal")
                     if _gps_signal is None or int(_gps_signal) < int(args.gps_min_signal):
@@ -1420,6 +1519,18 @@ def main() -> int:
                 if route_corridor_violation_ticks >= args.route_corridor_confirm_ticks:
                     if not dry_run:
                         safe_stop()
+                    append_event({
+                        "event": "route_corridor_stop",
+                        "iteration": iteration,
+                        "distance_m": route_corridor_distance,
+                        "threshold_m": route_corridor_stop_threshold,
+                        "ticks": route_corridor_violation_ticks,
+                        "active_idx": active_idx,
+                        "goal_lat": goal_lat,
+                        "goal_lon": goal_lon,
+                        "lat": lat,
+                        "lon": lon,
+                    })
                     print(
                         f"[{iteration:04d}] route_corridor_stop dist={route_corridor_distance:.1f}m "
                         f"threshold={route_corridor_stop_threshold:.1f}m ticks={route_corridor_violation_ticks}"
@@ -1466,12 +1577,14 @@ def main() -> int:
                         _goal_bearing_err = wrap_angle_rad(math.atan2(_dy, _dx) - current_heading_rad)
                         last_trav_result = traversability.compute(depth_map, _goal_bearing_err)
                 except Exception as exc:
+                    last_trav_result = None
                     print(f"[{iteration:04d}] [warn] depth inference failed: {exc}")
 
             if semantic_estimator is not None and frame is not None and iteration % args.semantics_every_n == 0:
                 try:
                     last_sem_result = semantic_estimator.estimate(frame)
                 except Exception as exc:
+                    last_sem_result = None
                     print(f"[{iteration:04d}] [warn] semantic inference failed: {exc}")
 
             if args.semantic_hard_stop and last_sem_result is not None:
@@ -1483,6 +1596,16 @@ def main() -> int:
                     semantic_stop_ticks = 0
                 if semantic_stop_ticks >= args.semantic_stop_confirm_ticks:
                     safe_stop()
+                    append_event({
+                        "event": "semantic_hard_stop",
+                        "iteration": iteration,
+                        "alerts": sorted(_alerts),
+                        "risk_score": last_sem_result.risk_score,
+                        "drivable_center": last_sem_result.drivable_center,
+                        "caution_center": last_sem_result.caution_center,
+                        "lat": lat,
+                        "lon": lon,
+                    })
                     print(
                         f"[{iteration:04d}] semantic_hard_stop alerts={sorted(_alerts)} risk={last_sem_result.risk_score:.2f} "
                         f"drivable={last_sem_result.drivable_center:.2f} caution={last_sem_result.caution_center:.2f}"
@@ -1494,22 +1617,6 @@ def main() -> int:
             else:
                 semantic_stop_ticks = 0
 
-            if args.semantic_yield and last_sem_result is not None and recovery_ticks_remaining == 0:
-                _yield_active = (
-                    last_sem_result.risk_score >= args.semantic_yield_risk
-                    or last_sem_result.person_center > 0.0
-                    or last_sem_result.animal_center > 0.0
-                    or (last_sem_result.road_center >= 0.25 and (last_sem_result.sidewalk_center + last_sem_result.path_center) <= 0.20)
-                )
-                if _yield_active and command.linear > 0.0:
-                    command.linear = min(command.linear, args.semantic_yield_max_linear)
-                    if last_sem_result.person_center > 0.0 or last_sem_result.animal_center > 0.0:
-                        command.linear = min(command.linear, 0.05)
-                    if command.debug is None:
-                        command.debug = {}
-                    command.debug["semantic_yield"] = True
-                    command.reason = "semantic_yield" if command.reason == "mbra_controller" or command.reason == "logonav" or command.reason.startswith("goal") else command.reason
-
             if args.semantic_sidewalk_stop and last_sem_result is not None:
                 _sidewalk_like = last_sem_result.sidewalk_center + last_sem_result.path_center
                 _road_like = last_sem_result.road_center
@@ -1520,6 +1627,15 @@ def main() -> int:
                     sidewalk_stop_ticks = 0
                 if sidewalk_stop_ticks >= args.semantic_stop_confirm_ticks:
                     safe_stop()
+                    append_event({
+                        "event": "semantic_sidewalk_stop",
+                        "iteration": iteration,
+                        "road_center": _road_like,
+                        "sidewalk_center": last_sem_result.sidewalk_center,
+                        "path_center": last_sem_result.path_center,
+                        "lat": lat,
+                        "lon": lon,
+                    })
                     print(
                         f"[{iteration:04d}] semantic_sidewalk_stop road={_road_like:.2f} sidewalk={last_sem_result.sidewalk_center:.2f} path={last_sem_result.path_center:.2f}"
                     )
@@ -1588,10 +1704,13 @@ def main() -> int:
                 if logonav_align_mode:
                     if _bearing_error_deg <= args.logonav_align_turn_exit_deg or not _align_allowed:
                         logonav_align_mode = False
+                        logonav_align_ticks = 0
                 elif _align_allowed and _bearing_error_deg >= args.logonav_align_turn_threshold_deg:
                     logonav_align_mode = True
+                    logonav_align_ticks = 0
 
                 if logonav_align_mode:
+                    logonav_align_ticks += 1
                     _turn_sign = 1.0 if _bearing_error_rad >= 0.0 else -1.0
                     command.angular = _turn_sign * max(abs(command.angular), args.logonav_align_min_angular)
                     command.angular = float(max(-args.logonav_max_angular, min(args.logonav_max_angular, command.angular)))
@@ -1601,7 +1720,10 @@ def main() -> int:
                     if command.debug is None:
                         command.debug = {}
                     command.debug["align_turn"] = round(_bearing_error_deg, 1)
+                    command.debug["align_ticks"] = logonav_align_ticks
                     command.reason = "logonav_align_turn"
+                else:
+                    logonav_align_ticks = 0
 
             if bool(target.get("mission_checkpoint", False)):
                 active_goal_radius_m = args.goal_radius_m
@@ -1618,6 +1740,42 @@ def main() -> int:
             else:
                 confirm_count = 0
 
+            if (
+                args.controller == "logonav"
+                and logonav_align_mode
+                and logonav_align_ticks >= args.logonav_align_max_ticks
+            ):
+                append_event({
+                    "event": "align_timeout",
+                    "iteration": iteration,
+                    "active_idx": active_idx,
+                    "goal_lat": goal_lat,
+                    "goal_lon": goal_lon,
+                    "distance_to_goal_m": distance_to_goal,
+                    "align_ticks": logonav_align_ticks,
+                    "bearing_error_deg": _bearing_error_deg,
+                    "lat": lat,
+                    "lon": lon,
+                })
+                safe_stop()
+                print(
+                    f"[{iteration:04d}] align_timeout ticks={logonav_align_ticks} "
+                    f"bear={_bearing_error_deg:.1f}deg dist={distance_to_goal:.1f}m"
+                )
+                _rerouted = False
+                try:
+                    _cur_lat = float(data.get("latitude", float("nan")))
+                    _cur_lon = float(data.get("longitude", float("nan")))
+                    if math.isfinite(_cur_lat) and math.isfinite(_cur_lon) and _cur_lat != 0.0 and _cur_lon != 0.0:
+                        _rerouted = reroute_from_current_pose((_cur_lat, _cur_lon), reason="align_timeout")
+                except Exception:
+                    _rerouted = False
+                if not _rerouted:
+                    operator_acknowledge("align_timeout")
+                time.sleep(period)
+                iteration += 1
+                continue
+
             if confirm_count >= args.checkpoint_confirm_ticks:
                 is_mission_cp = bool(target.get("mission_checkpoint", False))
                 advance = True
@@ -1627,6 +1785,15 @@ def main() -> int:
                         ok, info = rover.checkpoint_reached()
                         if ok:
                             reached_count += 1
+                            append_event({
+                                "event": "mission_checkpoint_reached",
+                                "iteration": iteration,
+                                "reached_count": reached_count,
+                                "mission_checkpoint_count": mission_checkpoint_count,
+                                "goal_lat": goal_lat,
+                                "goal_lon": goal_lon,
+                                "distance_to_goal_m": distance_to_goal,
+                            })
                             print(
                                 f"[{iteration:04d}] MISSION CHECKPOINT REACHED "
                                 f"{reached_count}/{mission_checkpoint_count} "
@@ -1644,12 +1811,29 @@ def main() -> int:
                             advance = False
                     else:
                         reached_count += 1
+                        append_event({
+                            "event": "mission_checkpoint_reached",
+                            "iteration": iteration,
+                            "reached_count": reached_count,
+                            "mission_checkpoint_count": mission_checkpoint_count,
+                            "goal_lat": goal_lat,
+                            "goal_lon": goal_lon,
+                            "distance_to_goal_m": distance_to_goal,
+                        })
                         print(
                             f"[{iteration:04d}] MISSION CHECKPOINT REACHED "
                             f"{reached_count}/{mission_checkpoint_count} "
                             f"at ({goal_lat:.6f}, {goal_lon:.6f})"
                         )
                 else:
+                    append_event({
+                        "event": "intermediate_waypoint_reached",
+                        "iteration": iteration,
+                        "active_idx": active_idx,
+                        "goal_lat": goal_lat,
+                        "goal_lon": goal_lon,
+                        "distance_to_goal_m": distance_to_goal,
+                    })
                     print(
                         f"[{iteration:04d}] intermediate waypoint reached "
                         f"at ({goal_lat:.6f}, {goal_lon:.6f})"
@@ -1713,6 +1897,12 @@ def main() -> int:
                         else:
                             if not dry_run:
                                 safe_stop()
+                            append_event({
+                                "event": "mission_complete",
+                                "iteration": iteration,
+                                "mission_checkpoint_count": mission_checkpoint_count,
+                                "reached_count": reached_count,
+                            })
                             print(f"Mission complete: reached all {mission_checkpoint_count} checkpoints.")
                             break
                     iteration += 1
@@ -1897,16 +2087,40 @@ def main() -> int:
                     if _sem_w > 0.0:
                         command.angular = (1.0 - _sem_w) * command.angular + _sem_w * _sem_ang
                         command.debug["sem_bias"] = _sem.debug.get("sem_event", "") or "active"
-                        if args.semantic_yield and _sem.hard_alerts and command.linear > 0.0:
-                            command.linear = min(command.linear, args.semantic_yield_max_linear)
+
+            if args.semantic_yield and last_sem_result is not None and recovery_ticks_remaining == 0:
+                _yield_active = (
+                    last_sem_result.risk_score >= args.semantic_yield_risk
+                    or last_sem_result.person_center > 0.0
+                    or last_sem_result.animal_center > 0.0
+                    or (last_sem_result.road_center >= 0.25 and (last_sem_result.sidewalk_center + last_sem_result.path_center) <= 0.20)
+                )
+                if _yield_active and command.linear > 0.0:
+                    command.linear = min(command.linear, args.semantic_yield_max_linear)
+                    if last_sem_result.person_center > 0.0 or last_sem_result.animal_center > 0.0:
+                        command.linear = min(command.linear, 0.05)
+                    if command.debug is None:
+                        command.debug = {}
+                    command.debug["semantic_yield"] = True
+                    if command.reason in {"mbra_controller", "logonav", "logonav_follow"} or command.reason.startswith("goal"):
+                        command.reason = "semantic_yield"
 
             # EMA command smoothing — keep normal motion smooth, but let recovery commands apply immediately.
             if command.reason == "goal_reached":
                 _smooth_linear = 0.0
                 _smooth_angular = 0.0
+            elif command.reason.startswith("trav_stop") or command.reason.startswith("depth_stop"):
+                _smooth_linear = 0.0
+                _smooth_angular = command.angular
+                command.linear = 0.0
             elif command.reason.startswith("stuck_recovery") or command.reason.startswith("recovery_") or command.reason == "wall_hit_recovery":
                 _smooth_linear = command.linear
                 _smooth_angular = command.angular
+            elif command.reason in {"logonav_missing_goal", "logonav_missing_frame", "logonav_warmup_context"}:
+                _smooth_linear = 0.0
+                _smooth_angular = 0.0
+                command.linear = 0.0
+                command.angular = 0.0
             else:
                 _smooth_linear = _LINEAR_ALPHA * command.linear + (1.0 - _LINEAR_ALPHA) * _smooth_linear
                 _smooth_angular = _CMD_ALPHA * command.angular + (1.0 - _CMD_ALPHA) * _smooth_angular
@@ -2018,6 +2232,10 @@ def main() -> int:
                     f" lin={command.linear:+.3f} ang={command.angular:+.3f}"
                     f" {_sent_str}{_frz_str}{_corr_str}{_rad_str}{_vis_str}"
                 )
+
+            if tick_log_path is not None:
+                with tick_log_path.open("a", encoding="utf-8") as f:
+                    f.write(json.dumps(payload) + "\n")
 
             elapsed = time.time() - loop_start
             if elapsed < period:

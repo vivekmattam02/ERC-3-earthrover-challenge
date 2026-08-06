@@ -3,6 +3,11 @@
 > Source: `competition_results.tex`
 > Master Note: [[erc3_full_documentation]]
 
+> [!abstract] Note Header
+> **Purpose:** Honest summary of race-day outcomes across indoor, outdoor, and marathon.
+> **Read when:** I need the cleanest performance summary without rereading the full architecture story.
+> **Authority:** Outcome summary note. Pair with the master note and run/failure notes for interpretation.
+
 # Why This Document Exists
 
 This is the race-day document. It is not meant to be a glossy victory report and

@@ -3,14 +3,19 @@
 Primary entry points:
 
 - [[00 Home/Vault Home]]
+- [[00 Home/Current No-GPS - Read This First]]
 - [[erc3_full_documentation]]
 - [[01 Source of Truth/Source of Truth Map]]
+- [[01 Source of Truth/No-GPS Field Trial - Findings]]
 
 Personal notes:
 
 - [[03 Personal Notes/Current Truth]]
 - [[03 Personal Notes/Architecture in My Words]]
 - [[03 Personal Notes/Things I Keep Forgetting]]
+- [[03 Personal Notes/Indoor Story - Distilled]]
+- [[03 Personal Notes/Outdoor Story - Distilled]]
+- [[03 Personal Notes/Marathon Story - Distilled]]
 
 Run and failure notes:
 
@@ -20,6 +25,11 @@ Run and failure notes:
 Core concepts:
 
 - [[02 Core Concepts/MBRA vs LogoNav]]
+- [[02 Core Concepts/Transition Instability]]
+- [[02 Core Concepts/Sole Motion Authority]]
+- [[02 Core Concepts/Checkpoint-Step Logic]]
+- [[02 Core Concepts/Stale Context]]
+- [[02 Core Concepts/Route Corridor Guard]]
 
 Archive:
 

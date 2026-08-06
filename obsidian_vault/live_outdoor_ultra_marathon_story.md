@@ -3,11 +3,37 @@
 > Source: `live_outdoor_ultra_marathon_story.tex`
 > Master Note: [[erc3_full_documentation]]
 
+> [!abstract] Note Header
+> **Purpose:** Full narrative of outdoor marathon hardening: what already existed, what was added, and what the later field failures really meant.
+> **Read when:** I need the long outdoor/marathon story or need the detailed reasoning behind safety and route-discipline changes.
+> **Authority:** Narrative companion note. Trust the master note and active outdoor runtime code if this note is stale.
+
+> [!important] Current Status
+> This note is the historical marathon/GPS outdoor story.
+> The current off-road branch is now a no-GPS teach-and-repeat branch.
+> The main carryover lesson from marathon is still important: transition stability matters more than adding more safety layers on paper.
+
 # Purpose
 
 This document explains the outdoor ultra marathon work in the same spirit as the indoor story file: not just a list of edits, but the actual reasoning path. The goal is to record what the codebase already had, what the organizers' marathon instructions changed about the risk profile, what we added, what we deliberately did not add, and what still needs real-world validation.
 
 The target event is not a normal outdoor checkpoint run. It is a one-attempt, seven-leg marathon in a busy real-world environment. The organizers explicitly warned teams to stay on sidewalks, avoid highways, and intervene when things go wrong. That changes the engineering objective completely. The right objective is not maximum autonomy or maximum speed. The right objective is **safe completion without flipping, entering the road, or getting trapped in brittle failure modes**.
+
+# What This Means For The Current Off-Road Branch
+
+The active off-road work changed the problem:
+
+- there is no reliable GPS
+- there is no time for exploration during the final attempt
+- we need a taught route that can be repeated directly
+
+So the most important lesson we carried forward is not “add more outdoor safety modules.”
+It is:
+
+- preserve route progression
+- keep transitions calm
+- make startup localization constrained and conservative
+- do not confuse visually clean footage with a good teach route
 
 # The Starting Point
 

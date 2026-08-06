@@ -211,7 +211,10 @@ class CorridorLocalizer:
         query_desc = self.encode_pil(image)
         search_top_k = self.config.top_k
         if step_min is not None or step_max is not None:
-            search_top_k = min(len(self.descriptors), max(self.config.top_k * 40, 200))
+            # When startup localization is constrained to a step corridor, global
+            # top-K retrieval can exclude the correct nearby-route candidates
+            # entirely. Search the full route, then filter by step window.
+            search_top_k = len(self.descriptors)
         candidates = descriptor_distance_search(self.descriptors, query_desc, top_k=search_top_k)
 
         candidate_rows = []
@@ -233,20 +236,6 @@ class CorridorLocalizer:
                     "orientation": self.heading_by_index.get(int(index)),
                 }
             )
-
-        if not candidate_rows and (step_min is not None or step_max is not None):
-            for index, distance in candidates[: self.config.top_k]:
-                image_name = self.image_names[index]
-                candidate_rows.append(
-                    {
-                        "index": int(index),
-                        "distance": float(distance),
-                        "image_name": image_name,
-                        "image_path": self.image_paths[index],
-                        "step": self.step_by_index.get(int(index)),
-                        "orientation": self.heading_by_index.get(int(index)),
-                    }
-                )
 
         self.temporal_localizer.save_state()
         temporal_state = self.temporal_localizer.update(

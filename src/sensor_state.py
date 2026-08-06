@@ -27,6 +27,7 @@ class SensorStateFilterConfig:
     heading_alpha: float = 0.35
     gyro_alpha: float = 0.30
     rpm_alpha: float = 0.30
+    tilt_alpha: float = 0.25
     stale_timeout_s: float = 5.0
 
 
@@ -38,6 +39,8 @@ class SensorStateFilter:
         self._filtered_heading_deg: Optional[float] = None
         self._filtered_heading_rate_dps: float = 0.0
         self._filtered_rpm_mean: float = 0.0
+        self._filtered_roll_deg: float = 0.0
+        self._filtered_pitch_deg: float = 0.0
         self._last_update_ts: Optional[float] = None
         self._last_sensor_timestamp: Optional[float] = None
         self._last_fresh_data_wall_ts: Optional[float] = None
@@ -46,6 +49,8 @@ class SensorStateFilter:
         self._filtered_heading_deg = None
         self._filtered_heading_rate_dps = 0.0
         self._filtered_rpm_mean = 0.0
+        self._filtered_roll_deg = 0.0
+        self._filtered_pitch_deg = 0.0
         self._last_update_ts = None
         self._last_sensor_timestamp = None
         self._last_fresh_data_wall_ts = None
@@ -79,6 +84,18 @@ class SensorStateFilter:
             return None
         return sum(values) / len(values)
 
+    def _latest_accel(self, data: dict) -> Optional[tuple[float, float, float]]:
+        accels = data.get("accels") or []
+        if not accels:
+            return None
+        latest = accels[-1]
+        if not isinstance(latest, (list, tuple)) or len(latest) < 3:
+            return None
+        try:
+            return float(latest[0]), float(latest[1]), float(latest[2])
+        except (TypeError, ValueError):
+            return None
+
     def update(self, data: Optional[dict]) -> dict:
         now = time.time()
         if not data:
@@ -86,6 +103,9 @@ class SensorStateFilter:
                 "heading_deg": self._filtered_heading_deg,
                 "heading_rate_dps": self._filtered_heading_rate_dps,
                 "rpm_mean": self._filtered_rpm_mean,
+                "roll_deg": self._filtered_roll_deg,
+                "pitch_deg": self._filtered_pitch_deg,
+                "tilt_deg": max(abs(self._filtered_roll_deg), abs(self._filtered_pitch_deg)),
                 "sensor_timestamp": self._last_sensor_timestamp,
                 "is_stale": True,
             }
@@ -134,6 +154,20 @@ class SensorStateFilter:
                 + (1.0 - self.config.rpm_alpha) * self._filtered_rpm_mean
             )
 
+        accel = self._latest_accel(data)
+        if accel is not None:
+            ax, ay, az = accel
+            roll_deg = math.degrees(math.atan2(ay, az))
+            pitch_deg = math.degrees(math.atan2(-ax, math.sqrt(ay * ay + az * az)))
+            self._filtered_roll_deg = (
+                self.config.tilt_alpha * roll_deg
+                + (1.0 - self.config.tilt_alpha) * self._filtered_roll_deg
+            )
+            self._filtered_pitch_deg = (
+                self.config.tilt_alpha * pitch_deg
+                + (1.0 - self.config.tilt_alpha) * self._filtered_pitch_deg
+            )
+
         self._last_update_ts = now
         is_stale = True
         if self._last_fresh_data_wall_ts is not None:
@@ -143,6 +177,9 @@ class SensorStateFilter:
             "heading_deg": self._filtered_heading_deg,
             "heading_rate_dps": self._filtered_heading_rate_dps,
             "rpm_mean": self._filtered_rpm_mean,
+            "roll_deg": self._filtered_roll_deg,
+            "pitch_deg": self._filtered_pitch_deg,
+            "tilt_deg": max(abs(self._filtered_roll_deg), abs(self._filtered_pitch_deg)),
             "raw_heading_deg": raw_heading_deg,
             "raw_gyro_z": gyro_z,
             "sensor_timestamp": self._last_sensor_timestamp,

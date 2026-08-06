@@ -1,4 +1,7 @@
-"""MBRA/LogoNav-backed local controller adapter for the indoor runtime.
+"""Legacy MBRA/LogoNav local-controller adapter.
+
+Superseded by ``src/mbra_controller.py``. This version targets the old
+``mbra_repo_1`` snapshot and is retained only for provenance.
 
 This module keeps the existing runtime contract:
 `controller.compute_command(controller_input, observation_heading_deg, frame_rgb)`.

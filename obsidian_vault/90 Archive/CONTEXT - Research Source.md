@@ -2,9 +2,76 @@
 
 **Purpose:** Persistent knowledge base for this project. Updated with each Q&A. Read at the start of new conversations.
 
-**Last updated:** 2025-03-07
+**Last updated:** 2026-04-24
 
 ---
+
+## 0. Current Active Branch (2026-04-24)
+
+This file still contains important historical MBRA / LogoNav / ERC context,
+but the **active engineering branch** is now:
+
+- `no GPS`
+- `teach-and-repeat`
+- `differential-drive rover`
+- `rough / uneven terrain`
+- `manual teach bag -> post-process -> autonomous repeat`
+
+Current operational truth:
+
+- the local FrodoBots session exposes placeholder GPS (`latitude=1000`,
+  `longitude=1000`)
+- because of that, the active runtime is **not** the GPS outdoor stack
+- the active runtime is `live_indoor_runtime.py`, repurposed as a
+  no-GPS route-repeat runner
+
+Current active data:
+
+- `recordings/manual_flag_collection/2026-04-22/run_01_1521.h5`
+- `recordings/manual_flag_collection/2026-04-22/run_02_1537.h5`
+- `recordings/manual_flag_collection/2026-04-22/run_03_1551.h5`
+
+Current route packages:
+
+- `data/manual_routes/smoke_run01_c`
+- `data/manual_routes/smoke_run02_c`
+- `data/manual_routes/smoke_run03_c`
+
+Route-quality verdict:
+
+- `run_01` / `smoke_run01_c` is the strongest current route
+- `run_02` is not preferred because of a dark segment and a bad tilted tail
+- `run_03` is usable but weaker than run 1
+
+Current active scripts/modules:
+
+- `scripts/record_sdk_session.py`
+- `tools/extract_h5_dataset.py`
+- `scripts/prepare_manual_route.py`
+- `scripts/visualize_manual_route.py`
+- `scripts/run_prepared_route.py`
+- `live_indoor_runtime.py`
+- `src/local_controller.py`
+- `src/sensor_state.py`
+
+Current controller state:
+
+- still heuristic
+- now includes rough-terrain tuning, continuous heading correction during
+  forward drive, tilt-aware slowdown, startup relocalization probing, and
+  no-progress relocalization scan/probe
+- still not the final desired controller for differential-drive off-road repeat
+
+Immediate next phase:
+
+- `post-processing`
+- organize and clean new bags
+- build summaries / contact sheets
+- trim bad segments
+- select one canonical teach traversal
+- rebuild the route package from that bag
+
+When this file conflicts with current code, the code wins.
 
 ## 1. Project Overview
 

@@ -61,7 +61,10 @@ class GraphPlanner:
     def _load_graph(self, path: Path) -> nx.Graph:
         with path.open("r", encoding="utf-8") as handle:
             data = json.load(handle)
-        graph = json_graph.node_link_graph(data, edges="links")
+        edge_key = "links"
+        if "links" not in data and "edges" in data:
+            edge_key = "edges"
+        graph = json_graph.node_link_graph(data, edges=edge_key)
         return graph
 
     def resolve_target_node(

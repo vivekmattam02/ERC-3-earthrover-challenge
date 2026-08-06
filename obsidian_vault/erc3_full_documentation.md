@@ -2,6 +2,18 @@
 
 > Source: `erc3_full_documentation.tex`
 
+> [!abstract] Note Header
+> **Purpose:** Canonical master note for the whole project: story, architecture, decisions, outcomes, and current status.
+> **Read when:** I need the full project picture or need to trace a claim back to the main documentation.
+> **Authority:** Highest documentation-level note in the vault. If it conflicts with active runtime behavior, trust current code first.
+
+> [!important] Current Branch Update (2026-07-16)
+> This converted master document explains the completed indoor, GPS-outdoor, and
+> marathon story. A later no-GPS rough-terrain teach-and-repeat branch is now
+> active. Its data and command pipeline work, but field testing has not yet
+> proved reliable autonomous repeat. Do not infer that it is competition-ready
+> from the historical systems described below. Read [[00 Home/Current No-GPS - Read This First]] and [[01 Source of Truth/No-GPS Field Trial - Findings]] for the current evidence.
+
 # What This Document Is
 
 This is the single definitive documentation file for the ERC-3 EarthRover
@@ -41,6 +53,9 @@ technical truth layer in narrative form.
 - **Code authority rule**: if any doc conflicts with runtime behavior,
 trust active code paths in `live_indoor_runtime.py` and
 `live_outdoor_runtime.py`
+- **Current field-evidence rule:** for no-GPS rough-terrain behavior, trust
+  [[01 Source of Truth/No-GPS Field Trial - Findings]] over historical
+  deployment language in this converted narrative
 
 ## Verification tooling used for this documentation
 

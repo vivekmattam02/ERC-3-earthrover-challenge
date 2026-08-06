@@ -3,6 +3,16 @@
 > Source: `outdoor_perception_review.tex`
 > Master Note: [[erc3_full_documentation]]
 
+> [!abstract] Note Header
+> **Purpose:** Record of the outdoor perception investigation, especially depth and semantics.
+> **Read when:** I need to understand why perception layers were kept as bounded support rather than promoted to full authority.
+> **Authority:** Investigation note. Trust current runtime behavior and the master note for final system truth.
+
+> [!important] Current Status
+> This note is still relevant because the current off-road branch inherited its main perception lesson:
+> depth and semantics are bounded support layers, not the main authority.
+> In the current no-GPS branch, visual route evidence and terrain-aware control matter more than promoting monocular depth into a hard decision-maker.
+
 # Purpose of This Document
 
 This document records, in detail, the outdoor perception and safety work carried out for the ERC-3 EarthRover Challenge codebase. The goal is not only to remember the final code state, but also to preserve the reasoning process:
@@ -14,6 +24,19 @@ This document records, in detail, the outdoor perception and safety work carried
 - and what should happen next.
 
 The motivation for writing this is simple: this was first-principles engineering work. If we later discuss this system with a professor, teammate, interviewer, or judge, we should be able to explain not just the final code, but the investigation itself.
+
+# What Carried Forward Into The Current Off-Road Branch
+
+The current no-GPS off-road branch kept one core lesson from this note:
+
+- do not let a weak perception signal pretend to be a strong authority
+
+That means:
+
+- depth can support slowdown or bias
+- semantics can support caution
+- but the main system should still be built around teach-route evidence,
+  relocalization stability, and terrain-aware control
 
 # Initial Outdoor System and Motivation
 

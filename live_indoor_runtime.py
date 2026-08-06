@@ -27,8 +27,99 @@ if str(SRC_DIR) not in sys.path:
 
 from earthrover_interface import EarthRoverInterface  # type: ignore
 from local_controller import SimpleLocalController, SimpleLocalControllerConfig  # type: ignore
+from adaptive_pursuit_controller import (  # type: ignore
+    AdaptivePursuitController,
+    AdaptivePursuitControllerConfig,
+)
 from navigation_runtime import NavigationRuntime, NavigationRuntimeConfig  # type: ignore
 from sensor_state import SensorStateFilter, SensorStateFilterConfig  # type: ignore
+
+
+def _is_valid_battery_value(value: object) -> bool:
+    try:
+        battery = float(value)
+    except (TypeError, ValueError):
+        return False
+    return battery > 0.0
+
+
+def verify_startup_health(
+    rover: EarthRoverInterface,
+    strict: bool,
+    require_battery: bool,
+    min_battery: float,
+    camera_checks: int,
+    data_checks: int,
+    data_wait_s: float,
+) -> None:
+    """Refuse to start a one-shot run on an obviously unhealthy SDK session."""
+    issues: list[str] = []
+
+    last_timestamp: Optional[float] = None
+    advanced_timestamps = 0
+    latest_battery: Optional[float] = None
+    latest_orientation: Optional[float] = None
+
+    for _ in range(max(1, data_checks)):
+        data = rover.get_data(use_cache=False)
+        if not data:
+            issues.append("telemetry_unavailable")
+            time.sleep(data_wait_s)
+            continue
+        try:
+            latest_timestamp = float(data.get("timestamp"))
+        except (TypeError, ValueError):
+            latest_timestamp = None
+        if latest_timestamp is None:
+            issues.append("telemetry_timestamp_invalid")
+        else:
+            if last_timestamp is not None and latest_timestamp > last_timestamp:
+                advanced_timestamps += 1
+            last_timestamp = latest_timestamp
+
+        battery_value = data.get("battery")
+        if _is_valid_battery_value(battery_value):
+            latest_battery = float(battery_value)
+        else:
+            latest_battery = None
+
+        try:
+            latest_orientation = float(data.get("orientation"))
+        except (TypeError, ValueError):
+            latest_orientation = None
+        time.sleep(data_wait_s)
+
+    if last_timestamp is None:
+        issues.append("no_valid_telemetry_timestamp")
+    elif data_checks > 1 and advanced_timestamps == 0:
+        issues.append("telemetry_timestamp_not_advancing")
+
+    if latest_orientation is None:
+        issues.append("orientation_invalid")
+
+    if require_battery:
+        if latest_battery is None:
+            issues.append("battery_invalid_or_zero")
+        elif latest_battery < min_battery:
+            issues.append(f"battery_below_min({latest_battery:.1f}<{min_battery:.1f})")
+
+    good_frames = 0
+    for _ in range(max(1, camera_checks)):
+        frame = rover.get_camera_frame()
+        if frame is not None and getattr(frame, "ndim", 0) == 3 and frame.shape[0] > 0 and frame.shape[1] > 0:
+            good_frames += 1
+        time.sleep(0.05)
+    if good_frames == 0:
+        issues.append("camera_unavailable")
+
+    if issues:
+        summary = ", ".join(dict.fromkeys(issues))
+        if strict:
+            raise SystemExit(
+                "Startup health check failed: "
+                f"{summary}. Refusing to start a one-shot run."
+            )
+        print(f"[warn] Startup health check issues: {summary}")
 
 
 def parse_args() -> argparse.Namespace:
@@ -82,7 +173,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--send-control", action="store_true", help="Actually send commands to the robot.")
     parser.add_argument(
         "--controller",
-        choices=("simple", "mbra"),
+        choices=("simple", "adaptive", "mbra"),
         default="simple",
         help="Local controller implementation to use.",
     )
@@ -99,6 +190,67 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--depth-safety", action="store_true", help="Enable monocular depth forward-clearance veto.")
     parser.add_argument("--depth-slow-m", type=float, default=None, help="Slow down when forward clearance below this (meters). Default: 0.6 for mbra, 0.8 for simple.")
     parser.add_argument("--depth-stop-m", type=float, default=None, help="Stop when forward clearance below this (meters). Default: 0.25 for mbra, 0.4 for simple.")
+    parser.add_argument(
+        "--use-route-heading",
+        action="store_true",
+        help="Use route metadata orientations for controller steering instead of forward-only crawl.",
+    )
+    parser.add_argument(
+        "--no-route-heading",
+        action="store_true",
+        help="Ignore route metadata orientations and rely on visual progression only.",
+    )
+    parser.add_argument(
+        "--rough-terrain",
+        action="store_true",
+        help="Apply conservative control and recovery tuning for uneven terrain.",
+    )
+    parser.add_argument(
+        "--startup-step-hint",
+        type=int,
+        default=None,
+        help="Expected start step for the route. When set, startup localization is constrained near this step.",
+    )
+    parser.add_argument(
+        "--startup-step-radius",
+        type=int,
+        default=18,
+        help="Step radius around --startup-step-hint used during constrained startup localization.",
+    )
+    parser.add_argument(
+        "--startup-step-lock-ticks",
+        type=int,
+        default=20,
+        help="Maximum number of initial ticks to keep startup localization constrained near the hint.",
+    )
+    parser.add_argument(
+        "--strict-startup-health",
+        action="store_true",
+        help="Refuse to start if telemetry/camera/session health looks invalid.",
+    )
+    parser.add_argument(
+        "--startup-require-battery",
+        action="store_true",
+        help="Require a valid nonzero battery reading before starting.",
+    )
+    parser.add_argument(
+        "--startup-min-battery",
+        type=float,
+        default=15.0,
+        help="Minimum battery percentage required when --startup-require-battery is enabled.",
+    )
+    parser.add_argument(
+        "--startup-camera-checks",
+        type=int,
+        default=3,
+        help="Number of startup camera checks before the runtime begins.",
+    )
+    parser.add_argument(
+        "--startup-data-checks",
+        type=int,
+        default=3,
+        help="Number of startup telemetry polls before the runtime begins.",
+    )
     return parser.parse_args()
 
 
@@ -128,19 +280,39 @@ def build_controller(args: argparse.Namespace):
                 weights_path=args.mbra_weights,
             )
         )
+    if args.controller == "adaptive":
+        return AdaptivePursuitController(AdaptivePursuitControllerConfig())
     return SimpleLocalController(SimpleLocalControllerConfig())
 
 
 def main() -> int:
     args = parse_args()
     if args.max_subgoal_hops is None:
-        args.max_subgoal_hops = 8 if args.controller == "mbra" else 15
+        if args.controller == "mbra":
+            args.max_subgoal_hops = 8
+        elif args.controller == "adaptive":
+            args.max_subgoal_hops = 6
+        else:
+            args.max_subgoal_hops = 15
     if args.tick_hz is None:
         args.tick_hz = 3.0 if args.controller == "mbra" else 2.0
     if args.depth_stop_m is None:
-        args.depth_stop_m = 0.25 if args.controller == "mbra" else 0.4
+        if args.controller == "mbra":
+            args.depth_stop_m = 0.25
+        elif args.controller == "adaptive":
+            args.depth_stop_m = 0.35
+        else:
+            args.depth_stop_m = 0.4
     if args.depth_slow_m is None:
-        args.depth_slow_m = 0.6 if args.controller == "mbra" else 0.8
+        if args.controller == "mbra":
+            args.depth_slow_m = 0.6
+        elif args.controller == "adaptive":
+            args.depth_slow_m = 0.7
+        else:
+            args.depth_slow_m = 0.8
+    if args.rough_terrain and args.send_control:
+        args.strict_startup_health = True
+        args.startup_require_battery = True
 
     has_target = (
         args.target_step is not None
@@ -176,11 +348,63 @@ def main() -> int:
         print(f"Run command equivalent: --checkpoint-steps {' '.join(str(s) for s in prelocalized_steps)}")
 
     controller = build_controller(args)
+    if args.controller == "simple":
+        cfg = controller.config
+        if args.rough_terrain:
+            cfg.max_linear = 0.24
+            cfg.min_linear = 0.12
+            cfg.max_angular = 0.26
+            cfg.min_turn_angular = 0.10
+            cfg.align_turn_angular = 0.18
+            cfg.heading_gain = 0.008
+            cfg.drive_heading_gain = 0.0055
+            cfg.align_enter_threshold_deg = 32.0
+            cfg.align_exit_threshold_deg = 14.0
+            cfg.max_align_ticks = 6
+            cfg.slow_heading_threshold_deg = 14.0
+            cfg.hard_turn_threshold_deg = 28.0
+            cfg.low_confidence_linear_scale = 0.6
+            cfg.high_turn_rate_linear_scale = 0.45
+            cfg.rpm_motion_threshold = 0.8
+            cfg.no_progress_realign_ticks = 6
+            cfg.no_progress_crawl_linear_scale = 0.35
+    elif args.controller == "adaptive":
+        cfg = controller.config
+        if args.rough_terrain:
+            cfg.max_linear = 0.30
+            cfg.min_linear = 0.14
+            cfg.cautious_min_linear = 0.10
+            cfg.max_angular = 0.30
+            cfg.pursuit_gain = 0.48
+            cfg.pursuit_lookahead_scale = 2.8
+            cfg.pivot_enter_threshold_deg = 62.0
+            cfg.pivot_exit_threshold_deg = 18.0
+            cfg.max_pivot_ticks = 8
+            cfg.slow_heading_threshold_deg = 14.0
+            cfg.hard_heading_threshold_deg = 28.0
+            cfg.very_hard_heading_threshold_deg = 50.0
+            cfg.low_confidence_linear_scale = 0.78
+            cfg.high_turn_rate_linear_scale = 0.45
+            cfg.rpm_motion_threshold = 0.5
+            cfg.rpm_low_linear_scale = 0.92
+            cfg.no_progress_creep_ticks = 5
+            cfg.no_progress_pivot_ticks = 7
+            cfg.no_progress_linear_scale = 0.78
+            cfg.no_progress_angular_scale = 1.35
     sensor_filter = SensorStateFilter(SensorStateFilterConfig())
     rover = EarthRoverInterface(base_url=args.sdk_url, timeout=args.sdk_timeout)
 
     if not rover.connect():
         raise SystemExit("Failed to connect to SDK.")
+    verify_startup_health(
+        rover=rover,
+        strict=args.strict_startup_health,
+        require_battery=args.startup_require_battery,
+        min_battery=args.startup_min_battery,
+        camera_checks=args.startup_camera_checks,
+        data_checks=args.startup_data_checks,
+        data_wait_s=min(0.25, max(0.05, 0.5 / max(1.0, args.tick_hz if args.tick_hz else 2.0))),
+    )
 
     # --- Optional depth safety ---
     depth_estimator = None
@@ -209,6 +433,7 @@ def main() -> int:
     print(f"Database: {args.database}")
     print(f"Graph: {args.graph}")
     print(f"Controller: {args.controller}")
+    print("Camera source: front only (/v2/front)")
     print(f"Subgoal hops: {args.max_subgoal_hops}")
     if args.target_step is not None:
         print(f"Target step: {args.target_step}")
@@ -232,7 +457,7 @@ def main() -> int:
     TARGET_REACHED_CONFIRM_TICKS = 3
     JUMP_REJECT_THRESHOLD = 30
     PROXIMITY_SLOWDOWN_STEPS = 15
-    NO_PROGRESS_RESET_TICKS = 10  # if stuck at same step for this many ticks, reset MBRA context
+    NO_PROGRESS_RESET_TICKS = 10  # if stuck at same step for this many ticks, reset controller/localizer state
     use_mbra = (args.controller == "mbra")
 
     # --- Angular saturation / wall-crash prevention ---
@@ -246,6 +471,7 @@ def main() -> int:
     JUMP_REJECT_RECOVERY_TICKS = 12    # consecutive jump rejections before recovery
     RECOVERY_BACKUP_TICKS = 5          # ticks to reverse during recovery
     RECOVERY_BACKUP_LINEAR = -0.12     # gentle reverse
+    RECOVERY_BACKUP_ANGULAR = 0.0
     jump_reject_consecutive = 0
     recovery_backup_remaining = 0
 
@@ -253,6 +479,45 @@ def main() -> int:
     RPM_STALL_THRESHOLD = 1.5          # RPM below this while commanding forward = stalled
     RPM_STALL_MAX_TICKS = 8            # ticks before triggering stall recovery
     rpm_stall_count = 0
+    stall_recovery_direction = 1.0
+    TILT_SLOWDOWN_DEG = 10.0
+    TILT_HEAVY_DEG = 18.0
+    NO_PROGRESS_SEARCH_TICKS = 20
+    SEARCH_SCAN_TICKS = 6
+    SEARCH_FORWARD_PROBE_TICKS = 5
+    SEARCH_REVERSE_PROBE_TICKS = 4
+    SEARCH_SCAN_ANGULAR = 0.18
+    SEARCH_FORWARD_LINEAR = 0.10
+    SEARCH_REVERSE_LINEAR = -0.08
+    SEARCH_PROBE_ANGULAR = 0.08
+    FORWARD_BIASED_RECOVERY = False
+    STARTUP_RELOCALIZE_CONFIDENCE = 0.58
+    STARTUP_RELOCALIZE_STABLE_STEPS = 2
+    search_mode: Optional[str] = None
+    search_ticks_remaining = 0
+    search_direction = 1.0
+    startup_relocalize_done = False
+    startup_step_lock_released = False
+
+    if args.rough_terrain:
+        RECOVERY_BACKUP_TICKS = 4
+        RECOVERY_BACKUP_LINEAR = -0.05
+        RPM_STALL_THRESHOLD = 0.5
+        RPM_STALL_MAX_TICKS = 18
+        TILT_SLOWDOWN_DEG = 13.0
+        TILT_HEAVY_DEG = 20.0
+        NO_PROGRESS_SEARCH_TICKS = 18
+        SEARCH_SCAN_TICKS = 8
+        SEARCH_FORWARD_PROBE_TICKS = 6
+        SEARCH_REVERSE_PROBE_TICKS = 4
+        SEARCH_SCAN_ANGULAR = 0.20
+        SEARCH_FORWARD_LINEAR = 0.16
+        SEARCH_REVERSE_LINEAR = -0.04
+        SEARCH_PROBE_ANGULAR = 0.10
+        FORWARD_BIASED_RECOVERY = True
+        STARTUP_RELOCALIZE_CONFIDENCE = 0.62
+        STARTUP_RELOCALIZE_STABLE_STEPS = 3
+        NO_PROGRESS_RESET_TICKS = NO_PROGRESS_SEARCH_TICKS
 
     try:
         while True:
@@ -264,6 +529,9 @@ def main() -> int:
             data = rover.get_data()
             motion_state = sensor_filter.update(data)
             heading_deg = motion_state.get("heading_deg")
+            roll_deg = motion_state.get("roll_deg")
+            pitch_deg = motion_state.get("pitch_deg")
+            tilt_deg = motion_state.get("tilt_deg")
 
             if frame is None:
                 if not dry_run:
@@ -280,11 +548,23 @@ def main() -> int:
             # Pass None for localizer heading — compass is unreliable indoors
             # and adds noise to match scoring. Heading is still used by the
             # controller for gyro drift correction (passed separately below).
+            localization_step_min = None
+            localization_step_max = None
+            if (
+                args.startup_step_hint is not None
+                and not startup_step_lock_released
+                and iteration < args.startup_step_lock_ticks
+            ):
+                localization_step_min = max(0, int(args.startup_step_hint) - int(args.startup_step_radius))
+                localization_step_max = int(args.startup_step_hint) + int(args.startup_step_radius)
+
             if is_checkpoint_mode:
                 step_output = runtime.step_to_active_checkpoint(
                     frame_rgb=frame,
                     observation_heading_deg=None,
                     auto_advance_checkpoint=args.auto_advance_checkpoints,
+                    localization_step_min=localization_step_min,
+                    localization_step_max=localization_step_max,
                 )
             else:
                 step_output = runtime.step_to_target(
@@ -292,20 +572,41 @@ def main() -> int:
                     target_step=args.target_step,
                     target_image_name=args.target_image_name,
                     observation_heading_deg=None,
+                    localization_step_min=localization_step_min,
+                    localization_step_max=localization_step_max,
                 )
 
             controller_input = step_output["controller_input"]
             controller_input["heading_rate_dps"] = motion_state.get("heading_rate_dps")
             controller_input["rpm_mean"] = motion_state.get("rpm_mean")
             controller_input["motion_state_stale"] = False if dry_run else motion_state.get("is_stale")
-            # Indoor compass is unreliable — disable heading-based alignment
-            controller_input["subgoal_orientation"] = None
+            # Most indoor runs disabled heading alignment because compass was noisy.
+            # For teach-and-repeat on uneven terrain, route-heading cues are still
+            # useful as a gentle steering prior.
+            if args.no_route_heading:
+                controller_input["subgoal_orientation"] = None
+            elif not args.use_route_heading and not args.rough_terrain:
+                controller_input["subgoal_orientation"] = None
 
             confidence = float(controller_input.get("confidence", 0.0))
+            stable_steps = int(controller_input.get("stable_steps") or 0)
             path_found = bool(controller_input.get("path_found", True))
             path_error = controller_input.get("path_error")
             cur_step = controller_input.get("current_step")
             tgt_step = controller_input.get("target_step")
+
+            if (
+                args.startup_step_hint is not None
+                and not startup_step_lock_released
+                and cur_step is not None
+                and confidence >= 0.62
+                and stable_steps >= 3
+            ):
+                startup_step_lock_released = True
+                print(
+                    f"[{iteration:04d}] startup localization lock released "
+                    f"at step {cur_step} conf={confidence:.3f} stable={stable_steps}"
+                )
 
             # --- Checkpoint completion exit ---
             if is_checkpoint_mode and args.auto_advance_checkpoints:
@@ -370,6 +671,33 @@ def main() -> int:
 
             command = controller.compute_command(controller_input, observation_heading_deg=heading_deg)
 
+            # --- Startup relocalization bootstrap ---
+            # If we start on rough terrain with a visibly tilted camera and only a weak
+            # initial match, do not spend the first seconds in pure align mode. Probe
+            # the route immediately with slow motion to improve the visual match.
+            if (
+                args.rough_terrain
+                and not startup_relocalize_done
+                and search_ticks_remaining == 0
+                and recovery_backup_remaining == 0
+                and iteration <= 2
+                and confidence < STARTUP_RELOCALIZE_CONFIDENCE
+                and (stable_steps <= STARTUP_RELOCALIZE_STABLE_STEPS or (tilt_deg is not None and abs(float(tilt_deg)) >= TILT_SLOWDOWN_DEG))
+            ):
+                search_direction = -1.0 if command.angular < 0.0 else 1.0
+                search_mode = "probe_forward"
+                search_ticks_remaining = SEARCH_FORWARD_PROBE_TICKS
+                startup_relocalize_done = True
+                runtime.reset()
+                if hasattr(controller, "reset"):
+                    controller.reset()
+                prev_cur_step = None
+                no_progress_count = 0
+                print(
+                    f"[{iteration:04d}] startup relocalization probe "
+                    f"conf={confidence:.3f} stable={stable_steps} tilt={tilt_deg if tilt_deg is not None else 'NA'}"
+                )
+
             # --- Target reached detection (single-target mode only) ---
             # In checkpoint mode, advancement is handled by the runtime.
             if not is_checkpoint_mode and cur_step is not None and tgt_step is not None and int(cur_step) >= int(tgt_step):
@@ -399,7 +727,7 @@ def main() -> int:
             # --- Recovery: if backing up from a stuck state, override everything ---
             if recovery_backup_remaining > 0:
                 command.linear = RECOVERY_BACKUP_LINEAR
-                command.angular = 0.0
+                command.angular = RECOVERY_BACKUP_ANGULAR
                 command.reason = "recovery_backup"
                 recovery_backup_remaining -= 1
                 if recovery_backup_remaining == 0:
@@ -427,17 +755,35 @@ def main() -> int:
                         jump_reject_consecutive = 0
                         prev_cur_step = None
                         print(f"[{iteration:04d}] jump rejection stuck — resetting (no backup for MBRA)")
+                    elif FORWARD_BIASED_RECOVERY:
+                        runtime.reset()
+                        if hasattr(controller, 'reset'):
+                            controller.reset()
+                        prev_cur_step = None
+                        search_mode = "probe_forward"
+                        search_ticks_remaining = SEARCH_FORWARD_PROBE_TICKS
+                        command.linear = SEARCH_FORWARD_LINEAR
+                        command.angular = SEARCH_PROBE_ANGULAR * stall_recovery_direction
+                        command.reason = "jump_reject_forward_nudge"
+                        jump_reject_consecutive = 0
+                        stall_recovery_direction *= -1.0
+                        print(f"[{iteration:04d}] jump rejection stuck — forward nudge search")
                     else:
                         # Simple controller: initiate backup recovery
                         recovery_backup_remaining = RECOVERY_BACKUP_TICKS
                         command.linear = RECOVERY_BACKUP_LINEAR
-                        command.angular = 0.0
+                        command.angular = RECOVERY_BACKUP_ANGULAR
                         command.reason = "recovery_backup_start"
                         print(f"[{iteration:04d}] jump rejection stuck for {jump_reject_consecutive} ticks — backing up")
                 else:
-                    command.linear = 0.0
-                    command.angular = 0.0
-                    command.reason = "jump_rejected_stop"
+                    if FORWARD_BIASED_RECOVERY:
+                        command.linear = max(command.linear, SEARCH_FORWARD_LINEAR)
+                        command.angular = 0.0
+                        command.reason = "jump_rejected_forward_hold"
+                    else:
+                        command.linear = 0.0
+                        command.angular = 0.0
+                        command.reason = "jump_rejected_stop"
             elif not path_found:
                 command.linear = 0.0
                 command.angular = 0.0
@@ -511,12 +857,87 @@ def main() -> int:
                         rpm_stall_count = 0
 
                     if rpm_stall_count >= RPM_STALL_MAX_TICKS:
-                        recovery_backup_remaining = RECOVERY_BACKUP_TICKS
-                        command.linear = RECOVERY_BACKUP_LINEAR
-                        command.angular = 0.0
-                        command.reason = "rpm_stall_backup"
+                        if FORWARD_BIASED_RECOVERY:
+                            runtime.reset()
+                            if hasattr(controller, "reset"):
+                                controller.reset()
+                            prev_cur_step = None
+                            search_mode = "probe_forward"
+                            search_ticks_remaining = SEARCH_FORWARD_PROBE_TICKS
+                            command.linear = SEARCH_FORWARD_LINEAR
+                            command.angular = SEARCH_PROBE_ANGULAR * stall_recovery_direction
+                            command.reason = "rpm_stall_forward_nudge"
+                            stall_recovery_direction *= -1.0
+                        else:
+                            recovery_backup_remaining = RECOVERY_BACKUP_TICKS
+                            command.linear = RECOVERY_BACKUP_LINEAR
+                            if args.rough_terrain:
+                                RECOVERY_BACKUP_ANGULAR = 0.10 * stall_recovery_direction
+                                stall_recovery_direction *= -1.0
+                            else:
+                                RECOVERY_BACKUP_ANGULAR = 0.0
+                            command.angular = RECOVERY_BACKUP_ANGULAR
+                            command.reason = "rpm_stall_backup"
                         rpm_stall_count = 0
-                        print(f"[{iteration:04d}] RPM stall detected — backing up")
+                        if FORWARD_BIASED_RECOVERY:
+                            print(f"[{iteration:04d}] RPM stall detected — forward nudge search")
+                        else:
+                            print(f"[{iteration:04d}] RPM stall detected — backing up")
+
+            # --- Tilt-aware speed reduction ---
+            # Teach-repeat matching degrades when the camera is strongly rolled/pitched
+            # relative to the taught pass. On rough terrain, reduce forward probing while
+            # still allowing the robot to search and recover.
+            if tilt_deg is not None and command.linear > 0.0:
+                tilt_abs = abs(float(tilt_deg))
+                if tilt_abs >= TILT_HEAVY_DEG:
+                    command.linear *= 0.78 if args.rough_terrain else 0.45
+                    command.reason = f"{command.reason}_tilt_heavy"
+                elif tilt_abs >= TILT_SLOWDOWN_DEG:
+                    command.linear *= 0.92 if args.rough_terrain else 0.70
+                    command.reason = f"{command.reason}_tilt_slow"
+
+            # --- Active relocalization search ---
+            # If the robot is not progressing along the taught route, do not just sit in
+            # align loops. Actively scan and probe to pick up a better visual match.
+            if search_ticks_remaining > 0:
+                if search_mode == "scan":
+                    command.linear = 0.0
+                    command.angular = SEARCH_SCAN_ANGULAR * search_direction
+                    command.reason = "relocalize_scan"
+                elif search_mode == "probe_forward":
+                    command.linear = SEARCH_FORWARD_LINEAR
+                    command.angular = SEARCH_PROBE_ANGULAR * search_direction
+                    command.reason = "relocalize_probe_forward"
+                elif search_mode == "probe_reverse":
+                    command.linear = SEARCH_REVERSE_LINEAR
+                    command.angular = -0.5 * SEARCH_PROBE_ANGULAR * search_direction
+                    command.reason = "relocalize_probe_reverse"
+                search_ticks_remaining -= 1
+                if search_ticks_remaining == 0:
+                    if search_mode == "scan":
+                        search_mode = "probe_forward"
+                        search_ticks_remaining = SEARCH_FORWARD_PROBE_TICKS
+                    elif search_mode == "probe_forward":
+                        if FORWARD_BIASED_RECOVERY:
+                            search_mode = None
+                            runtime.reset()
+                            if hasattr(controller, "reset"):
+                                controller.reset()
+                            prev_cur_step = None
+                            no_progress_count = 0
+                            print(f"[{iteration:04d}] relocalization search complete — localizer reset")
+                        else:
+                            search_mode = "probe_reverse"
+                            search_ticks_remaining = SEARCH_REVERSE_PROBE_TICKS
+                    else:
+                        search_mode = None
+                        runtime.reset()
+                        if hasattr(controller, "reset"):
+                            controller.reset()
+                        prev_cur_step = None
+                        no_progress_count = 0
+                        print(f"[{iteration:04d}] relocalization search complete — localizer reset")
 
             if dry_run:
                 sent = False
@@ -528,6 +949,9 @@ def main() -> int:
                 "heading_deg": heading_deg,
                 "heading_rate_dps": motion_state.get("heading_rate_dps"),
                 "rpm_mean": motion_state.get("rpm_mean"),
+                "roll_deg": roll_deg,
+                "pitch_deg": pitch_deg,
+                "tilt_deg": tilt_deg,
                 "motion_state_stale": motion_state.get("is_stale"),
                 "current_step": controller_input.get("current_step"),
                 "target_step": controller_input.get("target_step"),
@@ -550,11 +974,15 @@ def main() -> int:
                 path_error_suffix = ""
                 if payload["path_error"] is not None:
                     path_error_suffix = f" path_error={payload['path_error']}"
+                tilt_suffix = ""
+                if payload["tilt_deg"] is not None:
+                    tilt_suffix = f" tilt={payload['tilt_deg']:.1f}"
                 print(
                     f"[{iteration:04d}] cur={payload['current_step']} "
                     f"target={payload['target_step']} subgoal={payload['subgoal_step']} "
                     f"conf={payload['confidence']:.3f} "
-                    f"hdg={payload['heading_deg'] if payload['heading_deg'] is not None else 'NA'} "
+                    f"hdg={payload['heading_deg'] if payload['heading_deg'] is not None else 'NA'}"
+                    f"{tilt_suffix} "
                     f"cmd=({payload['linear']:.3f}, {payload['angular']:.3f}) "
                     f"reason={payload['reason']} sent={payload['sent']}"
                     f"{path_error_suffix}"
@@ -566,10 +994,23 @@ def main() -> int:
                     no_progress_count += 1
                 else:
                     no_progress_count = 0
-                # If stuck at same step for too long, reset MBRA's observation
-                # context so it gets fresh frames and breaks out of the stall.
+                # If stuck at the same step for too long, first try an active
+                # relocalization scan/probe sequence instead of passive resets.
                 if no_progress_count > 0 and no_progress_count % NO_PROGRESS_RESET_TICKS == 0:
-                    if hasattr(controller, 'reset'):
+                    if (
+                        search_ticks_remaining == 0
+                        and recovery_backup_remaining == 0
+                        and no_progress_count >= NO_PROGRESS_SEARCH_TICKS
+                    ):
+                        search_mode = "scan"
+                        search_ticks_remaining = SEARCH_SCAN_TICKS
+                        runtime.reset()
+                        if hasattr(controller, "reset"):
+                            controller.reset()
+                        no_progress_count = 0
+                        search_direction *= -1.0
+                        print(f"[{iteration:04d}] no-progress relocalization search at step {cur_step}")
+                    elif hasattr(controller, 'reset'):
                         controller.reset()
                         print(f"[{iteration:04d}] no-progress reset after {no_progress_count} ticks at step {cur_step}")
                 prev_cur_step = int(cur_step)

@@ -3,6 +3,19 @@
 > Source: `live_indoor_runtime_story.tex`
 > Master Note: [[erc3_full_documentation]]
 
+> [!abstract] Note Header
+> **Purpose:** Full narrative of the indoor system: what the problem really was, what failed, and why the final indoor path became MBRA-first on top of the corridor backbone.
+> **Read when:** I need the long indoor story or want to understand the reasoning behind indoor design changes.
+> **Authority:** Narrative companion note. Trust the master note and active indoor runtime code if this note is stale.
+
+> [!warning] July 16, 2026 consolidation
+> `live_indoor_runtime.py` is the only maintained indoor runtime. The two
+> experimental variants described below are preserved under `legacy/` for
+> historical comparison and must not be used for new rover runs. The active
+> no-GPS branch uses the same maintained runtime with the adaptive controller;
+> read [[00 Home/Current No-GPS - Read This First]] before applying this indoor
+> story to field work.
+
 # Purpose
 
 This document tells the full indoor story: what the indoor problem really was, what assumptions were correct, what we tried, what failed, what partially worked, what finally became the cleanest path, and why.
@@ -75,7 +88,7 @@ A lot of runs that looked like "controller failures" were actually localization 
 
 The fix was simple: pass `observation_heading_deg=None` to the localizer. Heading is still used by the simple controller for gyro-based drift correction (gyro Z is reliable), but it should never touch localization scoring indoors.
 
-**Important:** The recovery file (`live_indoor_runtime_recovery.py`) still passes heading to the localizer. This is a known defect in that file.
+**Important:** The recovery file (`legacy/live_indoor_runtime_recovery.py`) still passes heading to the localizer. This known defect is one reason it is preserved only as a legacy snapshot.
 
 ## Repetitive Corridor Structure Caused Aliasing
 
@@ -112,7 +125,7 @@ This is the main file that both Claude and Codex edited. It carries the full his
 - Depth thresholds: 0.25m stop / 0.6m slow for MBRA (tighter than simple's 0.4/0.8).
 - No-progress context reset every 10 ticks (resets MBRA observation history).
 
-## `live_indoor_runtime_mbra.py` --- Codex's MBRA-First Variant
+## `legacy/live_indoor_runtime_mbra.py` --- Codex's MBRA-First Variant
 
 This was created by Codex as a cleaner MBRA-first entry point. Its main difference is `default="mbra"` for the controller flag. In practice, this file is now functionally behind `live_indoor_runtime.py` because it is missing:
 - The `use_mbra` flag and all MBRA-specific guard logic (backup disable, angular saturation disable, RPM stall disable).
@@ -121,7 +134,7 @@ This was created by Codex as a cleaner MBRA-first entry point. Its main differen
 
 **Recommendation:** This file should be merged back into `live_indoor_runtime.py` or deprecated. The only difference that mattered --- defaulting to MBRA --- is a single line change. Having two nearly-identical files that drift apart is how bugs hide.
 
-## `live_indoor_runtime_recovery.py` --- The Experimental Heavy Recovery File
+## `legacy/live_indoor_runtime_recovery.py` --- The Experimental Heavy Recovery File
 
 This is the most complex variant (709 lines vs 593). It adds:
 - **Same-frame detection:** Compares downsampled frame signatures across ticks. If frames are identical for 10+ ticks while commanding forward, triggers backup + spin.

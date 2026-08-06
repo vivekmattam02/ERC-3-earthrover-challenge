@@ -3,6 +3,16 @@
 > Source: `live_outdoor_runtime_explained.tex`
 > Master Note: [[erc3_full_documentation]]
 
+> [!abstract] Note Header
+> **Purpose:** Plain-language walkthrough of what the outdoor runtime is doing.
+> **Read when:** I need an implementation-oriented explanation without reading the entire marathon story.
+> **Authority:** Explanatory companion note. Trust active code if behavior differs.
+
+> [!important] Current Status
+> This note explains the historical GPS outdoor mission runtime.
+> The current off-road branch is different: no-GPS teach-and-repeat on rough terrain using `live_indoor_runtime.py` plus prepared routes.
+> So this note is still useful, but it is not the current off-road source of truth.
+
 # Purpose of This Document
 
 This document explains, in plain language, what the outdoor mission code is doing now.

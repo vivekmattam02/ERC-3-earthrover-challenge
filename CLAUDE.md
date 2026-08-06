@@ -1,4 +1,20 @@
-# ERC Indoor Corridor Navigation — System Guide
+# ERC System Guide And Historical Indoor Reference
+
+## Current Status
+
+This file retains the original indoor-system guide below. The active field work
+is a separate no-GPS rough-terrain teach-and-repeat branch using
+`live_indoor_runtime.py`, front camera only, and
+`src/adaptive_pursuit_controller.py` through `scripts/run_prepared_route.py`.
+
+Its command path and data pipeline work, but recent physical tests did **not**
+demonstrate a reliable autonomous route repeat. Do not treat this guide's older
+indoor run commands as a no-GPS deployment recommendation. The authoritative
+current evidence is
+[`No-GPS Field Trial - Findings`](obsidian_vault/01%20Source%20of%20Truth/No-GPS%20Field%20Trial%20-%20Findings.md).
+Start with the one-page
+[`Current No-GPS - Read This First`](obsidian_vault/00%20Home/Current%20No-GPS%20-%20Read%20This%20First.md)
+card.
 
 ## Quick Start
 

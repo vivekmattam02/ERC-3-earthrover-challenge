@@ -26,7 +26,7 @@ class SimpleLocalControllerConfig:
     min_turn_angular: float = 0.12
     align_turn_angular: float = 0.22
     heading_gain: float = 0.010
-    drive_heading_gain: float = 0.0
+    drive_heading_gain: float = 0.006
     gyro_drive_correction_gain: float = 0.008
     gyro_drive_correction_deadband_dps: float = 3.0
     step_gain: float = 0.02
@@ -68,6 +68,17 @@ class SimpleLocalController:
         self._turn_direction = 1.0
         self._align_start_heading_deg: Optional[float] = None
         self._align_target_delta_deg: Optional[float] = None
+
+    def reset(self) -> None:
+        self._align_mode = False
+        self._align_ticks = 0
+        self._filtered_heading_error = 0.0
+        self._previous_angular = 0.0
+        self._last_current_step = None
+        self._no_progress_ticks = 0
+        self._turn_direction = 1.0
+        self._align_start_heading_deg = None
+        self._align_target_delta_deg = None
 
     def _smooth_heading_error(self, heading_error: float) -> float:
         alpha = self.config.heading_filter_alpha
@@ -165,9 +176,12 @@ class SimpleLocalController:
 
         desired_turn_delta = None
         if current_orientation is not None and subgoal_orientation is not None:
-            desired_turn_delta = wrap_angle_deg(float(subgoal_orientation) - float(current_orientation))
+            # Compass-heading convention: positive angular velocity is a left turn,
+            # which decreases compass heading. Use current - target so positive
+            # error means "turn left" and negative means "turn right".
+            desired_turn_delta = wrap_angle_deg(float(current_orientation) - float(subgoal_orientation))
 
-        raw_heading_error = wrap_angle_deg(float(subgoal_orientation) - float(heading_reference))
+        raw_heading_error = wrap_angle_deg(float(heading_reference) - float(subgoal_orientation))
         if self._align_mode and observation_heading_deg is not None and self._align_start_heading_deg is not None and self._align_target_delta_deg is not None:
             turned_so_far = wrap_angle_deg(float(observation_heading_deg) - float(self._align_start_heading_deg))
             raw_heading_error = wrap_angle_deg(float(self._align_target_delta_deg) - turned_so_far)
@@ -210,17 +224,25 @@ class SimpleLocalController:
 
         linear = desired_linear
 
-        # Gyro-based heading correction: counteract unwanted rotation
-        # during forward drive.  Compass is disabled indoors, so this is
-        # the only course-correction signal.
-        angular = 0.0
+        # Continuous heading correction during forward drive is important for
+        # differential-drive robots on rough terrain.  A pure align/drive split
+        # is too brittle when the body gets bumped around by rocks.
+        angular = self.config.drive_heading_gain * heading_error
+        if abs(heading_error) > 1e-6 and abs(angular) < self.config.min_turn_angular * 0.5:
+            angular = (self.config.min_turn_angular * 0.5) * (1.0 if heading_error > 0 else -1.0)
+
         if abs(heading_rate_dps) > self.config.gyro_drive_correction_deadband_dps:
-            angular = -self.config.gyro_drive_correction_gain * heading_rate_dps
-            angular = max(-self.config.max_angular * 0.5,
-                          min(self.config.max_angular * 0.5, angular))
+            angular += -self.config.gyro_drive_correction_gain * heading_rate_dps
+
+        angular = max(-self.config.max_angular * 0.75,
+                      min(self.config.max_angular * 0.75, angular))
 
         if confidence < self.config.confidence_slow_threshold:
             linear *= self.config.low_confidence_linear_scale
+        if abs(heading_error) > self.config.hard_turn_threshold_deg:
+            linear *= 0.45
+        elif abs(heading_error) > self.config.slow_heading_threshold_deg:
+            linear *= 0.70
         if abs(heading_rate_dps) > self.config.high_turn_rate_threshold_dps:
             linear *= self.config.high_turn_rate_linear_scale
         if 0.0 < rpm_mean < self.config.rpm_motion_threshold:
@@ -230,5 +252,6 @@ class SimpleLocalController:
         if held_previous:
             linear *= self.config.held_previous_linear_scale
 
+        angular = self._rate_limit_angular(angular)
         linear = max(self.config.min_linear, min(self.config.max_linear, linear))
         return ControlCommand(linear=linear, angular=angular, reason="drive_to_subgoal")

@@ -1,0 +1,19 @@
+{
+  "input_h5": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/recordings/manual_flag_collection/2026-04-22/run_01_1521.h5",
+  "output_dir": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/postprocessed/run_01_1521",
+  "num_front_frames": 1817,
+  "selected_frame_count": 274,
+  "candidate_frame_count": 1007,
+  "hard_reject_count": 796,
+  "selected_start_sec": 0.0,
+  "selected_end_sec": 138.0266089439392,
+  "selected_duration_sec": 138.0266089439392,
+  "selected_mean_score": 0.80989642000384,
+  "selected_max_tilt_deg": 14.312510294917967,
+  "selected_min_brightness": 129.69085693359375,
+  "selected_contact_sheet": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/postprocessed/run_01_1521/preview/selected_contact_sheet.jpg",
+  "rejected_contact_sheet": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/postprocessed/run_01_1521/preview/rejected_contact_sheet.jpg",
+  "metrics_csv": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/postprocessed/run_01_1521/metrics/frame_metrics.csv",
+  "cleaned_h5": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/postprocessed/run_01_1521/run_01_1521_cleaned.h5",
+  "suggested_prepare_command": "python scripts/prepare_manual_route.py --input-h5 /home/lunar/Desktop/rover/ERC-3-earthrover-challenge/postprocessed/run_01_1521/run_01_1521_cleaned.h5 --route-name run_01_1521_pp --frame-step 12 --controller simple --tick-hz 2.0 --max-subgoal-hops 12"
+}

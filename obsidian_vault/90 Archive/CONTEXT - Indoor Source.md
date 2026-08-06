@@ -1,11 +1,137 @@
-# ERC Indoor Context
+# ERC Indoor / No-GPS Route-Repeat Context
 
 ## Project Goal
 
-Build a reliable indoor navigation system for the EarthRover Challenge in a
-known, repeated corridor environment at NYU.
+Build a reliable **no-GPS, repeated-route navigation system** for the
+EarthRover platform in rough indoor / off-road-style terrain using a
+teach-and-repeat workflow.
 
-This is **not** a generic unseen-building navigation problem.
+This is **not** a generic unseen-world exploration problem and it is **not**
+the original GPS outdoor mission setup anymore.
+
+## Active Direction (2026-04-24)
+
+The current active branch of work is:
+
+- `no GPS`
+- `visual teach-and-repeat`
+- `differential-drive rover`
+- `rough / uneven terrain`
+- `manually taught route, then autonomous repeat`
+
+Operationally, the repo is no longer centered on the original corridor-only
+baseline. The current source-of-truth problem is:
+
+1. manually record a good reference traversal
+2. convert it into a visual route package
+3. run the live route follower with rough-terrain control
+4. iterate on control + post-processing until repeat runs are stable
+
+Important reality check:
+
+- the FrodoBots mission session currently returns placeholder GPS
+  (`latitude=1000`, `longitude=1000`)
+- because of that, `live_outdoor_runtime.py` is **not** the active runtime for
+  this work
+- the active runtime is `live_indoor_runtime.py` repurposed as a
+  no-GPS route-repeat runner
+
+## Current Active Pipeline
+
+The current active no-GPS pipeline is:
+
+1. `scripts/record_sdk_session.py`
+   - records manual rover runs from the local SDK
+   - saves front camera, telemetry, IMU, magnetometer, RPMs
+   - now auto-normalizes output to `.h5`
+
+2. `tools/extract_h5_dataset.py`
+   - converts a recorded H5 bag into route images + metadata
+   - supports motion-window auto-trimming
+   - trims using relative session time, not mismatched raw clocks
+
+3. `baseline.py`
+   - builds CosPlace descriptor DB + place graph + navigation graph
+   - now preserves sequential navigation edges even when manual bags do not
+     contain control labels
+
+4. `scripts/prepare_manual_route.py`
+   - one-command route preparation:
+     `bag -> extracted dataset -> descriptor DB -> graph -> route_info.json`
+
+5. `scripts/visualize_manual_route.py`
+   - creates contact sheets for quick route quality inspection
+
+6. `scripts/run_prepared_route.py`
+   - short launcher for prepared routes
+   - avoids long fragile CLI strings
+
+7. `live_indoor_runtime.py`
+   - current live no-GPS route-repeat runner
+   - rough-terrain mode
+   - startup relocalization probe
+   - no-progress relocalization scan/probe
+   - tilt-aware speed reduction
+
+8. `src/sensor_state.py`
+   - now computes filtered `roll`, `pitch`, and `tilt`
+
+9. `src/local_controller.py`
+   - still the active controller family
+   - but now uses continuous heading correction while driving, not just
+     turn-in-place alignment
+
+## Current Recorded Bags
+
+Canonical manual recordings are currently:
+
+- `recordings/manual_flag_collection/2026-04-22/run_01_1521.h5`
+- `recordings/manual_flag_collection/2026-04-22/run_02_1537.h5`
+- `recordings/manual_flag_collection/2026-04-22/run_03_1551.h5`
+
+Bag quality verdict:
+
+- `run_01_1521.h5`
+  - strongest teach bag so far
+  - best current reference route
+- `run_02_1537.h5`
+  - rejected as primary route
+  - contains a dark / near-black segment early and a badly tilted tail
+- `run_03_1551.h5`
+  - usable but weaker than run 1
+  - active motion mostly in the first ~290 s, poor tail later
+
+There is also a later malformed recording artifact:
+
+- `recordings/manual_flag_collection/2026-04-2`
+- `recordings/manual_flag_collection/2026-04-2.summary.json`
+
+This is a valid saved recording with a bad filename and should be cleaned up
+during post-processing rather than treated as a canonical route by default.
+
+## Current Prepared Route Packages
+
+Prepared route packages currently exist at:
+
+- `data/manual_routes/smoke_run01_c`
+- `data/manual_routes/smoke_run02_c`
+- `data/manual_routes/smoke_run03_c`
+
+Current recommendation:
+
+- use `smoke_run01_c` as the active route package
+- do **not** use `smoke_run02_c` as the primary route
+- keep `smoke_run03_c` only as a secondary comparison route
+
+Recommended live command:
+
+```bash
+python scripts/run_prepared_route.py \
+  --route-dir data/manual_routes/smoke_run01_c \
+  --sdk-url http://127.0.0.1:8000 \
+  --rough-terrain \
+  --send-control
+```
 
 ## Current Baseline
 
@@ -42,9 +168,10 @@ The current baseline is:
    - returns current node, target, subgoal, and optional subgoal image
 
 6. `src/local_controller.py`
-   - first simple local-controller baseline
-   - heading-aware control from current state to nearby graph subgoal
-   - outputs `linear` and `angular` commands
+   - current simple local-controller baseline
+   - originally heading-gated and corridor-oriented
+   - now extended for continuous heading correction during forward drive
+   - still heuristic, not yet the final terrain-capable controller
 
 7. `live_indoor_runtime.py`
    - conservative live loop runner
@@ -59,6 +186,7 @@ The current baseline is:
    - smooths heading from orientation
    - estimates turn rate from gyro z
    - summarizes RPM motion hints
+   - now also estimates `roll`, `pitch`, and `tilt`
    - provides a motion prior for localization/control
 
 10. `src/depth_estimator.py` + `src/depth_safety.py`
@@ -143,6 +271,15 @@ Contains:
 - `place_graph.json`
 - `navigation_graph.json`
 
+### No-GPS manual-route assets
+
+- `recordings/manual_flag_collection/2026-04-22/`
+- `data/manual_routes/smoke_run01_c/`
+- `data/manual_routes/smoke_run02_c/`
+- `data/manual_routes/smoke_run03_c/`
+
+These are now the most important runtime assets for active work.
+
 ## What Has Already Been Verified
 
 1. The `.h5` file is useful and contains real front frames, controls,
@@ -188,17 +325,23 @@ What is actually solid right now:
 - graph path planning and nearby subgoal selection
 - basic runtime wiring from SDK input to localize -> plan -> control
 - better debug output in the live runtime and controller
+- manual bag recording -> route extraction -> route package build
+- contact-sheet visualization for route quality checking
+- no-GPS route-repeat runtime launch path
 
 What is only partial right now:
 
 - local control
   - improved compared to the first version
+  - now includes rough-terrain steering, stall recovery, tilt slowdown, and
+    relocalization search
   - still heuristic and not proven reliable enough for long live runs
 - recovery behavior
   - low-confidence stop exists
   - no-path stop exists
   - stale motion-state stop exists
-  - there is still no mature recover / relocalize / resume state machine
+  - there is now a basic startup probe + relocalization scan/probe sequence
+  - there is still no mature final recover / relocalize / resume state machine
 - safety
   - optional depth-safety code exists in the repo
   - it is not yet fully integrated into the live runtime path
@@ -211,6 +354,8 @@ What is still unproven:
 - MBRA as a practical replacement for the simple controller on the real corridor (vel_past bug is fixed, needs live validation)
 - full safety-aware autonomy on the real robot
 - long-run stability (100+ steps) without human intervention
+- repeated no-GPS route-follow on rough terrain without human intervention
+- whether a pursuit-style controller will outperform the current simple controller
 
 What has been proven in live tests:
 
@@ -221,6 +366,32 @@ What has been proven in live tests:
 - GPU inference works (CosPlace 4.8ms, MBRA 14ms on CUDA)
 
 What changed most recently:
+
+- `scripts/record_sdk_session.py`
+  - added manual no-GPS session recording
+  - now auto-normalizes output names to `.h5`
+- `tools/extract_h5_dataset.py`
+  - added motion-window auto-trim
+  - fixed time-base mismatch by trimming in relative session time
+- `baseline.py`
+  - preserves sequential navigation edges for manual bags with no control labels
+- `scripts/prepare_manual_route.py`
+  - new one-command bag-to-route builder
+- `scripts/visualize_manual_route.py`
+  - new contact-sheet visualizer for route quality
+- `scripts/run_prepared_route.py`
+  - new short launcher for prepared route packages
+- `src/graph_planner.py`
+  - loader now accepts either `links` or `edges` node-link JSON keys
+- `src/sensor_state.py`
+  - added tilt estimation
+- `src/local_controller.py`
+  - continuous heading correction during forward drive
+- `live_indoor_runtime.py`
+  - rough-terrain tuning
+  - startup relocalization probe
+  - no-progress relocalization search
+  - tilt-aware slowdown
 
 - `src/mbra_controller.py`
   - fully rewritten based on deep analysis of MBRA architecture and training code
@@ -256,8 +427,30 @@ Controller options:
 
 - `--controller simple`
   - current hand-written baseline controller
-  - drives straight forward; relies on localization to advance steps
+  - now the active no-GPS route-repeat controller
+  - still heuristic, but currently the only practical live option
   - default tick rate: 2Hz, default subgoal hops: 15
+
+## Immediate Next Work: Post-Processing
+
+The next real work after recording is post-processing, not random re-testing.
+
+Priority order:
+
+1. cleanly rename and organize all new bags
+2. generate summaries and contact sheets for each candidate teach bag
+3. reject bags with:
+   - dark / black segments
+   - extreme tilt
+   - long dead time
+   - bad route coverage
+4. create one canonical teach bag for the active route
+5. rebuild the route package from that canonical bag
+6. compare autonomous repeat behavior against the current `smoke_run01_c`
+
+The current best candidate remains:
+
+- `run_01_1521.h5` / `smoke_run01_c`
 - `--controller mbra`
   - loads `mbra_repo/train/config/MBRA.yaml`
   - loads `mbra_repo/deployment/model_weights/mbra.pth`

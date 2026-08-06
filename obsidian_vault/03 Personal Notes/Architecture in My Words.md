@@ -16,6 +16,44 @@ So the real indoor stack is:
 - MBRA local control
 - depth veto as safety
 
+## Current No-GPS Branch
+
+The current active branch is different from the original indoor competition framing.
+
+It is now a **teach-and-repeat rough-terrain problem**:
+
+- manually record a route
+- build a visual route package
+- localize against that taught route
+- run a differential-drive controller that can keep moving on uneven terrain
+
+So the real current stack is:
+
+- manual teach bag collection
+- visual route extraction
+- CosPlace localization + temporal stabilization
+- graph subgoal progression
+- rough-terrain route-follow controller
+- relocalization search when progress stalls
+
+The honest maturity boundary is important: the software loop and motion
+commands work, but the current physical tests did not prove sustained route
+progression. The active engineering problem is reference-route/start alignment
+and recovery quality, not merely adding another controller label.
+
+The most important practical difference is this:
+
+- this branch has **no GPS**
+- and it should not behave like a static align-only robot
+
+The most important recent correction is this:
+
+- a teach route is not just a visually clean clip
+- it must preserve traversal evidence
+- post-processing should therefore prefer
+  `motion-rich, route-progressing episodes`
+  over a single stable-looking window
+
 ## Outdoor
 
 Outdoor was a mission-runtime problem.
@@ -56,3 +94,4 @@ It was usually:
 - [[03 Personal Notes/Current Truth]]
 - [[02 Core Concepts/MBRA vs LogoNav]]
 - [[04 Runs and Failures/Run Outcomes]]
+- [[01 Source of Truth/No-GPS Field Trial - Findings]]

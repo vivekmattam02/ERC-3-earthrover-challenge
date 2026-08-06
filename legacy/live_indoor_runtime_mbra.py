@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Live indoor runtime loop for the ERC known-corridor baseline.
+"""Legacy MBRA-first indoor runtime snapshot.
+
+Superseded by ``live_indoor_runtime.py --controller mbra``. Retained only for
+historical comparison; do not use it for a new rover run.
 
 This script ties together:
 - EarthRover SDK input/output
@@ -16,13 +19,11 @@ import argparse
 import json
 import sys
 import time
-
-import numpy as np
 from pathlib import Path
 from typing import Optional
 
 
-REPO_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = Path(__file__).resolve().parents[1]
 SRC_DIR = REPO_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
@@ -34,7 +35,7 @@ from sensor_state import SensorStateFilter, SensorStateFilterConfig  # type: ign
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run the ERC indoor baseline live loop.")
+    parser = argparse.ArgumentParser(description="Run the ERC indoor MBRA-first live loop.")
     parser.add_argument(
         "--database",
         type=Path,
@@ -85,7 +86,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--controller",
         choices=("simple", "mbra"),
-        default="simple",
+        default="mbra",
         help="Local controller implementation to use.",
     )
     parser.add_argument(
@@ -113,11 +114,6 @@ def build_runtime(args: argparse.Namespace) -> NavigationRuntime:
             max_subgoal_hops=args.max_subgoal_hops,
         )
     )
-
-
-def frame_signature(frame) -> np.ndarray:
-    gray = frame.mean(axis=2) if frame.ndim == 3 else frame
-    return gray[::24, ::24].astype(np.float32, copy=False)
 
 
 def build_controller(args: argparse.Namespace):
@@ -204,7 +200,7 @@ def main() -> int:
     dry_run = not args.send_control
     is_checkpoint_mode = bool(args.checkpoint_steps or args.checkpoint_images)
 
-    print("Live indoor runtime")
+    print("Live indoor runtime (MBRA-first)")
     print("=" * 60)
     print(f"Mode: {'DRY RUN' if dry_run else 'SEND CONTROL'}")
     if dry_run:
@@ -233,13 +229,13 @@ def main() -> int:
     TARGET_REACHED_CONFIRM_TICKS = 3
     JUMP_REJECT_THRESHOLD = 30
     PROXIMITY_SLOWDOWN_STEPS = 15
-    NO_PROGRESS_RESET_TICKS = 20  # if stuck at same step for this many ticks, reset MBRA context
+    NO_PROGRESS_RESET_TICKS = 10  # if stuck at same step for this many ticks, reset MBRA context
+    use_mbra = (args.controller == "mbra")
 
     # --- Angular saturation / wall-crash prevention ---
     ANGULAR_SAT_RATIO = 0.85           # fraction of max_angular that counts as "saturated"
-    ANGULAR_SAT_MAX_TICKS = 4          # consecutive saturated ticks before safety action
-    ANGULAR_OVERRIDE_TICKS = 4         # reused as pivot-hold ticks after saturation
-    ANGULAR_PIVOT_ANGULAR = 0.16       # slow in-place pivot; never drive straight here
+    ANGULAR_SAT_MAX_TICKS = 6          # max consecutive ticks at saturation before override
+    ANGULAR_OVERRIDE_TICKS = 4         # how many ticks to force straight after saturation
     angular_sat_count = 0
     angular_override_remaining = 0
 
@@ -254,29 +250,6 @@ def main() -> int:
     RPM_STALL_THRESHOLD = 1.5          # RPM below this while commanding forward = stalled
     RPM_STALL_MAX_TICKS = 8            # ticks before triggering stall recovery
     rpm_stall_count = 0
-    NO_PATH_SKIP_MIN_CONF = 0.50
-    NO_PATH_SKIP_CONFIRM_TICKS = 2
-    no_path_skip_count = 0
-    NO_PROGRESS_RECOVERY_TICKS = 18
-    RECOVERY_SPIN_TICKS = 8
-    RECOVERY_SPIN_ANGULAR = 0.18
-    recovery_spin_remaining = 0
-    recovery_spin_direction = 1.0
-    STUCK_STEP_TOLERANCE = 6
-    stuck_recovery_stage = 0
-    stuck_recovery_anchor: Optional[int] = None
-    SATURATION_RECOVERY_EVENTS = 3
-    saturation_event_count = 0
-    last_turn_sign = 1.0
-    IMU_SPIN_RATE_DPS = 25.0
-    IMU_SPIN_CONFIRM_TICKS = 3
-    imu_spin_count = 0
-    SAME_FRAME_MAE_THRESHOLD = 2.0
-    SAME_FRAME_CONFIRM_TICKS = 10
-    same_frame_count = 0
-    prev_frame_sig: Optional[np.ndarray] = None
-    RECOVERY_COOLDOWN_TICKS = 10
-    recovery_cooldown_remaining = 0
 
     try:
         while True:
@@ -301,12 +274,13 @@ def main() -> int:
             if iteration == 0:
                 print(f"[info] Live frame shape: {frame.shape}")
 
-            cur_frame_sig = frame_signature(frame)
-
+            # Pass None for localizer heading — compass is unreliable indoors
+            # and adds noise to match scoring. Heading is still used by the
+            # controller for gyro drift correction (passed separately below).
             if is_checkpoint_mode:
                 step_output = runtime.step_to_active_checkpoint(
                     frame_rgb=frame,
-                    observation_heading_deg=heading_deg,
+                    observation_heading_deg=None,
                     auto_advance_checkpoint=args.auto_advance_checkpoints,
                 )
             else:
@@ -314,7 +288,7 @@ def main() -> int:
                     frame_rgb=frame,
                     target_step=args.target_step,
                     target_image_name=args.target_image_name,
-                    observation_heading_deg=heading_deg,
+                    observation_heading_deg=None,
                 )
 
             controller_input = step_output["controller_input"]
@@ -330,7 +304,7 @@ def main() -> int:
             cur_step = controller_input.get("current_step")
             tgt_step = controller_input.get("target_step")
 
-            # --- Checkpoint completion / skip logic ---
+            # --- Checkpoint completion exit ---
             if is_checkpoint_mode and args.auto_advance_checkpoints:
                 checkpoint_reached = bool(controller_input.get("checkpoint_reached", False))
                 next_cp = controller_input.get("next_active_checkpoint")
@@ -343,41 +317,38 @@ def main() -> int:
                     )
                     break
 
-                skip_past_checkpoint = (
-                    not path_found
-                    and cur_step is not None
-                    and tgt_step is not None
-                    and int(cur_step) > int(tgt_step)
-                    and confidence >= NO_PATH_SKIP_MIN_CONF
-                )
-                if skip_past_checkpoint:
-                    no_path_skip_count += 1
-                else:
-                    no_path_skip_count = 0
-
-                if no_path_skip_count >= NO_PATH_SKIP_CONFIRM_TICKS:
-                    skipped_step = tgt_step
-                    next_cp = runtime.planner.advance_checkpoint()
-                    no_path_skip_count = 0
-                    if next_cp is None:
-                        if not dry_run:
-                            rover.stop()
-                        print(
-                            f"[{iteration:04d}] ALL CHECKPOINTS COMPLETED — skipped final past checkpoint "
-                            f"{skipped_step} at cur={cur_step} conf={confidence:.3f}"
-                        )
-                        break
-                    next_step = runtime.planner.node_to_step.get(int(next_cp))
+            # --- Skip past checkpoint (forward-only graph) ---
+            # If the robot is already past a checkpoint and there's no backward
+            # path, advance to the next checkpoint instead of stopping forever.
+            if (
+                is_checkpoint_mode
+                and args.auto_advance_checkpoints
+                and not path_found
+                and cur_step is not None
+                and tgt_step is not None
+                and int(cur_step) > int(tgt_step)
+                and confidence >= 0.45
+            ):
+                skipped = tgt_step
+                next_cp = runtime.planner.advance_checkpoint()
+                if next_cp is None:
+                    if not dry_run:
+                        rover.stop()
                     print(
-                        f"[{iteration:04d}] skipping past checkpoint {skipped_step} — cur={cur_step} "
-                        f"conf={confidence:.3f} next={next_step}"
+                        f"[{iteration:04d}] ALL CHECKPOINTS COMPLETED (skipped past final {skipped}) — "
+                        f"cur={cur_step} conf={confidence:.3f}"
                     )
-                    prev_frame_sig = cur_frame_sig
-                    elapsed = time.time() - loop_start
-                    if elapsed < period:
-                        time.sleep(period - elapsed)
-                    iteration += 1
-                    continue
+                    break
+                next_step = runtime.planner.node_to_step.get(int(next_cp))
+                print(
+                    f"[{iteration:04d}] skipping past checkpoint {skipped} — "
+                    f"cur={cur_step} conf={confidence:.3f} next_target={next_step}"
+                )
+                elapsed = time.time() - loop_start
+                if elapsed < period:
+                    time.sleep(period - elapsed)
+                iteration += 1
+                continue
 
             # --- Localization jump rejection ---
             # Bigger jumps require higher confidence to be trusted.
@@ -428,35 +399,38 @@ def main() -> int:
                 command.angular = 0.0
                 command.reason = "recovery_backup"
                 recovery_backup_remaining -= 1
-            elif recovery_spin_remaining > 0:
-                command.linear = 0.0
-                command.angular = recovery_spin_direction * RECOVERY_SPIN_ANGULAR
-                command.reason = "recovery_spin"
-                recovery_spin_remaining -= 1
-                if recovery_spin_remaining == 0:
+                if recovery_backup_remaining == 0:
+                    # Done backing up — reset localizer + controller for fresh start
                     runtime.reset()
                     if hasattr(controller, 'reset'):
                         controller.reset()
                     jump_reject_consecutive = 0
                     angular_sat_count = 0
                     angular_override_remaining = 0
-                    saturation_event_count = 0
                     rpm_stall_count = 0
-                    no_progress_count = 0
                     prev_cur_step = None
-                    recovery_cooldown_remaining = RECOVERY_COOLDOWN_TICKS
-                    print(f"[{iteration:04d}] recovery complete — relocalizing")
+                    print(f"[{iteration:04d}] recovery complete — localizer reset")
             elif jump_rejected:
                 jump_reject_consecutive += 1
                 if jump_reject_consecutive >= JUMP_REJECT_RECOVERY_TICKS:
-                    # Stuck facing wall — initiate backup + spin recovery
-                    recovery_backup_remaining = RECOVERY_BACKUP_TICKS
-                    recovery_spin_remaining = RECOVERY_SPIN_TICKS
-                    recovery_spin_direction = -1.0 if last_turn_sign >= 0.0 else 1.0
-                    command.linear = RECOVERY_BACKUP_LINEAR
-                    command.angular = 0.0
-                    command.reason = "recovery_backup_start"
-                    print(f"[{iteration:04d}] jump rejection stuck for {jump_reject_consecutive} ticks — backup + spin")
+                    if use_mbra:
+                        # MBRA: just reset localizer, no reverse (reverse kills context)
+                        runtime.reset()
+                        if hasattr(controller, 'reset'):
+                            controller.reset()
+                        command.linear = 0.0
+                        command.angular = 0.0
+                        command.reason = "jump_reject_reset"
+                        jump_reject_consecutive = 0
+                        prev_cur_step = None
+                        print(f"[{iteration:04d}] jump rejection stuck — resetting (no backup for MBRA)")
+                    else:
+                        # Simple controller: initiate backup recovery
+                        recovery_backup_remaining = RECOVERY_BACKUP_TICKS
+                        command.linear = RECOVERY_BACKUP_LINEAR
+                        command.angular = 0.0
+                        command.reason = "recovery_backup_start"
+                        print(f"[{iteration:04d}] jump rejection stuck for {jump_reject_consecutive} ticks — backing up")
                 else:
                     command.linear = 0.0
                     command.angular = 0.0
@@ -475,93 +449,24 @@ def main() -> int:
                 jump_reject_consecutive = 0
 
                 # --- Angular saturation detection (prevents wall-crash) ---
-                max_ang = getattr(controller, 'config', None)
-                max_ang = max_ang.max_angular if max_ang and hasattr(max_ang, 'max_angular') else 0.34
-                if abs(command.angular) > ANGULAR_SAT_RATIO * max_ang:
-                    angular_sat_count += 1
-                else:
-                    angular_sat_count = 0
-
-                if angular_sat_count >= ANGULAR_SAT_MAX_TICKS:
-                    angular_override_remaining = ANGULAR_OVERRIDE_TICKS
-                    angular_sat_count = 0
-                    saturation_event_count += 1
-                    print(f"[{iteration:04d}] angular saturation — pivot hold for {ANGULAR_OVERRIDE_TICKS} ticks")
-                    if recovery_cooldown_remaining == 0 and saturation_event_count >= SATURATION_RECOVERY_EVENTS:
-                        recovery_backup_remaining = RECOVERY_BACKUP_TICKS
-                        recovery_spin_remaining = RECOVERY_SPIN_TICKS
-                        recovery_spin_direction = -1.0 if last_turn_sign >= 0.0 else 1.0
-                        command.linear = RECOVERY_BACKUP_LINEAR
-                        command.angular = 0.0
-                        command.reason = "recovery_backup_start"
-                        saturation_event_count = 0
-                        print(f"[{iteration:04d}] repeated angular saturation — backup + spin relocalize")
-
-                if angular_override_remaining > 0:
-                    command.linear = 0.0
-                    command.angular = last_turn_sign * ANGULAR_PIVOT_ANGULAR
-                    command.reason = "angular_pivot_hold"
-                    angular_override_remaining -= 1
-                if abs(command.angular) > 1e-4:
-                    last_turn_sign = 1.0 if command.angular > 0.0 else -1.0
-
-                heading_rate_dps = float(motion_state.get("heading_rate_dps") or 0.0)
-                risky_spin = (
-                    recovery_cooldown_remaining == 0
-                    and cur_step is not None
-                    and prev_cur_step is not None
-                    and int(cur_step) == prev_cur_step
-                    and no_progress_count >= 4
-                    and command.linear > 0.08
-                    and abs(command.angular) > 0.20
-                    and abs(heading_rate_dps) >= IMU_SPIN_RATE_DPS
-                )
-                if risky_spin:
-                    imu_spin_count += 1
-                else:
-                    imu_spin_count = 0
-                if imu_spin_count >= IMU_SPIN_CONFIRM_TICKS:
-                    recovery_backup_remaining = RECOVERY_BACKUP_TICKS
-                    recovery_spin_remaining = RECOVERY_SPIN_TICKS
-                    recovery_spin_direction = -1.0 if heading_rate_dps >= 0.0 else 1.0
-                    command.linear = RECOVERY_BACKUP_LINEAR
-                    command.angular = 0.0
-                    command.reason = "imu_spin_recovery"
-                    imu_spin_count = 0
-                    print(f"[{iteration:04d}] IMU spin guard triggered at step {cur_step} rate={heading_rate_dps:.1f} dps")
-
-                same_frame = False
-                if prev_frame_sig is not None:
-                    frame_mae = float(np.mean(np.abs(cur_frame_sig - prev_frame_sig)))
-                    same_frame = frame_mae <= SAME_FRAME_MAE_THRESHOLD
-                else:
-                    frame_mae = None
-
-                if (
-                    recovery_cooldown_remaining == 0
-                    and same_frame
-                    and cur_step is not None
-                    and prev_cur_step is not None
-                    and int(cur_step) == prev_cur_step
-                    and no_progress_count >= 4
-                    and command.linear > 0.08
-                ):
-                    same_frame_count += 1
-                else:
-                    same_frame_count = 0
-
-                if same_frame_count >= SAME_FRAME_CONFIRM_TICKS:
-                    recovery_backup_remaining = RECOVERY_BACKUP_TICKS
-                    recovery_spin_remaining = RECOVERY_SPIN_TICKS
-                    recovery_spin_direction = -1.0 if last_turn_sign >= 0.0 else 1.0
-                    command.linear = RECOVERY_BACKUP_LINEAR
-                    command.angular = 0.0
-                    command.reason = "same_frame_recovery"
-                    same_frame_count = 0
-                    if frame_mae is None:
-                        print(f"[{iteration:04d}] same-frame guard triggered at step {cur_step}")
+                # Disabled for MBRA — it manages its own steering via learned policy.
+                if not use_mbra:
+                    max_ang = getattr(controller, 'config', None)
+                    max_ang = max_ang.max_angular if max_ang and hasattr(max_ang, 'max_angular') else 0.34
+                    if abs(command.angular) > ANGULAR_SAT_RATIO * max_ang:
+                        angular_sat_count += 1
                     else:
-                        print(f"[{iteration:04d}] same-frame guard triggered at step {cur_step} mae={frame_mae:.2f}")
+                        angular_sat_count = 0
+
+                    if angular_sat_count >= ANGULAR_SAT_MAX_TICKS:
+                        angular_override_remaining = ANGULAR_OVERRIDE_TICKS
+                        angular_sat_count = 0
+                        print(f"[{iteration:04d}] angular saturation — forcing straight for {ANGULAR_OVERRIDE_TICKS} ticks")
+
+                    if angular_override_remaining > 0:
+                        command.angular = 0.0
+                        command.reason = "angular_override_straight"
+                        angular_override_remaining -= 1
 
                 # --- Depth safety veto (monocular forward-clearance) ---
                 if depth_estimator is not None and command.linear > 0.0 and frame is not None:
@@ -578,7 +483,10 @@ def main() -> int:
                                 command.linear = 0.0
                                 command.angular = 0.0
                                 command.reason = f"depth_stop({fwd_clearance:.2f}m)"
-                                if recovery_backup_remaining == 0:
+                                # Only trigger reverse backup for simple controller.
+                                # MBRA sees the obstacle in its frames and will steer;
+                                # reversing resets its context and causes oscillation.
+                                if not use_mbra and recovery_backup_remaining == 0:
                                     recovery_backup_remaining = RECOVERY_BACKUP_TICKS
                             elif fwd_clearance < args.depth_slow_m:
                                 scale = (fwd_clearance - args.depth_stop_m) / (args.depth_slow_m - args.depth_stop_m)
@@ -590,21 +498,22 @@ def main() -> int:
                 # --- RPM stall detection (robot pushing against obstacle) ---
                 # Guarded by not dry_run: RPM is near-zero in dry run and
                 # would falsely trigger repeated backup cycles.
-                rpm = motion_state.get("rpm_mean") or 0.0
-                if not dry_run and command.linear > 0.05 and rpm < RPM_STALL_THRESHOLD:
-                    rpm_stall_count += 1
-                else:
-                    rpm_stall_count = 0
+                # Disabled for MBRA — reversing resets its visual context and
+                # causes oscillation.  MBRA handles obstacles via its learned policy.
+                if not use_mbra:
+                    rpm = motion_state.get("rpm_mean") or 0.0
+                    if not dry_run and command.linear > 0.05 and rpm < RPM_STALL_THRESHOLD:
+                        rpm_stall_count += 1
+                    else:
+                        rpm_stall_count = 0
 
-                if recovery_cooldown_remaining == 0 and rpm_stall_count >= RPM_STALL_MAX_TICKS:
-                    recovery_backup_remaining = RECOVERY_BACKUP_TICKS
-                    recovery_spin_remaining = RECOVERY_SPIN_TICKS
-                    recovery_spin_direction = -1.0 if last_turn_sign >= 0.0 else 1.0
-                    command.linear = RECOVERY_BACKUP_LINEAR
-                    command.angular = 0.0
-                    command.reason = "rpm_stall_backup"
-                    rpm_stall_count = 0
-                    print(f"[{iteration:04d}] RPM stall detected — backup + spin")
+                    if rpm_stall_count >= RPM_STALL_MAX_TICKS:
+                        recovery_backup_remaining = RECOVERY_BACKUP_TICKS
+                        command.linear = RECOVERY_BACKUP_LINEAR
+                        command.angular = 0.0
+                        command.reason = "rpm_stall_backup"
+                        rpm_stall_count = 0
+                        print(f"[{iteration:04d}] RPM stall detected — backing up")
 
             if dry_run:
                 sent = False
@@ -654,41 +563,13 @@ def main() -> int:
                     no_progress_count += 1
                 else:
                     no_progress_count = 0
-                    saturation_event_count = 0
-                    imu_spin_count = 0
-                    same_frame_count = 0
-                    stuck_recovery_stage = 0
-                    stuck_recovery_anchor = None
-                if (
-                    recovery_cooldown_remaining == 0
-                    and no_progress_count >= NO_PROGRESS_RECOVERY_TICKS
-                    and recovery_backup_remaining == 0
-                    and recovery_spin_remaining == 0
-                    and command.linear > 0.08
-                    and command.reason not in {"mbra_warmup", "mbra_low_confidence_stop", "low_confidence_stop"}
-                ):
-                    same_stuck_area = (
-                        stuck_recovery_anchor is not None
-                        and abs(int(cur_step) - int(stuck_recovery_anchor)) <= STUCK_STEP_TOLERANCE
-                    )
-                    recovery_spin_remaining = RECOVERY_SPIN_TICKS
-                    recovery_spin_direction = -1.0 if last_turn_sign >= 0.0 else 1.0
-                    no_progress_count = 0
-                    if stuck_recovery_stage >= 1 and same_stuck_area:
-                        recovery_backup_remaining = RECOVERY_BACKUP_TICKS
-                        print(f"[{iteration:04d}] no progress at step {cur_step} — backup + spin relocalize")
-                    else:
-                        stuck_recovery_stage = 1
-                        stuck_recovery_anchor = int(cur_step)
-                        print(f"[{iteration:04d}] no progress at step {cur_step} — spin relocalize")
-                elif no_progress_count > 0 and no_progress_count % NO_PROGRESS_RESET_TICKS == 0:
+                # If stuck at same step for too long, reset MBRA's observation
+                # context so it gets fresh frames and breaks out of the stall.
+                if no_progress_count > 0 and no_progress_count % NO_PROGRESS_RESET_TICKS == 0:
                     if hasattr(controller, 'reset'):
                         controller.reset()
                         print(f"[{iteration:04d}] no-progress reset after {no_progress_count} ticks at step {cur_step}")
                 prev_cur_step = int(cur_step)
-
-            if recovery_cooldown_remaining > 0:
-                recovery_cooldown_remaining -= 1
 
             elapsed = time.time() - loop_start
             if elapsed < period:

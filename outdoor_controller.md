@@ -1,5 +1,62 @@
 # Outdoor Controller Plan
 
+> **Current status summary**
+>
+> This document started as the outdoor planning notebook. It is still useful, but
+> it now needs to be read with status in mind:
+>
+> - **Implemented:** mission-mode outdoor runtime, LogoNav controller path, OSM
+>   routing, checkpoint resume/start handling, traversability, IMU safety, route
+>   corridor guard, preflight, richer logging, composite modes.
+> - **Modified heavily:** waypoint handoff logic, rerouting, recovery behavior,
+>   semantics, night-safe mode, marathon mode.
+> - **Dropped or demoted:** depth as a fully trusted hard-stop backbone,
+>   semantics as a full environment understanding layer, pure MBRA-GPS as the main
+>   outdoor direction.
+> - **Still deferred:** stronger physical platform stabilization, more field-tested
+>   long-run reliability, cleaner transition handling around waypoint changes.
+
+> **Scope boundary:** This document owns the historical GPS outdoor / marathon
+> branch. It does not describe the current no-GPS rough-terrain teach-and-repeat
+> field maturity. For that branch, use
+> `obsidian_vault/01 Source of Truth/No-GPS Field Trial - Findings.md` and active
+> route-repeat code. The no-GPS pipeline is implemented but has not demonstrated
+> a reliable autonomous physical repeat.
+
+## Related Documents
+
+- `CLAUDE.md`
+- `README.md`
+- `guide.md`
+- `docs/INDEX.md`
+- `live_outdoor_runtime_explained.tex`
+- `live_outdoor_ultra_marathon_story.tex`
+- `outdoor_perception_review.tex`
+
+## Status Review of Planned Features
+
+This is the shortest way to read the document today without getting trapped in old
+planning language.
+
+- `Mission-mode runtime through the SDK` — [IMPLEMENTED]
+- `LogoNav as the main outdoor local controller` — [IMPLEMENTED]
+- `Classical GPS controller as fallback` — [IMPLEMENTED / BACKUP]
+- `OSM-expanded waypoint routing` — [IMPLEMENTED]
+- `No-fallback pedestrian-first sidewalk routing` — [IMPLEMENTED, MODIFIED]
+- `Route corridor guard` — [IMPLEMENTED, MODIFIED]
+- `Reroute from live pose` — [IMPLEMENTED]
+- `Intermediate waypoint pruning when targets fall behind the rover` — [IMPLEMENTED]
+- `Dynamic intermediate waypoint radius` — [IMPLEMENTED]
+- `Depth/traversability as full hard-stop outdoor backbone` — [DROPPED as the primary idea]
+- `Traversability as strong local override` — [IMPLEMENTED]
+- `Semantic risk estimation as soft bias / gated stop logic` — [IMPLEMENTED, MODIFIED]
+- `Semantics as full environment understanding` — [DROPPED]
+- `IMU anti-flip protection` — [IMPLEMENTED]
+- `Vision safety / night-time image quality gate` — [IMPLEMENTED]
+- `Preflight validation before long outdoor runs` — [IMPLEMENTED]
+- `MBRA-GPS as the main outdoor direction` — [DROPPED]
+- `Offline replay harness as a core competition deliverable` — [DEFERRED]
+
 This file is the living working document for the **EarthRover outdoor competition track**.
 
 Use this file instead of `CONTEXT.md` for outdoor-planning updates, implementation notes, strategy decisions, and competition-specific reasoning.
@@ -134,7 +191,7 @@ That matters because it means we already have one credible outdoor strategy in h
 
 We considered many possible approaches. The cleanest and most reliable shortlist is now the following three.
 
-### Strategy 1: LogoNav + Safety + Recovery
+### Strategy 1: LogoNav + Safety + Recovery [IMPLEMENTED, MODIFIED]
 
 This should be treated as the **primary learned outdoor solution**.
 
@@ -173,7 +230,7 @@ The correct architecture is:
 
 `mission manager -> next GPS waypoint -> LogoNav local policy -> safety/recovery wrapper`
 
-### Strategy 2: Classical GPS + VFH / Depth Avoidance
+### Strategy 2: Classical GPS + VFH / Depth Avoidance [DEFERRED / BACKUP]
 
 This should be treated as the **primary non-ML fallback**.
 
@@ -208,7 +265,7 @@ By itself it does not understand:
 
 So it is best viewed as a robust local follower, not a full-city planner.
 
-### Strategy 3: OSM Routing + One Local Controller
+### Strategy 3: OSM Routing + One Local Controller [IMPLEMENTED, MODIFIED]
 
 This should be treated as the **global-planning upgrade**.
 
@@ -741,3 +798,37 @@ When to revisit this deferred work:
 - once more representative urban outdoor data is available
 - once timestamp synchronization expectations are understood and documented more clearly
 
+## Post-Competition Retrospective
+
+The outdoor planning document began with the right decomposition: global target,
+local controller, safety / recovery wrapper. The broad architecture survived. What
+changed was our understanding of where the real difficulty lived.
+
+It did *not* live primarily in choosing between two controller names. It lived
+in transition logic, runtime semantics, and physical stability:
+
+- a mission checkpoint is not the same thing as an intermediate routed waypoint,
+- a local waypoint behind the rover is worse than useless,
+- a route corridor is only useful if it does not constantly erase legitimate
+  forward progress,
+- and a platform can still fall over even when the software is trying to be
+  conservative.
+
+In hindsight, the strongest outdoor decision was keeping the existing LogoNav path
+and hardening the runtime around it instead of throwing away the whole stack.
+The weakest assumption was believing that adding more caution layers alone would
+make the marathon system safe. It made the runtime more defensive, but without
+enough field testing it also created new stop-turn-stop behaviors that had to be
+understood carefully.
+
+The outdoor result is therefore mixed but useful:
+
+- one run reached all checkpoints,
+- several runs were only partially successful,
+- and the marathon attempt exposed the remaining weakness very clearly:
+  stable behavior after checkpoint or waypoint transitions is still the central
+  problem.
+
+That is the honest place to stand after competition. The controller path is real.
+The runtime is real. The safety envelope is real. But long-run outdoor reliability
+still depends on making transitions calmer, simpler, and physically safer.

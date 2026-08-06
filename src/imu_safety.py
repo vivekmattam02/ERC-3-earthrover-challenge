@@ -93,6 +93,10 @@ class IMUSafetyMonitor:
         self._gravity_ref: Optional[np.ndarray] = None
         self._calibration_samples: list[np.ndarray] = []
 
+    @property
+    def is_ready(self) -> bool:
+        return self._gravity_ref is not None
+
     # ------------------------------------------------------------------
     # Raw data extraction
     # ------------------------------------------------------------------
