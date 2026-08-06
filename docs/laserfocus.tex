@@ -1,0 +1,258 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{mdframed}
+\usepackage{booktabs}
+\usepackage{tabularx}
+
+\hypersetup{colorlinks=true, linkcolor=blue!70!black, urlcolor=blue!70!black}
+
+\title{ERC Indoor Laser Focus\\[0.3em]
+\large What we implement next and what we deliberately postpone}
+\author{Project Working Draft}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\begin{center}
+\fbox{\parbox{0.9\textwidth}{
+\textbf{HISTORICAL DOCUMENT} \\[4pt]
+Scope document from March 2026. The scope decisions here were either implemented,
+dropped, or folded into later runtime work. SuperGlue appears in this file but
+was never part of the final indoor backbone; CosPlace alone proved sufficient. \\[4pt]
+\textit{For the current system, see: \texttt{CLAUDE.md}}
+}}
+\end{center}
+\vspace{1em}
+
+\section{One-Sentence Project Definition}
+
+We are building a \textbf{known-corridor indoor navigation system} for ERC using:
+
+\begin{itemize}[nosep]
+  \item \textbf{CosPlace + SuperGlue + graph} for perception and planning,
+  \item a \textbf{motion-prior layer} built from orientation / IMU support,
+  \item a \textbf{validated online local controller} for nearby graph-node movement,
+  \item a separate \textbf{safety layer},
+  \item a separate \textbf{checkpoint verification and recovery layer}.
+\end{itemize}
+
+
+\section{What We Are Using Right Now}
+
+\subsection*{Core baseline}
+
+\begin{itemize}[nosep]
+  \item \texttt{baseline.py} is the perception/planning baseline.
+  \item It is responsible for descriptor extraction, retrieval, graph construction, and query-time localization support.
+  \item It is the right starting point because our corridor is known and repeated.
+\end{itemize}
+
+\subsection*{Robot interface}
+
+\begin{itemize}[nosep]
+  \item \texttt{src/earthrover\_interface.py} gives us the live robot interface.
+  \item The front camera frame is still the main localization signal.
+  \item The SDK also exposes orientation, speed, and IMU arrays (\texttt{accels}, \texttt{gyros}, \texttt{mags}).
+  \item For indoor ERC, those motion signals should be used as \textbf{supporting priors} for heading consistency, node-belief smoothing, and recovery.
+  \item GPS is available in the SDK, but it is not part of the indoor backbone.
+\end{itemize}
+
+\subsection*{Depth safety}
+
+\begin{itemize}[nosep]
+  \item \texttt{src/depth\_estimator.py} and \texttt{src/depth\_safety.py} are optional safety tools.
+  \item They are useful after the baseline localization/planning loop is working.
+\end{itemize}
+
+\subsection*{MBRA / LogoNav code}
+
+\begin{itemize}[nosep]
+  \item \texttt{mbra\_repo/} is a research reference, not yet our deployed indoor controller.
+  \item MBRA is the relabeling expert side of that project.
+  \item LogoNav is the deployed-policy side, but in this repo it is GPS/pose-conditioned, so it is not a drop-in indoor image-goal controller.
+\end{itemize}
+
+
+\section{What We Are \underline{Actually} Doing First}
+
+\begin{mdframed}
+\textbf{Immediate focus:} stop thinking about the whole final system at once.
+The next job is to make the corridor baseline real on our actual data.
+\end{mdframed}
+
+\subsection*{Step 1: Collect corridor data}
+
+\begin{itemize}[nosep]
+  \item Run the robot through the real corridor.
+  \item Save front-camera images in order.
+  \item Save orientation, speed, IMU samples, timestamps, and any available command / teleoperation metadata per step.
+  \item Collect multiple runs of the same route.
+\end{itemize}
+
+\textbf{Deliverable:} one clean reference dataset from the real ERC corridor with both images and motion-state logs.
+
+\subsection*{Step 2: Build the corridor database}
+
+\begin{itemize}[nosep]
+  \item Run \texttt{baseline.py build-db}.
+  \item Build descriptors.
+  \item Build the place graph.
+  \item Build the action graph if route metadata is available.
+\end{itemize}
+
+\textbf{Deliverable:} database artifacts that can be queried repeatedly.
+
+\subsection*{Step 3: Validate localization}
+
+\begin{itemize}[nosep]
+  \item Run \texttt{baseline.py query} on real corridor images.
+  \item Check whether retrieval gives the correct corridor nodes.
+  \item Identify ambiguous segments, weak landmarks, and failure cases.
+  \item Tune graph density and image preprocessing.
+  \item Add heading-consistency checks so retrieval cannot jump to impossible nodes too easily.
+\end{itemize}
+
+\textbf{Deliverable:} a corridor graph and localization pipeline that is stable enough to trust, including temporal and heading-aware filtering.
+
+\subsection*{Step 4: Decide the online local controller}
+
+\begin{itemize}[nosep]
+  \item Decide what actually runs online for nearby graph-node movement.
+  \item MBRA / LogoNav is a reference here, but should not be assumed correct by default.
+  \item The decision must be made from real corridor testing, not from paper naming.
+  \item The chosen controller should use heading / yaw-rate feedback for smoothing if that improves stability.
+\end{itemize}
+
+\textbf{Deliverable:} one local controller candidate that we can actually test online.
+
+\subsection*{Step 5: Integrate runtime loop}
+
+\begin{itemize}[nosep]
+  \item camera frame,
+  \item localization in graph,
+  \item graph path / next subgoal,
+  \item online local controller,
+  \item safety override,
+  \item checkpoint verification.
+\end{itemize}
+
+\textbf{Deliverable:} one full indoor loop for a single checkpoint.
+
+
+\section{What We Should \underline{Not} Split Attention On Right Now}
+
+\begin{itemize}[nosep]
+  \item training a brand new large model,
+  \item replacing the graph-localization baseline before it is tested,
+  \item making SLAM the backbone before the current baseline is evaluated on the real corridor,
+  \item polishing multi-checkpoint logic before single-checkpoint execution works,
+  \item deep safety tuning before localization and control are running.
+\end{itemize}
+
+
+\section{Sensors and Signals: What Matters Now}
+
+\begin{tabularx}{\textwidth}{p{0.22\textwidth} p{0.18\textwidth} X}
+\toprule
+\textbf{Signal} & \textbf{Priority} & \textbf{How we use it now} \\
+\midrule
+Front camera & Highest & Main signal for localization, graph matching, checkpoint verification, and local control input \\
+Orientation / heading & High & Motion prior for heading consistency, candidate-node gating, subgoal alignment, and recovery behavior \\
+IMU arrays & High-medium & Short-term yaw / motion support for temporal filtering, controller damping, and uncertainty handling \\
+GPS & Low for indoor & Mostly irrelevant for the main indoor corridor task \\
+Wheel encoders / RPMs & Validate first & Use only if live tests prove they are populated and stable; do not assume odometry quality without verification \\
+Depth estimate & Medium-later & Safety support after baseline localization/control is working \\
+\bottomrule
+\end{tabularx}
+
+\textbf{Practical answer:} the first working indoor baseline should be
+\textbf{vision-primary with IMU / heading support}. It should not be vision-only,
+and it should not assume encoder-based odometry until the robot proves that signal is real.
+
+
+\section{The Main Open Question}
+
+The biggest unresolved implementation question is:
+
+\begin{center}
+\fbox{\parbox{0.85\textwidth}{
+\textbf{What is our actual online short-horizon controller for moving between nearby graph nodes?}
+}}
+\end{center}
+
+Everything else has a cleaner answer already:
+
+\begin{itemize}[nosep]
+  \item perception/planning baseline = \texttt{baseline.py}
+  \item robot interface = \texttt{src/earthrover\_interface.py}
+  \item motion prior = orientation / IMU support with temporal filtering
+  \item safety support = depth and simple runtime veto logic
+\end{itemize}
+
+
+\section{Immediate Milestones}
+
+\subsection*{Milestone 1}
+
+\textbf{Collect corridor data and build the reference database.}
+\textbf{At the same time, verify orientation / IMU / RPM availability on the real robot.}
+
+\subsection*{Milestone 2}
+
+\textbf{Prove that query-time localization works reliably on repeated corridor runs.}
+\textbf{Add temporal and heading-aware filtering to the node belief.}
+
+\subsection*{Milestone 3}
+
+\textbf{Choose and validate one online local controller on nearby graph-node subgoals.}
+
+\subsection*{Milestone 4}
+
+\textbf{Run one single-checkpoint indoor loop with localization + planning + controller + safety.}
+
+\subsection*{Milestone 5}
+
+\textbf{Add checkpoint verification and multi-checkpoint execution.}
+
+
+\section{What Success Looks Like Right Now}
+
+Success in the next phase is \textbf{not}:
+
+\begin{itemize}[nosep]
+  \item a polished final competition stack,
+  \item a fully trained new model,
+  \item a fancy architecture diagram.
+\end{itemize}
+
+Success in the next phase \textbf{is}:
+
+\begin{itemize}[nosep]
+  \item we can collect corridor data cleanly,
+  \item we can log the motion signals we actually trust,
+  \item we can build a graph database from it,
+  \item we can localize repeated query frames correctly,
+  \item we can stabilize localization using heading / IMU support,
+  \item we can pick the next nearby graph node,
+  \item we have one real candidate for the online local controller.
+\end{itemize}
+
+
+\section{Bottom Line}
+
+\begin{mdframed}
+\begin{itemize}[nosep]
+  \item The baseline is ready enough to start real work.
+  \item The next step is \textbf{data collection on the actual corridor}.
+  \item The project should be \textbf{vision-primary with IMU / heading support}.
+  \item We must verify which onboard motion signals are actually trustworthy.
+  \item The biggest open engineering decision is the \textbf{online local controller}.
+  \item Everything else should stay focused on making the known-corridor baseline work end-to-end.
+\end{itemize}
+\end{mdframed}
+
+\end{document}

@@ -1,0 +1,312 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\hypersetup{colorlinks=true, linkcolor=blue!60!black, urlcolor=blue!60!black}
+
+\title{ERC-3 Competition Results\\
+\large What Actually Happened on Race Day}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Current Scope Update (July 16, 2026)}
+This report records the completed indoor, GPS-outdoor, and marathon competition
+results. A later no-GPS rough-terrain teach-and-repeat branch is separate from
+those results. Its recording, route-preparation, and command paths work, but it
+has not yet demonstrated a reliable autonomous repeat on the physical route.
+Do not use the results in this report as validation of that newer branch. The
+current evidence is recorded in
+\texttt{obsidian\_vault/01 Source of Truth/No-GPS Field Trial - Findings.md}.
+
+\section{Why This Document Exists}
+
+This is the race-day document. It is not meant to be a glossy victory report and
+it is not meant to be a blame document either. The useful version of competition
+results is the honest one: what system we ran, what it managed to do, what broke
+under pressure, and what those failures taught us.
+
+The project competed in three practical modes:
+
+\begin{itemize}[nosep]
+  \item \textbf{Indoor known-corridor navigation}, where checkpoints were tied to a
+  fixed corridor dataset and the system could exploit repeated structure.
+  \item \textbf{Outdoor GPS mission navigation}, where the rover had to move through
+  a live environment using mission checkpoints and waypoint routing.
+  \item \textbf{Marathon endurance mode}, which stressed not just navigation quality
+  but runtime stability, platform stability, and operational robustness over a
+  longer run.
+\end{itemize}
+
+\section{Competition Format}
+
+The indoor rules are summarized in \texttt{docs/nyu\_indoor\_track.tex}. In practice
+the indoor track behaved like a known-corridor checkpoint problem: the route
+structure was fixed, the corridor had already been recorded, and the goal was to
+reach a sequence of image-goal checkpoints without losing the path structure.
+
+The outdoor track was structurally different. The rover received GPS checkpoints
+through the SDK, had to move through a live outdoor environment, and had to do so
+under real-world safety constraints. That immediately made the problem more than a
+controller question. It became a runtime question: routing, waypoint transitions,
+telemetry quality, safety gating, and recovery all mattered.
+
+The marathon mode stretched that same outdoor system over a longer and harsher run.
+That changed the engineering objective. The goal was no longer just ``reach the
+next checkpoint.'' The goal became: do that while staying physically stable,
+avoiding brittle recovery behavior, and keeping the operator in a position to
+intervene early.
+
+\section{Indoor Run: 8 of 11 Checkpoints}
+
+The indoor system we took into competition was:
+
+\begin{itemize}[nosep]
+  \item CosPlace-based visual place recognition in \texttt{src/corridor\_localizer.py},
+  \item temporal stabilization in \texttt{src/temporal\_localization.py},
+  \item topological graph progression in \texttt{src/graph\_planner.py},
+  \item MBRA as the sole motion authority through \texttt{src/mbra\_controller.py},
+  \item and depth veto logic in \texttt{live\_indoor\_runtime.py}.
+\end{itemize}
+
+The run command was:
+
+\begin{verbatim}
+python live_indoor_runtime.py \
+  --checkpoint-steps 45 480 761 821 1094 1208 1345 1430 1544 1638 1764 \
+  --auto-advance-checkpoints --send-control --controller mbra --depth-safety
+\end{verbatim}
+
+The key runtime defaults for that MBRA-based indoor run were:
+
+\begin{itemize}[nosep]
+  \item \texttt{tick\_hz = 3.0}
+  \item \texttt{max\_subgoal\_hops = 8}
+  \item \texttt{depth\_stop\_m = 0.25}
+  \item \texttt{min\_confidence\_to\_advance = 0.55} inside the graph planner
+  \item skip-past-checkpoint handling when localization confidence was high enough
+\end{itemize}
+
+\subsection{What Went Right}
+
+What worked indoors was the structural backbone. Localization was stable enough to
+make the corridor legible. Temporal smoothing prevented one-frame VPR flicker from
+constantly rewriting the current pose estimate. The graph planner gave MBRA a
+cleaner target than ``go to some vaguely similar image.'' That was the real shift:
+once the problem was reframed as exact checkpoint-step progression in a known
+corridor, MBRA became much easier to use honestly.
+
+The best evidence for that is simple: the rover reached \textbf{8 out of 11}
+checkpoints. That is not perfect, but it is far beyond a toy demo. It means the
+indoor system had a real working backbone.
+
+\subsection{What Went Wrong}
+
+The missed indoor checkpoints were not random. They live exactly where the
+architecture is weakest:
+
+\begin{itemize}[nosep]
+  \item visually similar corridor segments can still create VPR ambiguity,
+  \item depth vetoes can be conservative enough to interrupt otherwise viable motion,
+  \item forward-only graph behavior can create awkward transition cases when the
+  rover has already drifted past a target step,
+  \item and stale controller context can keep MBRA trying to solve the wrong local
+  problem for a few ticks too long.
+\end{itemize}
+
+\subsection{What The Indoor Result Means}
+
+The indoor result says the project's strongest completed stack is still the
+known-corridor system. The key lesson was not just ``MBRA worked.'' The more
+important lesson was: MBRA worked when it was used in the role it was good at,
+namely short-horizon visual control on top of a stronger localization and graph
+progression backbone.
+
+\section{Outdoor Standard Run: One Full Success, Roughly Half Overall}
+
+The outdoor system was more operationally complex:
+
+\begin{itemize}[nosep]
+  \item mission checkpoints came through the SDK,
+  \item \texttt{live\_outdoor\_runtime.py} handled mission control,
+  \item LogoNav in \texttt{src/outdoor\_logonav\_controller.py} acted as the learned
+  local motion policy,
+  \item optional OSM routing expanded a mission checkpoint into intermediate local
+  waypoints,
+  \item and the runtime layered safety and recovery logic around the controller.
+\end{itemize}
+
+The standard command path was:
+
+\begin{verbatim}
+python live_outdoor_runtime.py --mission --send-control --traversability
+\end{verbatim}
+
+The controller default in the outdoor runtime is \texttt{logonav}, so the plain
+command above already selects the learned outdoor controller.
+
+\subsection{What Worked}
+
+The most important outdoor fact is that the stack was real enough to finish a run:
+\textbf{one run reached all checkpoints}. That matters because outdoor success is
+not just a matter of one network prediction looking reasonable on one frame. It
+means the entire stack held together long enough for checkpoint management,
+controller output, routing, and safety logic to coexist.
+
+\subsection{Why The Overall Rate Was Still Only About Half}
+
+The weak point outdoors was not the existence of a controller. It was what
+happened around waypoint transitions, target interpretation, and recovery under
+noise.
+
+The recurring failure mode was waypoint transition instability:
+
+\begin{itemize}[nosep]
+  \item intermediate routed waypoints were sometimes handed off too loosely,
+  \item the next target could be structurally behind the rover after a reroute,
+  \item alignment logic could spin too aggressively when applied to the wrong kind
+  of target,
+  \item and route corridor logic could overreact in ways that reset useful forward
+  progress.
+\end{itemize}
+
+\subsection{What The Outdoor Result Means}
+
+The outdoor result says the controller choice was not the whole problem. LogoNav
+was good enough to be the right starting point, but the runtime around it was the
+real engineering burden. Outdoor autonomy here was mostly a systems problem:
+mission semantics, reroute semantics, target semantics, and safe behavior under
+partial uncertainty.
+
+\section{Marathon Attempt: One Checkpoint, Then The Rover Toppled}
+
+The marathon run used the outdoor runtime in its most defensive configuration:
+
+\begin{verbatim}
+python live_outdoor_runtime.py \
+  --mission --send-control --controller logonav --osm-route --ultra-marathon
+\end{verbatim}
+
+The intended logic was sound. Marathon mode tightened recovery behavior, added
+IMU safety, health gating, leg pauses, stricter speed caps, route corridor
+guarding, and stronger operator-facing visibility into what the runtime was doing.
+
+But the marathon failure made an uncomfortable point very clearly: software safety
+layers do not automatically produce physical stability.
+
+\subsection{What Happened}
+
+The rover reached one checkpoint. After that, the system entered a bad transition
+regime. The next-target interpretation and repeated alignment behavior did not
+settle quickly enough. The rover kept turning aggressively on real terrain, and
+the platform physically toppled.
+
+This is why the right explanation is \textbf{not} ``the software hit a random
+bug and fell over.'' The better explanation is:
+
+\begin{itemize}[nosep]
+  \item checkpoint progress happened,
+  \item the runtime did not stabilize fast enough after that transition,
+  \item turning behavior remained too persistent,
+  \item and the physical platform was sensitive enough that repeated turning on
+  uneven ground became a real mechanical problem.
+\end{itemize}
+
+\subsection{What IMU Safety Would Have Said}
+
+The IMU layer in the marathon stack was designed to notice dangerous tilt and
+gyro-rate behavior. That is still useful, but it is a last-resort safety layer.
+It can stop motion after the platform becomes unsafe. It cannot undo the fact that
+an unstable controller-to-platform interaction has already started.
+
+\subsection{What We Would Change}
+
+The marathon result points to three changes immediately:
+
+\begin{itemize}[nosep]
+  \item lower transition speed after checkpoint or waypoint completion,
+  \item widen the turning radius and reduce aggressive in-place alignment,
+  \item and improve physical stability with lower center of gravity or ballast.
+\end{itemize}
+
+\section{Later No-GPS Follow-On Branch}
+
+After the competition branches documented above, the active rover setting
+changed: GPS telemetry was a placeholder rather than a usable navigation signal.
+The resulting no-GPS branch is not another outdoor-result claim. It uses a
+manually taught front-camera route, visual localization, graph subgoals, and an
+adaptive-pursuit controller on rough terrain.
+
+The follow-on work has established that recording, route preparation, live
+localization, and command sending work. It has \textbf{not} established a
+reliable autonomous route repeat: field tests repeatedly stalled near startup
+steps and entered relocalization loops. The proper next result is a short,
+repeatable hardware-in-the-loop segment, not a long final-course claim. See
+\texttt{no\_gps\_route\_repeat\_story.tex} for the complete evidence.
+
+\section{Summary Table}
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Track} & \textbf{Target} & \textbf{Achieved} & \textbf{Key Limitation} \\
+\midrule
+Indoor & 11 checkpoints & 8 checkpoints & Ambiguity / transition / recovery edge cases \\
+Outdoor & Full checkpoint mission & 1 full success, others partial & Waypoint transition instability \\
+Marathon & Endurance run & 1 checkpoint, then toppled & Post-transition stability and platform dynamics \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{What We Learned}
+
+\begin{itemize}[nosep]
+  \item Waypoint and checkpoint transitions are the weakest point in the current
+  outdoor system.
+  \item Physical stability matters as much as software intelligence once the robot
+  leaves a clean corridor and enters a long live run.
+  \item The safety stack was still valuable. The project did not fail because it had
+  no safety thinking; it failed because safety and stable behavior are not the same
+  thing.
+  \item The documentation set became one of the strongest deliverables from the
+  project because it captures not just the final architecture, but the route that
+  led to it.
+\end{itemize}
+
+\section{Interview-Ready Answers}
+
+\subsection*{How would you explain these results quickly?}
+
+Indoors, we had a genuine working stack and reached 8 of 11 checkpoints. Outdoors,
+we proved the system could complete a full run once, but reliability was still
+limited by transition behavior around waypoints. Marathon mode exposed the last big
+gap very clearly: stable navigation across long live runs still depends on better
+post-transition behavior and better physical stability.
+
+\subsection*{What would you do differently?}
+
+I would reduce the number of uncontrolled transition cases much earlier, especially
+for outdoor waypoint handoff. I would also test marathon-style stability on the
+physical platform sooner instead of assuming that a more cautious runtime alone was
+enough.
+
+\subsection*{What are you most proud of?}
+
+The most defensible result is that the project became understandable. By the end,
+the indoor stack had a clear backbone, the outdoor stack had a clear runtime
+envelope, and the failure modes were explicit enough to be debugged instead of
+being mystified.
+
+\subsection*{What is the honest weakness?}
+
+The honest weakness is that the outdoor system still had too many ways to become
+confused during target transitions. Marathon mode made that impossible to ignore.
+
+\end{document}

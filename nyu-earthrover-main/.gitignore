@@ -1,0 +1,13 @@
+.DS_Store
+.env
+.env.sample
+__pycache__/
+.vscode/
+
+node_modules/
+screenshots/*.png
+
+logs/
+plots/
+matches/
+exported_frames/

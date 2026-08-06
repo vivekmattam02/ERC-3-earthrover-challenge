@@ -1,0 +1,4634 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "index": 0,
+      "name": "000000.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000000.png",
+      "id": 0
+    },
+    {
+      "index": 1,
+      "name": "000001.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000001.png",
+      "id": 1
+    },
+    {
+      "index": 2,
+      "name": "000002.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000002.png",
+      "id": 2
+    },
+    {
+      "index": 3,
+      "name": "000003.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000003.png",
+      "id": 3
+    },
+    {
+      "index": 4,
+      "name": "000004.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000004.png",
+      "id": 4
+    },
+    {
+      "index": 5,
+      "name": "000005.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000005.png",
+      "id": 5
+    },
+    {
+      "index": 6,
+      "name": "000006.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000006.png",
+      "id": 6
+    },
+    {
+      "index": 7,
+      "name": "000007.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000007.png",
+      "id": 7
+    },
+    {
+      "index": 8,
+      "name": "000008.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000008.png",
+      "id": 8
+    },
+    {
+      "index": 9,
+      "name": "000009.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000009.png",
+      "id": 9
+    },
+    {
+      "index": 10,
+      "name": "000010.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000010.png",
+      "id": 10
+    },
+    {
+      "index": 11,
+      "name": "000011.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000011.png",
+      "id": 11
+    },
+    {
+      "index": 12,
+      "name": "000012.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000012.png",
+      "id": 12
+    },
+    {
+      "index": 13,
+      "name": "000013.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000013.png",
+      "id": 13
+    },
+    {
+      "index": 14,
+      "name": "000014.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000014.png",
+      "id": 14
+    },
+    {
+      "index": 15,
+      "name": "000015.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000015.png",
+      "id": 15
+    },
+    {
+      "index": 16,
+      "name": "000016.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000016.png",
+      "id": 16
+    },
+    {
+      "index": 17,
+      "name": "000017.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000017.png",
+      "id": 17
+    },
+    {
+      "index": 18,
+      "name": "000018.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000018.png",
+      "id": 18
+    },
+    {
+      "index": 19,
+      "name": "000019.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000019.png",
+      "id": 19
+    },
+    {
+      "index": 20,
+      "name": "000020.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000020.png",
+      "id": 20
+    },
+    {
+      "index": 21,
+      "name": "000021.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000021.png",
+      "id": 21
+    },
+    {
+      "index": 22,
+      "name": "000022.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000022.png",
+      "id": 22
+    },
+    {
+      "index": 23,
+      "name": "000023.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000023.png",
+      "id": 23
+    },
+    {
+      "index": 24,
+      "name": "000024.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000024.png",
+      "id": 24
+    },
+    {
+      "index": 25,
+      "name": "000025.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000025.png",
+      "id": 25
+    },
+    {
+      "index": 26,
+      "name": "000026.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000026.png",
+      "id": 26
+    },
+    {
+      "index": 27,
+      "name": "000027.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000027.png",
+      "id": 27
+    },
+    {
+      "index": 28,
+      "name": "000028.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000028.png",
+      "id": 28
+    },
+    {
+      "index": 29,
+      "name": "000029.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000029.png",
+      "id": 29
+    },
+    {
+      "index": 30,
+      "name": "000030.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000030.png",
+      "id": 30
+    },
+    {
+      "index": 31,
+      "name": "000031.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000031.png",
+      "id": 31
+    },
+    {
+      "index": 32,
+      "name": "000032.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000032.png",
+      "id": 32
+    },
+    {
+      "index": 33,
+      "name": "000033.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000033.png",
+      "id": 33
+    },
+    {
+      "index": 34,
+      "name": "000034.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000034.png",
+      "id": 34
+    },
+    {
+      "index": 35,
+      "name": "000035.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000035.png",
+      "id": 35
+    },
+    {
+      "index": 36,
+      "name": "000036.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000036.png",
+      "id": 36
+    },
+    {
+      "index": 37,
+      "name": "000037.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000037.png",
+      "id": 37
+    },
+    {
+      "index": 38,
+      "name": "000038.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000038.png",
+      "id": 38
+    },
+    {
+      "index": 39,
+      "name": "000039.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000039.png",
+      "id": 39
+    },
+    {
+      "index": 40,
+      "name": "000040.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000040.png",
+      "id": 40
+    },
+    {
+      "index": 41,
+      "name": "000041.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000041.png",
+      "id": 41
+    },
+    {
+      "index": 42,
+      "name": "000042.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000042.png",
+      "id": 42
+    },
+    {
+      "index": 43,
+      "name": "000043.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000043.png",
+      "id": 43
+    },
+    {
+      "index": 44,
+      "name": "000044.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000044.png",
+      "id": 44
+    },
+    {
+      "index": 45,
+      "name": "000045.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000045.png",
+      "id": 45
+    },
+    {
+      "index": 46,
+      "name": "000046.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000046.png",
+      "id": 46
+    },
+    {
+      "index": 47,
+      "name": "000047.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000047.png",
+      "id": 47
+    },
+    {
+      "index": 48,
+      "name": "000048.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000048.png",
+      "id": 48
+    },
+    {
+      "index": 49,
+      "name": "000049.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000049.png",
+      "id": 49
+    },
+    {
+      "index": 50,
+      "name": "000050.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000050.png",
+      "id": 50
+    },
+    {
+      "index": 51,
+      "name": "000051.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000051.png",
+      "id": 51
+    },
+    {
+      "index": 52,
+      "name": "000052.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000052.png",
+      "id": 52
+    },
+    {
+      "index": 53,
+      "name": "000053.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000053.png",
+      "id": 53
+    },
+    {
+      "index": 54,
+      "name": "000054.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000054.png",
+      "id": 54
+    },
+    {
+      "index": 55,
+      "name": "000055.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000055.png",
+      "id": 55
+    },
+    {
+      "index": 56,
+      "name": "000056.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000056.png",
+      "id": 56
+    },
+    {
+      "index": 57,
+      "name": "000057.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000057.png",
+      "id": 57
+    },
+    {
+      "index": 58,
+      "name": "000058.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000058.png",
+      "id": 58
+    },
+    {
+      "index": 59,
+      "name": "000059.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000059.png",
+      "id": 59
+    },
+    {
+      "index": 60,
+      "name": "000060.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000060.png",
+      "id": 60
+    },
+    {
+      "index": 61,
+      "name": "000061.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000061.png",
+      "id": 61
+    },
+    {
+      "index": 62,
+      "name": "000062.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000062.png",
+      "id": 62
+    },
+    {
+      "index": 63,
+      "name": "000063.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000063.png",
+      "id": 63
+    },
+    {
+      "index": 64,
+      "name": "000064.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000064.png",
+      "id": 64
+    },
+    {
+      "index": 65,
+      "name": "000065.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000065.png",
+      "id": 65
+    },
+    {
+      "index": 66,
+      "name": "000066.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000066.png",
+      "id": 66
+    },
+    {
+      "index": 67,
+      "name": "000067.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000067.png",
+      "id": 67
+    },
+    {
+      "index": 68,
+      "name": "000068.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000068.png",
+      "id": 68
+    },
+    {
+      "index": 69,
+      "name": "000069.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000069.png",
+      "id": 69
+    },
+    {
+      "index": 70,
+      "name": "000070.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000070.png",
+      "id": 70
+    },
+    {
+      "index": 71,
+      "name": "000071.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000071.png",
+      "id": 71
+    },
+    {
+      "index": 72,
+      "name": "000072.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000072.png",
+      "id": 72
+    },
+    {
+      "index": 73,
+      "name": "000073.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000073.png",
+      "id": 73
+    },
+    {
+      "index": 74,
+      "name": "000074.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000074.png",
+      "id": 74
+    },
+    {
+      "index": 75,
+      "name": "000075.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000075.png",
+      "id": 75
+    },
+    {
+      "index": 76,
+      "name": "000076.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000076.png",
+      "id": 76
+    },
+    {
+      "index": 77,
+      "name": "000077.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000077.png",
+      "id": 77
+    },
+    {
+      "index": 78,
+      "name": "000078.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000078.png",
+      "id": 78
+    },
+    {
+      "index": 79,
+      "name": "000079.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000079.png",
+      "id": 79
+    },
+    {
+      "index": 80,
+      "name": "000080.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000080.png",
+      "id": 80
+    },
+    {
+      "index": 81,
+      "name": "000081.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000081.png",
+      "id": 81
+    },
+    {
+      "index": 82,
+      "name": "000082.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run02_c/extracted/front_images/000082.png",
+      "id": 82
+    }
+  ],
+  "edges": [
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 0,
+      "target": 1
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7495840191841125,
+      "source": 0,
+      "target": 38
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7655658721923828,
+      "source": 0,
+      "target": 35
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9349069595336914,
+      "source": 0,
+      "target": 51
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9353323578834534,
+      "source": 0,
+      "target": 52
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9605041146278381,
+      "source": 0,
+      "target": 29
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9859341979026794,
+      "source": 0,
+      "target": 12
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9878706932067871,
+      "source": 0,
+      "target": 42
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.000814437866211,
+      "source": 0,
+      "target": 36
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0050885677337646,
+      "source": 0,
+      "target": 15
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0305137634277344,
+      "source": 0,
+      "target": 44
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.08153235912323,
+      "source": 0,
+      "target": 27
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0318915843963623,
+      "source": 0,
+      "target": 39
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.093311071395874,
+      "source": 0,
+      "target": 49
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.1244994401931763,
+      "source": 0,
+      "target": 50
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.9548344016075134,
+      "source": 1,
+      "target": 2
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7426345348358154,
+      "source": 1,
+      "target": 16
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7893363237380981,
+      "source": 1,
+      "target": 31
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8213841915130615,
+      "source": 1,
+      "target": 19
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.85875403881073,
+      "source": 1,
+      "target": 30
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8796455264091492,
+      "source": 1,
+      "target": 17
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9055207967758179,
+      "source": 1,
+      "target": 20
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9333788752555847,
+      "source": 1,
+      "target": 41
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.966065526008606,
+      "source": 1,
+      "target": 56
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9787938594818115,
+      "source": 1,
+      "target": 29
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9797009825706482,
+      "source": 1,
+      "target": 9
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.008122444152832,
+      "source": 1,
+      "target": 18
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9807698726654053,
+      "source": 1,
+      "target": 21
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.8282454609870911,
+      "source": 2,
+      "target": 3
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.845192551612854,
+      "source": 2,
+      "target": 10
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8498353958129883,
+      "source": 2,
+      "target": 16
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9288748502731323,
+      "source": 2,
+      "target": 38
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9366172552108765,
+      "source": 2,
+      "target": 29
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9393627047538757,
+      "source": 2,
+      "target": 35
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9629266262054443,
+      "source": 2,
+      "target": 37
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.963756799697876,
+      "source": 2,
+      "target": 4
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9650211334228516,
+      "source": 2,
+      "target": 17
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9918492436408997,
+      "source": 2,
+      "target": 5
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9828582406044006,
+      "source": 2,
+      "target": 13
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.7801064848899841,
+      "source": 3,
+      "target": 4
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.4695250988006592,
+      "source": 3,
+      "target": 10
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8694848418235779,
+      "source": 3,
+      "target": 5
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8769760131835938,
+      "source": 3,
+      "target": 16
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8905574679374695,
+      "source": 3,
+      "target": 11
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9027309417724609,
+      "source": 3,
+      "target": 9
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9216884970664978,
+      "source": 3,
+      "target": 19
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9324302077293396,
+      "source": 3,
+      "target": 38
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9677684307098389,
+      "source": 3,
+      "target": 41
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0011149644851685,
+      "source": 3,
+      "target": 17
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0145655870437622,
+      "source": 3,
+      "target": 24
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.7515336275100708,
+      "source": 4,
+      "target": 5
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.735329806804657,
+      "source": 4,
+      "target": 10
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8756523132324219,
+      "source": 4,
+      "target": 16
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9334171414375305,
+      "source": 4,
+      "target": 9
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9413905739784241,
+      "source": 4,
+      "target": 19
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9516347050666809,
+      "source": 4,
+      "target": 38
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9721674919128418,
+      "source": 4,
+      "target": 11
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9727662205696106,
+      "source": 4,
+      "target": 51
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.02483069896698,
+      "source": 4,
+      "target": 12
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0026034116744995,
+      "source": 4,
+      "target": 25
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 5,
+      "target": 6
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8563657402992249,
+      "source": 5,
+      "target": 10
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9610762000083923,
+      "source": 5,
+      "target": 19
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9756026268005371,
+      "source": 5,
+      "target": 16
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9806298613548279,
+      "source": 5,
+      "target": 35
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9818738102912903,
+      "source": 5,
+      "target": 9
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0113143920898438,
+      "source": 5,
+      "target": 29
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0126428604125977,
+      "source": 5,
+      "target": 11
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.3999369442462921,
+      "source": 6,
+      "target": 7
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2793080806732178,
+      "source": 6,
+      "target": 67
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2809983491897583,
+      "source": 6,
+      "target": 49
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2842960357666016,
+      "source": 6,
+      "target": 14
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2855631113052368,
+      "source": 6,
+      "target": 72
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2856487035751343,
+      "source": 6,
+      "target": 68
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2862927913665771,
+      "source": 6,
+      "target": 76
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.286608338356018,
+      "source": 6,
+      "target": 74
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2866721153259277,
+      "source": 6,
+      "target": 73
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2889021635055542,
+      "source": 6,
+      "target": 64
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 7,
+      "target": 8
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2989534139633179,
+      "source": 7,
+      "target": 49
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.3082592487335205,
+      "source": 7,
+      "target": 67
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.3085074424743652,
+      "source": 7,
+      "target": 50
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.3112531900405884,
+      "source": 7,
+      "target": 74
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.3145463466644287,
+      "source": 7,
+      "target": 72
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.3150449991226196,
+      "source": 7,
+      "target": 68
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.3159301280975342,
+      "source": 7,
+      "target": 73
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.3166316747665405,
+      "source": 7,
+      "target": 76
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.3168588876724243,
+      "source": 7,
+      "target": 31
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 8,
+      "target": 9
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9069165587425232,
+      "source": 8,
+      "target": 26
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9583278298377991,
+      "source": 8,
+      "target": 14
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0251775979995728,
+      "source": 8,
+      "target": 33
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0390862226486206,
+      "source": 8,
+      "target": 61
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0416088104248047,
+      "source": 8,
+      "target": 64
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0419530868530273,
+      "source": 8,
+      "target": 62
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.042568325996399,
+      "source": 8,
+      "target": 78
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0469136238098145,
+      "source": 8,
+      "target": 76
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0469293594360352,
+      "source": 8,
+      "target": 60
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0476791858673096,
+      "source": 8,
+      "target": 72
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0884958505630493,
+      "source": 8,
+      "target": 34
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.8889617919921875,
+      "source": 9,
+      "target": 10
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.47268879413604736,
+      "source": 9,
+      "target": 11
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9164077043533325,
+      "source": 9,
+      "target": 24
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9528145790100098,
+      "source": 9,
+      "target": 57
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9571060538291931,
+      "source": 9,
+      "target": 45
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9574511647224426,
+      "source": 9,
+      "target": 41
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9727586507797241,
+      "source": 9,
+      "target": 16
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9991285800933838,
+      "source": 9,
+      "target": 15
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0227580070495605,
+      "source": 9,
+      "target": 22
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.8657019734382629,
+      "source": 10,
+      "target": 11
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9041694402694702,
+      "source": 10,
+      "target": 16
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9228000044822693,
+      "source": 10,
+      "target": 38
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9541767239570618,
+      "source": 10,
+      "target": 19
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0003411769866943,
+      "source": 10,
+      "target": 24
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0275636911392212,
+      "source": 10,
+      "target": 15
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 11,
+      "target": 12
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.920857310295105,
+      "source": 11,
+      "target": 41
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9378780722618103,
+      "source": 11,
+      "target": 45
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.945766806602478,
+      "source": 11,
+      "target": 57
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9528743028640747,
+      "source": 11,
+      "target": 51
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9672533273696899,
+      "source": 11,
+      "target": 52
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9716047644615173,
+      "source": 11,
+      "target": 44
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0428069829940796,
+      "source": 11,
+      "target": 13
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.000487208366394,
+      "source": 11,
+      "target": 15
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.014115571975708,
+      "source": 11,
+      "target": 24
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0094174146652222,
+      "source": 11,
+      "target": 25
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 12,
+      "target": 13
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8079004883766174,
+      "source": 12,
+      "target": 15
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9113050699234009,
+      "source": 12,
+      "target": 28
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9564794898033142,
+      "source": 12,
+      "target": 42
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9751588106155396,
+      "source": 12,
+      "target": 54
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.005110263824463,
+      "source": 12,
+      "target": 41
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0073262453079224,
+      "source": 12,
+      "target": 22
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0178322792053223,
+      "source": 12,
+      "target": 32
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.033285140991211,
+      "source": 12,
+      "target": 29
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.070420265197754,
+      "source": 12,
+      "target": 39
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0571399927139282,
+      "source": 12,
+      "target": 49
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.083077073097229,
+      "source": 12,
+      "target": 50
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 13,
+      "target": 14
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8152464032173157,
+      "source": 13,
+      "target": 32
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.887139618396759,
+      "source": 13,
+      "target": 37
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9536486864089966,
+      "source": 13,
+      "target": 54
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9623242020606995,
+      "source": 13,
+      "target": 59
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0009315013885498,
+      "source": 13,
+      "target": 22
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.006955862045288,
+      "source": 13,
+      "target": 15
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.018675684928894,
+      "source": 13,
+      "target": 53
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.038421392440796,
+      "source": 13,
+      "target": 33
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.054225206375122,
+      "source": 13,
+      "target": 34
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 14,
+      "target": 15
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9604638814926147,
+      "source": 14,
+      "target": 26
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9704185128211975,
+      "source": 14,
+      "target": 78
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9724948406219482,
+      "source": 14,
+      "target": 61
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9739922881126404,
+      "source": 14,
+      "target": 76
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.976460337638855,
+      "source": 14,
+      "target": 64
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9788919687271118,
+      "source": 14,
+      "target": 65
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9788926839828491,
+      "source": 14,
+      "target": 70
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9792312979698181,
+      "source": 14,
+      "target": 62
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9804601669311523,
+      "source": 14,
+      "target": 66
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0181427001953125,
+      "source": 14,
+      "target": 33
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 15,
+      "target": 16
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9732197523117065,
+      "source": 15,
+      "target": 42
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0038108825683594,
+      "source": 15,
+      "target": 51
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0152788162231445,
+      "source": 15,
+      "target": 52
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0200021266937256,
+      "source": 15,
+      "target": 24
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0687572956085205,
+      "source": 15,
+      "target": 28
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.7104181051254272,
+      "source": 16,
+      "target": 17
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.4906909465789795,
+      "source": 16,
+      "target": 19
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8148295283317566,
+      "source": 16,
+      "target": 31
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8649724125862122,
+      "source": 16,
+      "target": 30
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8988732099533081,
+      "source": 16,
+      "target": 20
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9337255358695984,
+      "source": 16,
+      "target": 18
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9335156679153442,
+      "source": 16,
+      "target": 21
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.91459059715271,
+      "source": 16,
+      "target": 38
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.6713243126869202,
+      "source": 17,
+      "target": 18
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6428886651992798,
+      "source": 17,
+      "target": 20
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7740632891654968,
+      "source": 17,
+      "target": 19
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8234713077545166,
+      "source": 17,
+      "target": 21
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.883793830871582,
+      "source": 17,
+      "target": 30
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9274317622184753,
+      "source": 17,
+      "target": 31
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0651224851608276,
+      "source": 17,
+      "target": 23
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0587027072906494,
+      "source": 17,
+      "target": 40
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.9016954302787781,
+      "source": 18,
+      "target": 19
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7289770245552063,
+      "source": 18,
+      "target": 20
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7437177300453186,
+      "source": 18,
+      "target": 21
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9047370553016663,
+      "source": 18,
+      "target": 30
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.943606436252594,
+      "source": 18,
+      "target": 31
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0175573825836182,
+      "source": 18,
+      "target": 23
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0540828704833984,
+      "source": 18,
+      "target": 35
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.9224522709846497,
+      "source": 19,
+      "target": 20
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8323984742164612,
+      "source": 19,
+      "target": 31
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9005527496337891,
+      "source": 19,
+      "target": 30
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9021093249320984,
+      "source": 19,
+      "target": 21
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.7333403825759888,
+      "source": 20,
+      "target": 21
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8541970252990723,
+      "source": 20,
+      "target": 30
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9101438522338867,
+      "source": 20,
+      "target": 31
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.973133385181427,
+      "source": 20,
+      "target": 23
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0109981298446655,
+      "source": 20,
+      "target": 29
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.043879747390747,
+      "source": 20,
+      "target": 40
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 21,
+      "target": 22
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8446502685546875,
+      "source": 21,
+      "target": 30
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9241178631782532,
+      "source": 21,
+      "target": 31
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9592545628547668,
+      "source": 21,
+      "target": 23
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.043969750404358,
+      "source": 21,
+      "target": 29
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 22,
+      "target": 23
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9252289533615112,
+      "source": 22,
+      "target": 32
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0049450397491455,
+      "source": 22,
+      "target": 41
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.008712649345398,
+      "source": 22,
+      "target": 57
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0146512985229492,
+      "source": 22,
+      "target": 56
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0287352800369263,
+      "source": 22,
+      "target": 54
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0290716886520386,
+      "source": 22,
+      "target": 34
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0320584774017334,
+      "source": 22,
+      "target": 42
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 1.0242608785629272,
+      "source": 23,
+      "target": 24
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.886616587638855,
+      "source": 23,
+      "target": 39
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9551288485527039,
+      "source": 23,
+      "target": 30
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9559566974639893,
+      "source": 23,
+      "target": 27
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0353405475616455,
+      "source": 23,
+      "target": 28
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0614540576934814,
+      "source": 23,
+      "target": 50
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.077115774154663,
+      "source": 23,
+      "target": 49
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 24,
+      "target": 25
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9151438474655151,
+      "source": 24,
+      "target": 38
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.929254412651062,
+      "source": 24,
+      "target": 27
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9401406049728394,
+      "source": 24,
+      "target": 39
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9594187140464783,
+      "source": 24,
+      "target": 29
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0011147260665894,
+      "source": 24,
+      "target": 35
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0080713033676147,
+      "source": 24,
+      "target": 28
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0438133478164673,
+      "source": 24,
+      "target": 40
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 25,
+      "target": 26
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7747139930725098,
+      "source": 25,
+      "target": 36
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8877918124198914,
+      "source": 25,
+      "target": 43
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8947843313217163,
+      "source": 25,
+      "target": 53
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8978756666183472,
+      "source": 25,
+      "target": 37
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9059473276138306,
+      "source": 25,
+      "target": 58
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9231510758399963,
+      "source": 25,
+      "target": 38
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9887714982032776,
+      "source": 25,
+      "target": 29
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0092979669570923,
+      "source": 25,
+      "target": 35
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0138111114501953,
+      "source": 25,
+      "target": 59
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 26,
+      "target": 27
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9584414958953857,
+      "source": 26,
+      "target": 59
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9713448286056519,
+      "source": 26,
+      "target": 64
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9744625091552734,
+      "source": 26,
+      "target": 78
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9746593236923218,
+      "source": 26,
+      "target": 60
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9751214981079102,
+      "source": 26,
+      "target": 61
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9776254296302795,
+      "source": 26,
+      "target": 67
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.97906893491745,
+      "source": 26,
+      "target": 62
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.981875479221344,
+      "source": 26,
+      "target": 73
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 1.0200040340423584,
+      "source": 27,
+      "target": 28
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.503140926361084,
+      "source": 27,
+      "target": 39
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0464510917663574,
+      "source": 27,
+      "target": 50
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0532467365264893,
+      "source": 27,
+      "target": 38
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.103008508682251,
+      "source": 27,
+      "target": 40
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.1277661323547363,
+      "source": 27,
+      "target": 29
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.1461396217346191,
+      "source": 27,
+      "target": 49
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 1.05563485622406,
+      "source": 28,
+      "target": 29
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9889354109764099,
+      "source": 28,
+      "target": 39
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0590490102767944,
+      "source": 28,
+      "target": 53
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.073110818862915,
+      "source": 28,
+      "target": 30
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0856846570968628,
+      "source": 28,
+      "target": 56
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0888484716415405,
+      "source": 28,
+      "target": 50
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 29,
+      "target": 30
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7122371792793274,
+      "source": 29,
+      "target": 35
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7644985914230347,
+      "source": 29,
+      "target": 40
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7846184968948364,
+      "source": 29,
+      "target": 38
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8724138140678406,
+      "source": 29,
+      "target": 41
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9357233643531799,
+      "source": 29,
+      "target": 57
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9445490837097168,
+      "source": 29,
+      "target": 55
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9504324793815613,
+      "source": 29,
+      "target": 56
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0695749521255493,
+      "source": 29,
+      "target": 39
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.080456256866455,
+      "source": 29,
+      "target": 49
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0821222066879272,
+      "source": 29,
+      "target": 50
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.6126081347465515,
+      "source": 30,
+      "target": 31
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9157312512397766,
+      "source": 30,
+      "target": 56
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 31,
+      "target": 32
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9000983238220215,
+      "source": 31,
+      "target": 56
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9687283039093018,
+      "source": 31,
+      "target": 51
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.743879497051239,
+      "source": 32,
+      "target": 33
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7127849459648132,
+      "source": 32,
+      "target": 34
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7593075037002563,
+      "source": 32,
+      "target": 37
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8031063675880432,
+      "source": 32,
+      "target": 54
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8916226625442505,
+      "source": 32,
+      "target": 56
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9264494776725769,
+      "source": 32,
+      "target": 42
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9441506266593933,
+      "source": 32,
+      "target": 36
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9749725461006165,
+      "source": 32,
+      "target": 57
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0144537687301636,
+      "source": 32,
+      "target": 59
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.4954364001750946,
+      "source": 33,
+      "target": 34
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9640762805938721,
+      "source": 33,
+      "target": 54
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9855753779411316,
+      "source": 33,
+      "target": 37
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0283132791519165,
+      "source": 33,
+      "target": 43
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0333646535873413,
+      "source": 33,
+      "target": 36
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0413498878479004,
+      "source": 33,
+      "target": 58
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.269666314125061,
+      "source": 33,
+      "target": 46
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.259670615196228,
+      "source": 33,
+      "target": 47
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2633579969406128,
+      "source": 33,
+      "target": 48
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 34,
+      "target": 35
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9852297902107239,
+      "source": 34,
+      "target": 54
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0126571655273438,
+      "source": 34,
+      "target": 37
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0781841278076172,
+      "source": 34,
+      "target": 56
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.078678011894226,
+      "source": 34,
+      "target": 43
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0867462158203125,
+      "source": 34,
+      "target": 36
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2328218221664429,
+      "source": 34,
+      "target": 46
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.220396637916565,
+      "source": 34,
+      "target": 47
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2224006652832031,
+      "source": 34,
+      "target": 48
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.9748162627220154,
+      "source": 35,
+      "target": 36
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8219049572944641,
+      "source": 35,
+      "target": 38
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8415665626525879,
+      "source": 35,
+      "target": 55
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8707944750785828,
+      "source": 35,
+      "target": 52
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.880030632019043,
+      "source": 35,
+      "target": 51
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9005887508392334,
+      "source": 35,
+      "target": 41
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9104388356208801,
+      "source": 35,
+      "target": 42
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.945952296257019,
+      "source": 35,
+      "target": 56
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0450001955032349,
+      "source": 35,
+      "target": 40
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.6157426834106445,
+      "source": 36,
+      "target": 37
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7968124151229858,
+      "source": 36,
+      "target": 43
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8544617891311646,
+      "source": 36,
+      "target": 58
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8998212218284607,
+      "source": 36,
+      "target": 59
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9546933770179749,
+      "source": 36,
+      "target": 56
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9555321931838989,
+      "source": 36,
+      "target": 54
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9784325361251831,
+      "source": 36,
+      "target": 38
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9887719750404358,
+      "source": 36,
+      "target": 53
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 37,
+      "target": 38
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8422198295593262,
+      "source": 37,
+      "target": 59
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.851509690284729,
+      "source": 37,
+      "target": 43
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8895607590675354,
+      "source": 37,
+      "target": 54
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8932451605796814,
+      "source": 37,
+      "target": 58
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9171553254127502,
+      "source": 37,
+      "target": 56
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 1.0192077159881592,
+      "source": 38,
+      "target": 39
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8750359416007996,
+      "source": 38,
+      "target": 40
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.041510820388794,
+      "source": 38,
+      "target": 49
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 1.0667623281478882,
+      "source": 39,
+      "target": 40
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9979970455169678,
+      "source": 39,
+      "target": 50
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 40,
+      "target": 41
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9814160466194153,
+      "source": 40,
+      "target": 50
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0185925960540771,
+      "source": 40,
+      "target": 49
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0202043056488037,
+      "source": 40,
+      "target": 53
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.030124306678772,
+      "source": 40,
+      "target": 55
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 41,
+      "target": 42
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.5972809791564941,
+      "source": 41,
+      "target": 57
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7087724208831787,
+      "source": 41,
+      "target": 45
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8486872315406799,
+      "source": 41,
+      "target": 51
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9190361499786377,
+      "source": 41,
+      "target": 56
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9229887127876282,
+      "source": 41,
+      "target": 52
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9385489225387573,
+      "source": 41,
+      "target": 44
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.8849459886550903,
+      "source": 42,
+      "target": 43
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6381618976593018,
+      "source": 42,
+      "target": 52
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6766124367713928,
+      "source": 42,
+      "target": 55
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7184858918190002,
+      "source": 42,
+      "target": 51
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7696619629859924,
+      "source": 42,
+      "target": 44
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7779898643493652,
+      "source": 42,
+      "target": 56
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8681035041809082,
+      "source": 42,
+      "target": 45
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8783591985702515,
+      "source": 42,
+      "target": 58
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9072883129119873,
+      "source": 42,
+      "target": 54
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0726183652877808,
+      "source": 42,
+      "target": 49
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.1203179359436035,
+      "source": 42,
+      "target": 50
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9749112129211426,
+      "source": 42,
+      "target": 53
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.955420196056366,
+      "source": 42,
+      "target": 57
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.7949116230010986,
+      "source": 43,
+      "target": 44
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.3733615279197693,
+      "source": 43,
+      "target": 58
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8152719140052795,
+      "source": 43,
+      "target": 59
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8912067413330078,
+      "source": 43,
+      "target": 52
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9140096306800842,
+      "source": 43,
+      "target": 45
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9141349792480469,
+      "source": 43,
+      "target": 56
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9639483690261841,
+      "source": 43,
+      "target": 53
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9246705770492554,
+      "source": 43,
+      "target": 54
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9338504076004028,
+      "source": 43,
+      "target": 55
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.6583318710327148,
+      "source": 44,
+      "target": 45
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6321547031402588,
+      "source": 44,
+      "target": 51
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6932103633880615,
+      "source": 44,
+      "target": 52
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7043281197547913,
+      "source": 44,
+      "target": 58
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8574431538581848,
+      "source": 44,
+      "target": 56
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8886550068855286,
+      "source": 44,
+      "target": 55
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8928273916244507,
+      "source": 44,
+      "target": 57
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 45,
+      "target": 46
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.5172505378723145,
+      "source": 45,
+      "target": 57
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.634029746055603,
+      "source": 45,
+      "target": 51
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7236186265945435,
+      "source": 45,
+      "target": 56
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7320408225059509,
+      "source": 45,
+      "target": 52
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.828515350818634,
+      "source": 45,
+      "target": 58
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9826278686523438,
+      "source": 45,
+      "target": 55
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.2485983669757843,
+      "source": 46,
+      "target": 47
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.21814030408859253,
+      "source": 46,
+      "target": 48
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2658741474151611,
+      "source": 46,
+      "target": 81
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2685790061950684,
+      "source": 46,
+      "target": 79
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2748091220855713,
+      "source": 46,
+      "target": 82
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.279817819595337,
+      "source": 46,
+      "target": 80
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.304357647895813,
+      "source": 46,
+      "target": 78
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.3044325113296509,
+      "source": 46,
+      "target": 67
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.1754799634218216,
+      "source": 47,
+      "target": 48
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2628875970840454,
+      "source": 47,
+      "target": 81
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2650012969970703,
+      "source": 47,
+      "target": 82
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.266787052154541,
+      "source": 47,
+      "target": 80
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2728240489959717,
+      "source": 47,
+      "target": 79
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.284881591796875,
+      "source": 47,
+      "target": 67
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.286781907081604,
+      "source": 47,
+      "target": 78
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 48,
+      "target": 49
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2407019138336182,
+      "source": 48,
+      "target": 81
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2435572147369385,
+      "source": 48,
+      "target": 79
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2491874694824219,
+      "source": 48,
+      "target": 82
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2506657838821411,
+      "source": 48,
+      "target": 80
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.278121829032898,
+      "source": 48,
+      "target": 67
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.2789767980575562,
+      "source": 48,
+      "target": 78
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.8554955720901489,
+      "source": 49,
+      "target": 50
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0839229822158813,
+      "source": 49,
+      "target": 55
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0839524269104004,
+      "source": 49,
+      "target": 53
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 50,
+      "target": 51
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.4033612012863159,
+      "source": 51,
+      "target": 52
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6986216902732849,
+      "source": 51,
+      "target": 56
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.748378574848175,
+      "source": 51,
+      "target": 55
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7699421048164368,
+      "source": 51,
+      "target": 57
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8579390048980713,
+      "source": 51,
+      "target": 58
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 52,
+      "target": 53
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6358575224876404,
+      "source": 52,
+      "target": 55
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.640143096446991,
+      "source": 52,
+      "target": 56
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.828538715839386,
+      "source": 52,
+      "target": 58
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8441463112831116,
+      "source": 52,
+      "target": 57
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.9804370403289795,
+      "source": 53,
+      "target": 54
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9988171458244324,
+      "source": 53,
+      "target": 58
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0062791109085083,
+      "source": 53,
+      "target": 56
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0063496828079224,
+      "source": 53,
+      "target": 59
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 1.0102365016937256,
+      "source": 53,
+      "target": 55
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 54,
+      "target": 55
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8082886934280396,
+      "source": 54,
+      "target": 59
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9382264018058777,
+      "source": 54,
+      "target": 56
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.8087891340255737,
+      "source": 55,
+      "target": 56
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.9261507987976074,
+      "source": 55,
+      "target": 58
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.8261535167694092,
+      "source": 56,
+      "target": 57
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.8958974480628967,
+      "source": 56,
+      "target": 58
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 57,
+      "target": 58
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.8875480890274048,
+      "source": 58,
+      "target": 59
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 59,
+      "target": 60
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.0974138081073761,
+      "source": 60,
+      "target": 61
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.09383205324411392,
+      "source": 60,
+      "target": 62
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.09848019480705261,
+      "source": 60,
+      "target": 64
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10202877223491669,
+      "source": 60,
+      "target": 66
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10318081825971603,
+      "source": 60,
+      "target": 73
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.1038876473903656,
+      "source": 60,
+      "target": 70
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10541122406721115,
+      "source": 60,
+      "target": 76
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10550855100154877,
+      "source": 60,
+      "target": 72
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10733447968959808,
+      "source": 60,
+      "target": 78
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10742823034524918,
+      "source": 60,
+      "target": 65
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.1116911768913269,
+      "source": 60,
+      "target": 63
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.12830381095409393,
+      "source": 60,
+      "target": 67
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10907207429409027,
+      "source": 60,
+      "target": 68
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11360511183738708,
+      "source": 60,
+      "target": 69
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10924823582172394,
+      "source": 60,
+      "target": 71
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10749459266662598,
+      "source": 60,
+      "target": 75
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.110892653465271,
+      "source": 60,
+      "target": 77
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6512735486030579,
+      "source": 60,
+      "target": 79
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6788959503173828,
+      "source": 60,
+      "target": 80
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6862121820449829,
+      "source": 60,
+      "target": 81
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6961947083473206,
+      "source": 60,
+      "target": 82
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 61,
+      "target": 62
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10698563605546951,
+      "source": 61,
+      "target": 64
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10821204632520676,
+      "source": 61,
+      "target": 76
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10912104696035385,
+      "source": 61,
+      "target": 70
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10984429717063904,
+      "source": 61,
+      "target": 66
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11039895564317703,
+      "source": 61,
+      "target": 65
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11202071607112885,
+      "source": 61,
+      "target": 68
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11205507814884186,
+      "source": 61,
+      "target": 77
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.1128903403878212,
+      "source": 61,
+      "target": 75
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11308407038450241,
+      "source": 61,
+      "target": 73
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6487014293670654,
+      "source": 61,
+      "target": 79
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6856794953346252,
+      "source": 61,
+      "target": 80
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6891190409660339,
+      "source": 61,
+      "target": 81
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7022445201873779,
+      "source": 61,
+      "target": 82
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.103544682264328,
+      "source": 62,
+      "target": 63
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.0964081734418869,
+      "source": 62,
+      "target": 75
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.09704402834177017,
+      "source": 62,
+      "target": 66
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10575085133314133,
+      "source": 62,
+      "target": 73
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.1067645475268364,
+      "source": 62,
+      "target": 64
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10845731943845749,
+      "source": 62,
+      "target": 72
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10954538732767105,
+      "source": 62,
+      "target": 74
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10979970544576645,
+      "source": 62,
+      "target": 65
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11030786484479904,
+      "source": 62,
+      "target": 69
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11140768975019455,
+      "source": 62,
+      "target": 78
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6479266285896301,
+      "source": 62,
+      "target": 79
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.668308675289154,
+      "source": 62,
+      "target": 80
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6803847551345825,
+      "source": 62,
+      "target": 81
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6922476887702942,
+      "source": 62,
+      "target": 82
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.1178470328450203,
+      "source": 63,
+      "target": 64
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.1059858426451683,
+      "source": 63,
+      "target": 73
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10704333335161209,
+      "source": 63,
+      "target": 72
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10906156152486801,
+      "source": 63,
+      "target": 78
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11215271800756454,
+      "source": 63,
+      "target": 66
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11287195235490799,
+      "source": 63,
+      "target": 65
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11641246825456619,
+      "source": 63,
+      "target": 69
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11777736246585846,
+      "source": 63,
+      "target": 74
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6538471579551697,
+      "source": 63,
+      "target": 79
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6838294863700867,
+      "source": 63,
+      "target": 80
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6905274987220764,
+      "source": 63,
+      "target": 81
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.10219612717628479,
+      "source": 64,
+      "target": 65
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.09948854148387909,
+      "source": 64,
+      "target": 75
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.09985828399658203,
+      "source": 64,
+      "target": 72
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10172411054372787,
+      "source": 64,
+      "target": 68
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.1018141433596611,
+      "source": 64,
+      "target": 78
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10813682526350021,
+      "source": 64,
+      "target": 73
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11068978160619736,
+      "source": 64,
+      "target": 76
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11933474987745285,
+      "source": 64,
+      "target": 67
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11298985779285431,
+      "source": 64,
+      "target": 77
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.10423415154218674,
+      "source": 65,
+      "target": 66
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.0936468243598938,
+      "source": 65,
+      "target": 71
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.09779059886932373,
+      "source": 65,
+      "target": 69
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.09921672940254211,
+      "source": 65,
+      "target": 76
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.09970971941947937,
+      "source": 65,
+      "target": 74
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.1009368821978569,
+      "source": 65,
+      "target": 70
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10424168407917023,
+      "source": 65,
+      "target": 68
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10899554193019867,
+      "source": 65,
+      "target": 75
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10902785509824753,
+      "source": 65,
+      "target": 67
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10987701267004013,
+      "source": 65,
+      "target": 73
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11147066205739975,
+      "source": 65,
+      "target": 77
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11294855922460556,
+      "source": 65,
+      "target": 78
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.11924811452627182,
+      "source": 66,
+      "target": 67
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.09229723364114761,
+      "source": 66,
+      "target": 73
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.09784547239542007,
+      "source": 66,
+      "target": 72
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10088853538036346,
+      "source": 66,
+      "target": 69
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10382888466119766,
+      "source": 66,
+      "target": 75
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10457867383956909,
+      "source": 66,
+      "target": 76
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10513629764318466,
+      "source": 66,
+      "target": 77
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10703620314598083,
+      "source": 66,
+      "target": 68
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.110646091401577,
+      "source": 66,
+      "target": 70
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11081627011299133,
+      "source": 66,
+      "target": 71
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11097169667482376,
+      "source": 66,
+      "target": 74
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11130023002624512,
+      "source": 66,
+      "target": 78
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6837462782859802,
+      "source": 66,
+      "target": 80
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.11664974689483643,
+      "source": 67,
+      "target": 68
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11615929752588272,
+      "source": 67,
+      "target": 71
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11959721148014069,
+      "source": 67,
+      "target": 73
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.12097745388746262,
+      "source": 67,
+      "target": 72
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.12177111208438873,
+      "source": 67,
+      "target": 74
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.12411357462406158,
+      "source": 67,
+      "target": 69
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.11508748680353165,
+      "source": 68,
+      "target": 69
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.0979822427034378,
+      "source": 68,
+      "target": 76
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.09983915835618973,
+      "source": 68,
+      "target": 75
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10476246476173401,
+      "source": 68,
+      "target": 72
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10689365118741989,
+      "source": 68,
+      "target": 77
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10817109793424606,
+      "source": 68,
+      "target": 73
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11563647538423538,
+      "source": 68,
+      "target": 71
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11436236649751663,
+      "source": 68,
+      "target": 74
+    },
+    {
+      "sequence": true,
+      "cosplace": false,
+      "seq_weight": 1.0,
+      "source": 69,
+      "target": 70
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10073879361152649,
+      "source": 69,
+      "target": 76
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10157414525747299,
+      "source": 69,
+      "target": 71
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10169754177331924,
+      "source": 69,
+      "target": 74
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.1088341549038887,
+      "source": 69,
+      "target": 75
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10896044969558716,
+      "source": 69,
+      "target": 73
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6862107515335083,
+      "source": 69,
+      "target": 80
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.10082444548606873,
+      "source": 70,
+      "target": 71
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.1058245450258255,
+      "source": 70,
+      "target": 78
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10990499705076218,
+      "source": 70,
+      "target": 76
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11001162976026535,
+      "source": 70,
+      "target": 77
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11004555970430374,
+      "source": 70,
+      "target": 75
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11434269696474075,
+      "source": 70,
+      "target": 73
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11748570948839188,
+      "source": 70,
+      "target": 74
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.653598427772522,
+      "source": 70,
+      "target": 79
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6916953325271606,
+      "source": 70,
+      "target": 81
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7026556134223938,
+      "source": 70,
+      "target": 82
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.11209674924612045,
+      "source": 71,
+      "target": 72
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.09596662223339081,
+      "source": 71,
+      "target": 74
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.09709185361862183,
+      "source": 71,
+      "target": 76
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.11163079738616943,
+      "source": 71,
+      "target": 73
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.09001163393259048,
+      "source": 72,
+      "target": 73
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.09739647060632706,
+      "source": 72,
+      "target": 78
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10021255910396576,
+      "source": 72,
+      "target": 77
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.11637216061353683,
+      "source": 73,
+      "target": 74
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10361835360527039,
+      "source": 73,
+      "target": 78
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.10206852853298187,
+      "source": 74,
+      "target": 75
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10462930053472519,
+      "source": 74,
+      "target": 76
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.1006649062037468,
+      "source": 75,
+      "target": 76
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.10933079570531845,
+      "source": 75,
+      "target": 77
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7045658230781555,
+      "source": 75,
+      "target": 82
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.11222221702337265,
+      "source": 76,
+      "target": 77
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.11517570167779922,
+      "source": 77,
+      "target": 78
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6496978402137756,
+      "source": 77,
+      "target": 79
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6864146590232849,
+      "source": 77,
+      "target": 81
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.7027900815010071,
+      "source": 77,
+      "target": 82
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.650080680847168,
+      "source": 78,
+      "target": 79
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6766887307167053,
+      "source": 78,
+      "target": 80
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6801307201385498,
+      "source": 78,
+      "target": 81
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.6949921250343323,
+      "source": 78,
+      "target": 82
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.43297716975212097,
+      "source": 79,
+      "target": 80
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.36380845308303833,
+      "source": 79,
+      "target": 81
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.4085315763950348,
+      "source": 79,
+      "target": 82
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.2661355137825012,
+      "source": 80,
+      "target": 81
+    },
+    {
+      "sequence": false,
+      "cosplace": true,
+      "desc_dist": 0.21505360305309296,
+      "source": 80,
+      "target": 82
+    },
+    {
+      "sequence": true,
+      "cosplace": true,
+      "seq_weight": 1.0,
+      "desc_dist": 0.21746553480625153,
+      "source": 81,
+      "target": 82
+    }
+  ]
+}

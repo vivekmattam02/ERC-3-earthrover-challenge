@@ -1,0 +1,28 @@
+[
+  {
+    "step": 0,
+    "image": "000000.png",
+    "timestamp": 1776900216.689789,
+    "relative_time_sec": 0.0,
+    "action": [],
+    "linear": null,
+    "angular": null,
+    "orientation": 305.0,
+    "speed": 0.0,
+    "control_index": null,
+    "telemetry_index": 0
+  },
+  {
+    "step": 1,
+    "image": "000001.png",
+    "timestamp": 1776900218.690771,
+    "relative_time_sec": 2.0009820461273193,
+    "action": [],
+    "linear": null,
+    "angular": null,
+    "orientation": 305.0,
+    "speed": 0.0,
+    "control_index": null,
+    "telemetry_index": 35
+  }
+]

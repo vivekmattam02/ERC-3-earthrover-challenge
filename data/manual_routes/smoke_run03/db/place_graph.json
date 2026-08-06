@@ -1,0 +1,14 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "index": 0,
+      "name": "000000.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run03/extracted/front_images/000000.png",
+      "id": 0
+    }
+  ],
+  "edges": []
+}

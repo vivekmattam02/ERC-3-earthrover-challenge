@@ -1,0 +1,3640 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{listings}
+\hypersetup{colorlinks=true, linkcolor=blue!60!black, urlcolor=blue!60!black}
+\lstset{basicstyle=\ttfamily\small, breaklines=true, frame=single, columns=fullflexible}
+\newcommand{\docbox}[2]{
+\begin{center}
+\fcolorbox{blue!40!black}{blue!5}{\parbox{0.92\textwidth}{
+\textbf{#1}\\[4pt]#2
+}}
+\end{center}
+}
+\newcommand{\warnbox}[2]{
+\begin{center}
+\fcolorbox{red!50!black}{red!5}{\parbox{0.92\textwidth}{
+\textbf{#1}\\[4pt]#2
+}}
+\end{center}
+}
+\newcommand{\lessonbox}[2]{
+\begin{center}
+\fcolorbox{green!40!black}{green!6}{\parbox{0.92\textwidth}{
+\textbf{#1}\\[4pt]#2
+}}
+\end{center}
+}
+
+\title{ERC-3 EarthRover Challenge\\
+\large Definitive Full Documentation}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\warnbox{Current Branch Update (July 16, 2026)}{
+This master document explains the indoor, GPS-outdoor, and marathon project
+story. A later no-GPS rough-terrain teach-and-repeat branch is now active. Its
+front-camera recording, route preparation, localization, and command path are
+implemented; a reliable autonomous physical repeat is \textbf{not} yet proven.
+Treat \texttt{smoke\_run01\_c} as a reference/coverage candidate, not a
+deployment route. Current field evidence is in
+\texttt{obsidian\_vault/01 Source of Truth/No-GPS Field Trial - Findings.md}.}
+
+\section{What This Document Is}
+
+This is the single definitive documentation file for the ERC-3 EarthRover
+Challenge project.
+
+The point of this file is simple: if someone asks for one document that explains
+what this project was, what code was used, what the main architecture became, what
+worked, what failed, and what still remains open, this should be the file they
+read.
+
+This document deliberately combines:
+
+\begin{itemize}[nosep]
+  \item the project story,
+  \item the current architecture,
+  \item the important code structure,
+  \item the reasoning behind the main design decisions,
+  \item the competition results,
+  \item and the real failure modes.
+\end{itemize}
+
+It is not a short README and it is not a polished paper. It is meant to be the
+technical truth layer in narrative form.
+
+\docbox{How to use this document}{
+Read this once from top to bottom. After that, use it by question. If you want
+the project story, read the phase and design-decision sections. If you want to
+run the system, jump to operations. If you want to defend it in an interview,
+read the interview section. If you want the math slowly and from intuition,
+read the companion file \texttt{erc3\_mathematics\_guide.txt}.}
+
+\section{Documentation Control and Revision Log}
+
+\subsection*{Canonical source and companion docs}
+
+\begin{itemize}[nosep]
+  \item \textbf{Canonical master file}: \texttt{erc3\_full\_documentation.tex}
+  \item \textbf{Companion narrative/history docs}: all files listed in
+  \texttt{Related Documents} at the end of this master file
+  \item \textbf{Code authority rule}: if any doc conflicts with runtime behavior,
+  trust active code paths in \texttt{live\_indoor\_runtime.py} and
+  \texttt{live\_outdoor\_runtime.py}
+\end{itemize}
+
+\subsection*{Verification tooling used for this documentation}
+
+\begin{itemize}[nosep]
+  \item \texttt{scripts/docs/lint\_tex\_docs.py}
+  \item \texttt{scripts/docs/check\_links.py}
+  \item \texttt{scripts/docs/check\_command\_references.py}
+\end{itemize}
+
+\subsection*{Revision log (most recent first)}
+
+\begin{longtable}{p{0.16\textwidth}p{0.78\textwidth}}
+\toprule
+\textbf{Date} & \textbf{Change summary} \\
+\midrule
+2026-07-16 & Added the no-GPS rough-terrain branch, its field evidence, and an explicit distinction between implemented capability and validated autonomy. \\
+2026-04-06 & Added canonical runbook section, command conflict table, and evidence appendix with representative field log signatures. \\
+2026-04-06 & Added C4 architecture views, complete CLI inventory, and expanded code-anchor sections for commonly disputed runtime behavior. \\
+2026-04-06 & Added this documentation-control section to clarify source-of-truth, tooling, and update policy. \\
+\bottomrule
+\end{longtable}
+
+\subsection*{Reader Paths}
+
+If you do not want to read all 3000+ lines in one shot, use one of these paths:
+
+\begin{itemize}[nosep]
+  \item \textbf{5-minute overview path}: Project Summary $\rightarrow$ Competition
+  Results $\rightarrow$ Current Final Mental Model $\rightarrow$ Current Status.
+  \item \textbf{Operator run path}: Practical Commands $\rightarrow$ Preflight
+  Sequence $\rightarrow$ Operations $\rightarrow$ Troubleshooting.
+  \item \textbf{Debug path}: Indoor Tick-by-Tick $\rightarrow$ Outdoor Tick-by-Tick
+  $\rightarrow$ Code Anchors $\rightarrow$ Layer-by-Layer Debug Playbooks.
+  \item \textbf{Interview path}: Main Design Decisions $\rightarrow$ Algorithms and
+  Math $\rightarrow$ Interview Mode $\rightarrow$ Harder Interview Questions.
+  \item \textbf{Onboarding path}: Source of Truth section $\rightarrow$ Repo Map by
+  Question $\rightarrow$ One-Week Onboarding Plan $\rightarrow$ First-Hour section.
+\end{itemize}
+
+\section{Project Summary}
+
+The ERC-3 project turned into three competition systems and one later,
+structurally distinct experimental branch:
+
+\begin{itemize}[nosep]
+  \item \textbf{Indoor known-corridor navigation}
+  \item \textbf{Outdoor GPS mission navigation}
+  \item \textbf{Outdoor marathon mode}
+  \item \textbf{No-GPS rough-terrain visual teach-and-repeat}
+\end{itemize}
+
+At the highest level, all three asked the rover to reach checkpoints. But that
+surface similarity was misleading. The indoor and outdoor tracks became very
+different engineering problems.
+
+\subsection{Indoor in one sentence}
+
+Indoor was a \textbf{known-corridor checkpoint problem} where repeated structure
+could be exploited heavily.
+
+\subsection{Outdoor in one sentence}
+
+Outdoor was a \textbf{mission runtime problem} where controller quality, routing,
+waypoint semantics, safety checks, and recovery logic all mattered together.
+
+\subsection{Marathon in one sentence}
+
+Marathon was the outdoor stack placed under a stricter safety envelope and a much
+harder stability requirement.
+
+\subsection{Later no-GPS branch in one sentence}
+
+The later branch is a front-camera visual route-repeat system for a manually
+taught rough-terrain route; it is implemented but not yet validated as reliable
+autonomy.
+
+\section{Later No-GPS Rough-Terrain Route Repeat}
+
+The no-GPS branch exists because the live session reported placeholder GPS
+coordinates. It cannot honestly use the GPS mission stack as its global
+navigation source. The correct formulation is therefore:
+
+\begin{center}
+manual traversal $\rightarrow$ visual route memory $\rightarrow$ online visual
+localization $\rightarrow$ graph subgoal $\rightarrow$ terrain-aware local command.
+\end{center}
+
+\subsection{System Boundary}
+
+The active live input is front-camera-only. Rear imagery is not fused into the
+route follower. The system uses IMU, gyro, and RPM signals as support for tilt,
+turn-rate, and stall reasoning, rather than pretending that it has a complete
+metric pose estimate. The main implementation path is:
+
+\begin{itemize}[nosep]
+  \item \texttt{scripts/record\_sdk\_session.py} for manual H5 recording,
+  \item \texttt{tools/extract\_h5\_dataset.py} and \texttt{baseline.py} for
+  route construction,
+  \item \texttt{scripts/prepare\_manual\_route.py} for packaging,
+  \item \texttt{scripts/run\_prepared\_route.py} for launch,
+  \item \texttt{live\_indoor\_runtime.py} for live localization, planning,
+  recovery, and command dispatch,
+  \item \texttt{src/adaptive\_pursuit\_controller.py} for the rough-terrain
+  local-controller family.
+\end{itemize}
+
+\subsection{What The Data Says}
+
+\texttt{run\_01\_1521.h5} and its 126-frame route package
+\texttt{smoke\_run01\_c} are the strongest current coverage/reference assets.
+That is an offline comparison statement, not a field-readiness claim. The manual
+bags have empty \texttt{controls} streams, so exact human teleoperation replay
+cannot be reconstructed from them.
+
+The physical field trials showed that the command path works and the rover can
+move, but visual localization repeatedly stayed near startup steps and entered
+scan/probe recovery loops without sustained graph-step progression. Tilt,
+traction, scene mismatch, and recovery behavior all remain part of the problem.
+The correct state label is therefore \textbf{implemented but unproven}.
+
+\subsection{Validation Gate}
+
+Before any longer autonomous claim, the rover must complete a short,
+repeatable hardware-in-the-loop segment on the same physical route with:
+
+\begin{enumerate}[nosep]
+  \item a start scene that visibly matches the taught route,
+  \item localization that remains in the expected route corridor,
+  \item meaningful graph-step progression,
+  \item no repeated scan/probe recovery loop,
+  \item and at least one successful repeat of that segment.
+\end{enumerate}
+
+The detailed narrative and evidence are in
+\texttt{no\_gps\_route\_repeat\_story.tex} and
+\texttt{obsidian\_vault/01 Source of Truth/No-GPS Field Trial - Findings.md}.
+
+\section{Who Built It and Why That Matters}
+
+This repo did not emerge from one clean top-down design pass. It was shaped by:
+
+\begin{itemize}[nosep]
+  \item earlier code already present in the repository,
+  \item teammate controller paths that were already partially alive,
+  \item repeated debugging passes on the runtime,
+  \item later documentation and architecture cleanup that made the system more
+  legible.
+\end{itemize}
+
+That matters because many of the most important decisions were not abstract design
+preferences. They were forced by actual bad behavior in logs and field runs.
+
+\section{The Story of the Project}
+
+\subsection{The original wrong question}
+
+At the very beginning, it is easy to ask the wrong question:
+
+\begin{quote}
+How do we make the rover autonomously reach checkpoints?
+\end{quote}
+
+That question is too vague. It hides the fact that indoor and outdoor are
+different problems.
+
+\subsection{The better indoor question}
+
+The indoor question became:
+
+\begin{quote}
+How do we use the fact that the corridor is known and repeated so the rover can
+move from exact checkpoint step to exact checkpoint step?
+\end{quote}
+
+\subsection{The better outdoor question}
+
+The outdoor question became:
+
+\begin{quote}
+How do we keep a mission runtime stable and safe in a live environment where the
+meaning of the target changes over time?
+\end{quote}
+
+\subsection{What failed early}
+
+Several bad assumptions had to die:
+
+\begin{itemize}[nosep]
+  \item that one controller name could explain the whole project,
+  \item that more recovery logic automatically helps,
+  \item that depth could instantly become a trusted hard-stop outdoor backbone,
+  \item that semantics could immediately become the authoritative scene
+  understanding layer,
+  \item that more caution automatically means more stability.
+\end{itemize}
+
+\subsection{What survived all the way through}
+
+What survived was:
+
+\begin{itemize}[nosep]
+  \item CosPlace-style indoor localization,
+  \item temporal stabilization,
+  \item graph progression over checkpoint steps,
+  \item MBRA as indoor short-horizon control,
+  \item LogoNav as outdoor short-horizon control,
+  \item OSM routing as useful outdoor route structure,
+  \item safety layers with limited, carefully scoped authority.
+\end{itemize}
+
+\docbox{The real project question}{
+By the end, the most honest project question was not ``which controller did we
+use?'' It was ``how do we make the runtime remain coherent under uncertainty,
+especially during transitions?'' That is the question that explains most of the
+later fixes.}
+
+\section{Competition Results}
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Track} & \textbf{Goal} & \textbf{Achieved} & \textbf{Main Limitation} \\
+\midrule
+Indoor & 11 checkpoints & 8 reached & transition / ambiguity / recovery edge cases \\
+Outdoor & full checkpoint mission & 1 full success, others partial & waypoint transition instability \\
+Marathon & long endurance run & 1 checkpoint, then toppled & unstable post-transition turning + platform stability \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Those numbers matter, but they are not enough by themselves. The useful question is
+what system produced them and what those results actually mean.
+
+\section{Research Components Used}
+
+The project used several research ideas and model families. None of them were used
+as a complete end-to-end magic solution. Each one had to be placed in the right
+role inside the runtime.
+
+\subsection{CosPlace}
+
+CosPlace was used for indoor visual place recognition. The basic role was:
+
+\begin{itemize}[nosep]
+  \item encode the current live corridor frame,
+  \item compare it to stored corridor descriptors,
+  \item recover the most likely corridor position.
+\end{itemize}
+
+This was the indoor localization backbone.
+
+\subsection{MBRA}
+
+MBRA was used as the indoor learned local controller reference. The important point
+is what it \emph{was not}. MBRA was not used as:
+
+\begin{itemize}[nosep]
+  \item the indoor localizer,
+  \item the indoor planner,
+  \item or the whole indoor autonomy stack.
+\end{itemize}
+
+Instead, MBRA was used in the role it fit best: short-horizon control toward a
+chosen nearby visual goal.
+
+\subsection{LogoNav}
+
+LogoNav was used as the outdoor learned controller path. Like MBRA, it was not the
+whole stack. It was the controller inside a larger mission runtime.
+
+\subsection{Depth Anything V2}
+
+Depth Anything V2 provided monocular depth. It was useful for caution, obstacle
+screening, and traversability-style reasoning, but it was not strong enough in this
+project to be the only trusted outdoor safety mechanism.
+
+\subsection{SegFormer}
+
+SegFormer was used for semantics. The main runtime use was semantic risk scoring and
+steering bias, not full semantic autonomy. The labels were helpful, but the runtime
+still needed strong safety logic above them.
+
+\subsection{OpenStreetMap}
+
+OpenStreetMap was used to expand outdoor mission checkpoints into local route
+structure. This became very important because a far GPS checkpoint is too coarse to
+follow directly in a stable way.
+
+\section{What The Final Project Split Became}
+
+The cleanest way to understand the project is to accept the split explicitly.
+
+\subsection{Indoor}
+
+Indoor is:
+
+\begin{itemize}[nosep]
+  \item corridor localization,
+  \item temporal stabilization,
+  \item exact checkpoint-step graph progression,
+  \item MBRA as local control,
+  \item depth veto as safety.
+\end{itemize}
+
+\subsection{Outdoor}
+
+Outdoor is:
+
+\begin{itemize}[nosep]
+  \item SDK mission checkpoints,
+  \item optional OSM-expanded intermediate waypoints,
+  \item LogoNav as local control,
+  \item runtime safety and recovery around it.
+\end{itemize}
+
+\subsection{Marathon}
+
+Marathon is:
+
+\begin{itemize}[nosep]
+  \item the outdoor stack,
+  \item plus stricter safety, slower motion, stronger checks,
+  \item and a much heavier requirement on stable target transitions.
+\end{itemize}
+
+\docbox{Architectural truth}{
+There is no single honest sentence like ``we used MBRA'' or ``we used LogoNav''
+that explains this project. The real explanation is layered. Indoor uses
+localization + temporal stabilization + graph planning + MBRA. Outdoor uses
+mission semantics + route semantics + LogoNav + runtime safety.}
+
+\section{Hardware and Platform Reality}
+
+Even though most of this repository is software, the platform mattered constantly.
+
+The project relied on:
+
+\begin{itemize}[nosep]
+  \item front camera imagery as the main live visual stream,
+  \item GPS for outdoor waypoint and mission geometry,
+  \item IMU data for tilt and angular-rate safety,
+  \item telemetry through the EarthRover SDK,
+  \item mission and control APIs through the SDK bridge.
+\end{itemize}
+
+The reason this belongs in the main document is that several software decisions
+only make sense once the platform constraints are visible:
+
+\begin{itemize}[nosep]
+  \item monocular depth depends heavily on the camera geometry,
+  \item indoor heading signals were noisy enough to hurt localization,
+  \item repeated aggressive turning was not only a controller issue but a physical
+  stability issue,
+  \item telemetry delays can imitate controller failure if not checked explicitly.
+\end{itemize}
+
+\section{Indoor System: The Full Story}
+
+\subsection{What Indoor Really Was}
+
+Indoor was not general building navigation. It was not SLAM. It was not GPS-free
+autonomy in a random unseen structure. It was a repeated corridor problem with a
+recorded dataset and a known topological route.
+
+That single fact changed almost every good engineering decision downstream.
+
+Because the corridor was known, we could do three things that made the final system
+much more tractable:
+
+\begin{itemize}[nosep]
+  \item build a corridor memory offline,
+  \item localize against that memory online,
+  \item define checkpoints as exact corridor steps instead of vague goals.
+\end{itemize}
+
+\subsection{Indoor Data}
+
+The indoor stack started from a recorded H5 run of the corridor. That recording was
+extracted into:
+
+\begin{itemize}[nosep]
+  \item front camera frames,
+  \item metadata and telemetry,
+  \item and later into a corridor database with descriptors and graph structure.
+\end{itemize}
+
+That dataset was not only for convenience. It was the foundation for both indoor
+localization and indoor checkpoint definition.
+
+\subsection{Indoor Code Structure}
+
+The key files in the indoor stack are:
+
+\begin{longtable}{p{0.28\textwidth}p{0.63\textwidth}}
+\toprule
+\textbf{File} & \textbf{Role} \\
+\midrule
+\texttt{baseline.py} & Builds and queries the corridor descriptor database. \\
+\texttt{src/corridor\_localizer.py} & Loads the corridor database and localizes a frame against it. \\
+\texttt{src/temporal\_localization.py} & Smooths retrieval outputs over time using continuity penalties. \\
+\texttt{src/graph\_planner.py} & Plans progress over the corridor graph and chooses a nearby subgoal. \\
+\texttt{src/navigation\_runtime.py} & Orchestrates localization and planning. \\
+\texttt{src/mbra\_controller.py} & Runs the MBRA learned policy as the local controller. \\
+\texttt{src/local\_controller.py} & Provides the simple heading-based backup controller. \\
+\texttt{live\_indoor\_runtime.py} & Main indoor runtime loop used in practice. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Indoor known-good defaults}
+
+One thing that older notes often blur is that the runtime uses different defaults
+depending on controller choice. In the active indoor runtime:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Quantity} & \textbf{MBRA mode} & \textbf{Simple mode} \\
+\midrule
+tick rate & 3.0 Hz & 2.0 Hz \\
+subgoal hops & 8 & 15 \\
+depth stop & 0.25 m & 0.40 m \\
+depth slow & 0.60 m & 0.80 m \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+This matters because it shows the runtime is not treating MBRA and the simple
+controller as the same thing with different names. They are given different
+operating envelopes.
+
+\subsection{Indoor Runtime Flow}
+
+The indoor runtime can be understood as a very concrete loop:
+
+\begin{verbatim}
+camera frame
+  -> corridor localizer
+  -> temporal stabilization
+  -> graph planner
+  -> choose current checkpoint + nearby subgoal
+  -> MBRA or simple controller
+  -> optional depth safety
+  -> send command
+\end{verbatim}
+
+This loop matters because it shows the true division of labor. The local controller
+was never asked to solve the entire indoor problem by itself.
+
+\subsection{Why checkpoint-step mode was such a major simplification}
+
+Earlier indoor thinking mixed together:
+
+\begin{itemize}[nosep]
+  \item target images,
+  \item target places,
+  \item target checkpoints.
+\end{itemize}
+
+Checkpoint-step mode forced all three into one representation: a checkpoint was an
+exact corridor step. That made the logs, the planner, and the runtime all speak
+the same language.
+
+\subsection{Indoor Localization}
+
+Indoor localization was based on CosPlace-style visual place recognition. A live
+frame was embedded and matched against stored corridor embeddings. That produced a
+candidate location in corridor-step space.
+
+The important practical point is that the system did not trust one frame by itself.
+That is why temporal stabilization exists.
+
+\subsection{What Temporal Stabilization Means}
+
+Temporal stabilization means the system uses recent localization history to avoid
+jumping to a new pose estimate just because one frame looked accidentally similar to
+the wrong corridor region.
+
+In the current code, the temporal localizer adds:
+
+\begin{itemize}[nosep]
+  \item jump penalties,
+  \item backward penalties,
+  \item heading penalties,
+  \item and ambiguity hold behavior.
+\end{itemize}
+
+The defaults are:
+
+\begin{itemize}[nosep]
+  \item \texttt{top\_k = 10}
+  \item \texttt{max\_step\_jump = 20}
+  \item \texttt{jump\_penalty = 0.05}
+  \item \texttt{backward\_penalty = 0.15}
+  \item \texttt{heading\_penalty = 0.002}
+  \item \texttt{ambiguity\_margin = 0.05}
+  \item \texttt{hold\_on\_ambiguity = True}
+\end{itemize}
+
+This is not heavy probabilistic filtering. It is a continuity-aware stabilizer. That
+was enough for the corridor problem.
+
+\subsection{Graph Progression Over Corridor Steps}
+
+Once localization produces a stable corridor step, the planner treats the indoor
+route as a graph. Each competition checkpoint is an exact step. The planner then
+selects a nearby subgoal some number of hops ahead.
+
+This was one of the biggest conceptual wins in the project. Once the problem became
+``move from exact step to exact step inside a known corridor graph,'' the rest of
+the stack became easier to reason about.
+
+\subsection{MBRA: What It Was Intended to Be}
+
+MBRA was intended as a short-horizon image-goal-conditioned local controller. The
+idea from the paper direction is not ``let MBRA solve the whole navigation
+problem.'' The intended role is:
+
+\begin{itemize}[nosep]
+  \item something else tells you where you are and where you should head next,
+  \item MBRA turns current image plus goal image into the immediate motion command.
+\end{itemize}
+
+That is exactly how it was most useful in this project.
+
+\subsection{How MBRA Was Used Here}
+
+In this repo, MBRA became the indoor local controller on top of:
+
+\begin{itemize}[nosep]
+  \item corridor localization,
+  \item temporal stabilization,
+  \item graph progression,
+  \item exact checkpoint-step mode.
+\end{itemize}
+
+So the division was:
+
+\begin{itemize}[nosep]
+  \item localization says where the rover is,
+  \item the planner says what checkpoint/subgoal comes next,
+  \item MBRA says how to move right now.
+\end{itemize}
+
+\subsection{MBRA Inference Details}
+
+The MBRA wrapper in \texttt{src/mbra\_controller.py} keeps a short visual context,
+uses fixed prior velocity inputs, and runs the model to produce a predicted
+trajectory. The immediate command is taken from the first step of that output.
+
+Important details used in this project:
+
+\begin{itemize}[nosep]
+  \item a 6-frame context was used,
+  \item the model operated on resized images,
+  \item fixed \texttt{vel\_past} values were used rather than trying to feed noisy
+  live command history back into the model,
+  \item the output is an immediate local command, not a global route.
+\end{itemize}
+
+\subsection{Why MBRA Was Made Sole Motion Authority}
+
+One of the main indoor discoveries was that MBRA behaved better when it was allowed
+to remain the sole motion authority.
+
+That means:
+
+\begin{itemize}[nosep]
+  \item no reverse-based recovery fighting the learned controller,
+  \item no separate backup steering law trying to override it every few ticks,
+  \item no competing runtime correction trying to reshape every turn.
+\end{itemize}
+
+The reason was practical: when the learned controller is already building motion
+from a short visual context, piling another steering system on top of it can create
+more oscillation rather than more safety.
+
+\subsection{Why No Reverse for MBRA}
+
+Reverse behavior was deliberately avoided for MBRA-based indoor runs.
+
+The important reason was not GPS or any external signal. The reason was visual
+context. MBRA is fundamentally operating on a forward visual context. Reverse motion
+changes that context in a way that made recovery behave worse in practice.
+
+So the project chose:
+
+\begin{itemize}[nosep]
+  \item no reverse for MBRA,
+  \item skip past impossible backward graph situations,
+  \item reset stale context when needed.
+\end{itemize}
+
+\subsection{Forward-Only Graph Behavior}
+
+The corridor graph behaved like a forward-only graph in practice. That created a
+very specific indoor bug: if the rover had already localized beyond a checkpoint,
+the planner could legitimately return ``no path'' to that older target.
+
+At first this looked like the planner being wrong. It was not wrong. The runtime
+was asking the wrong question.
+
+\subsection{Skip-Past-Checkpoint Logic}
+
+The fix was to add skip-past-checkpoint logic. If the rover was already beyond the
+active checkpoint with enough confidence, the runtime advanced instead of stopping
+forever.
+
+This was one of the key runtime corrections that made indoor competition mode much
+more usable.
+
+\subsection{What Stale Context Reset Means}
+
+If MBRA stopped making progress for multiple ticks, the runtime stopped trusting the
+old local context and forced a refresh from localization and planning. In simple
+terms: do not keep giving the controller the same stale target if the robot is no
+longer actually advancing toward it.
+
+\subsection{Indoor Safety}
+
+Indoor safety was relatively simple compared to outdoor. The main additional layer
+was monocular depth safety:
+
+\begin{itemize}[nosep]
+  \item hard stop if forward clearance is too small,
+  \item slow down in a band above that threshold.
+\end{itemize}
+
+For MBRA mode in the main indoor runtime:
+
+\begin{itemize}[nosep]
+  \item \texttt{tick\_hz = 3.0}
+  \item \texttt{max\_subgoal\_hops = 8}
+  \item \texttt{depth\_stop\_m = 0.25}
+  \item \texttt{depth\_slow\_m = 0.60}
+\end{itemize}
+
+\subsection{Indoor Competition Run}
+
+The main indoor competition-style command was:
+
+\begin{verbatim}
+python live_indoor_runtime.py \
+  --checkpoint-steps 45 480 761 821 1094 1208 1345 1430 1544 1638 1764 \
+  --auto-advance-checkpoints --send-control --controller mbra --depth-safety
+\end{verbatim}
+
+\subsection{Indoor Outcome}
+
+Indoor reached \textbf{8 out of 11 checkpoints}. This was the strongest completed
+stack in the project.
+
+What went right:
+
+\begin{itemize}[nosep]
+  \item localization was strong enough to structure the corridor,
+  \item temporal smoothing prevented many one-frame mistakes,
+  \item graph progression made the target semantics much clearer,
+  \item MBRA worked well once treated as a local controller rather than the whole
+  navigation solution.
+\end{itemize}
+
+What still failed:
+
+\begin{itemize}[nosep]
+  \item some corridor regions remained visually ambiguous,
+  \item checkpoint transitions still had edge cases,
+  \item stale-context and no-progress conditions still needed careful handling,
+  \item depth safety could occasionally be too conservative.
+\end{itemize}
+
+\subsection{What the indoor result proves and what it does not}
+
+Indoor reaching 8 of 11 checkpoints proves that the backbone was real. It proves:
+
+\begin{itemize}[nosep]
+  \item corridor memory plus graph progression was the right frame,
+  \item MBRA was worth keeping as the indoor local controller,
+  \item the runtime was strong enough to complete most of the track.
+\end{itemize}
+
+It does not prove:
+
+\begin{itemize}[nosep]
+  \item full immunity to corridor aliasing,
+  \item perfect checkpoint transitions,
+  \item perfect robustness to stale-context conditions.
+\end{itemize}
+
+\section{Outdoor System: The Full Story}
+
+\subsection{What Outdoor Really Was}
+
+Outdoor was not just the indoor stack with GPS. This was one of the most important
+project realizations.
+
+Outdoor is a live mission runtime problem. That means the system had to deal with:
+
+\begin{itemize}[nosep]
+  \item SDK mission state,
+  \item checkpoint sequencing,
+  \item GPS noise,
+  \item intermediate waypoint semantics,
+  \item route expansion,
+  \item safety intervention,
+  \item and unstable behavior under real-world uncertainty.
+\end{itemize}
+
+\subsection{Outdoor Code Structure}
+
+The main outdoor files are:
+
+\begin{longtable}{p{0.28\textwidth}p{0.63\textwidth}}
+\toprule
+\textbf{File} & \textbf{Role} \\
+\midrule
+\texttt{live\_outdoor\_runtime.py} & Main outdoor mission runtime. \\
+\texttt{src/earthrover\_interface.py} & SDK bridge for camera, telemetry, mission, and control. \\
+\texttt{src/outdoor\_logonav\_controller.py} & Learned outdoor controller wrapper. \\
+\texttt{src/outdoor\_gps\_controller.py} & Classical GPS controller backup. \\
+\texttt{src/osm\_router.py} & OSM-based route expansion into intermediate waypoints. \\
+\texttt{src/outdoor\_traversability.py} & Depth-based obstacle and steering support. \\
+\texttt{src/semantic\_risk\_estimator.py} & Semantic caution, stop, and bias scoring. \\
+\texttt{src/imu\_safety.py} & Anti-flip guard. \\
+\texttt{src/vision\_safety\_monitor.py} & Night image quality monitor. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Outdoor runtime defaults that matter most}
+
+The outdoor runtime has 80+ CLI flags, but a smaller set controls the personality of
+the run before any composite mode is enabled:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Quantity} & \textbf{Default} & \textbf{Flag / Source} \\
+\midrule
+controller & \texttt{logonav} & \texttt{--controller} \\
+GPS max linear & 0.38 m/s & \texttt{--max-linear} \\
+GPS max angular & 0.45 rad/s & \texttt{--max-angular} \\
+LogoNav max linear & 0.30 m/s & \texttt{--logonav-max-linear} \\
+LogoNav max angular & 0.30 rad/s & \texttt{--logonav-max-angular} \\
+goal radius & 8.0 m & \texttt{--goal-radius-m} \\
+intermediate waypoint radius & 3.0 m & \texttt{--intermediate-goal-radius-m} \\
+stuck window & 15 ticks & \texttt{--stuck-window-ticks} \\
+route corridor stop & 10.0 m & \texttt{--route-corridor-stop-m} \\
+semantic yield risk & 0.25 & \texttt{--semantic-yield-risk} \\
+semantic stop risk & 0.55 & \texttt{--semantic-stop-risk} \\
+max tilt & 40.0\textdegree & \texttt{--max-tilt-deg} \\
+max pitch/roll rate & 150\textdegree/s & \texttt{--max-gyro-dps} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\warnbox{Speed cap differences by mode}{
+These defaults are overridden by composite modes. Ultra-marathon caps all linear to
+0.20\,m/s and angular to 0.25\,rad/s. Night-safe caps even tighter: linear 0.16\,m/s,
+angular 0.22\,rad/s. The difference is significant --- night-safe is 47\% slower than
+default.}
+
+\subsection{What LogoNav Was Intended to Be}
+
+LogoNav is best understood as the learned local motion policy in a larger
+navigation system. It is not the whole outdoor architecture. It converts the
+current visual state and target information into motion commands.
+
+\subsection{How LogoNav Was Used Here}
+
+In this project, LogoNav sat inside a larger runtime:
+
+\begin{verbatim}
+mission checkpoints
+  -> optional OSM route expansion
+  -> active local waypoint
+  -> LogoNav controller
+  -> safety / recovery / logging / checkpoint handling
+\end{verbatim}
+
+So the outdoor intelligence was not ``LogoNav alone.'' It was the combination of:
+
+\begin{itemize}[nosep]
+  \item mission semantics,
+  \item waypoint semantics,
+  \item controller output,
+  \item safety overrides,
+  \item and recovery logic.
+\end{itemize}
+
+\subsection{What OSM-Expanded Waypoints Mean}
+
+A single far GPS checkpoint is usually too coarse for stable local control. The OSM
+router therefore expanded a checkpoint into a pedestrian-appropriate route with
+intermediate local waypoints.
+
+That made the motion problem easier, but it also created one of the central outdoor
+challenges: the runtime now had to manage \emph{two kinds of targets}:
+
+\begin{itemize}[nosep]
+  \item real mission checkpoints,
+  \item temporary intermediate routed waypoints.
+\end{itemize}
+
+That distinction turned out to be crucial.
+
+\subsection{Why target semantics became the main outdoor issue}
+
+Many outdoor failures make more sense once you stop thinking in terms of
+``controller good / controller bad'' and start thinking in terms of
+``what did the runtime believe the current target meant?''
+
+The rover kept getting in trouble when:
+
+\begin{itemize}[nosep]
+  \item an intermediate routed waypoint was treated too much like a real
+  checkpoint,
+  \item the next routed target ended up behind the rover after a reroute,
+  \item alignment logic reacted too strongly to the wrong target regime.
+\end{itemize}
+
+\subsection{Why Outdoor Already Had a Runnable Base}
+
+The repo already had a usable outdoor base before the final hardening pass. That
+base included:
+
+\begin{itemize}[nosep]
+  \item mission-mode support,
+  \item a LogoNav controller path,
+  \item GPS and telemetry access,
+  \item basic loop execution.
+\end{itemize}
+
+So the real project was not inventing outdoor autonomy from zero. It was making the
+existing outdoor runtime less brittle.
+
+\subsection{Outdoor Runtime Layers}
+
+The outdoor runtime gradually became a layered supervised navigation system. The
+important layers were:
+
+\begin{itemize}[nosep]
+  \item mission startup and checkpoint fetching,
+  \item mission resume and auto-claim logic,
+  \item route construction,
+  \item active waypoint selection,
+  \item controller output,
+  \item traversability and semantic intervention,
+  \item IMU, GPS, and vision safety,
+  \item stuck detection and recovery,
+  \item route corridor guarding,
+  \item richer runtime logging.
+\end{itemize}
+
+\subsection{Composite safety modes}
+
+The runtime contains three especially important composite modes.
+
+\subsubsection*{\texttt{--ultra-marathon}}
+
+This turns on:
+
+\begin{itemize}[nosep]
+  \item IMU safety,
+  \item health gate,
+  \item leg pause,
+  \item no reverse,
+  \item route corridor guard,
+  \item nav-ready gate,
+  \item behind-waypoint pruning,
+  \item more conservative stuck behavior.
+\end{itemize}
+
+It also tightens motion caps and recovery:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Flag} & \textbf{Cap} & \textbf{Line} \\
+\midrule
+\texttt{logonav\_max\_linear} & $\leq 0.20$ m/s & 526 \\
+\texttt{logonav\_max\_angular} & $\leq 0.25$ rad/s & 527 \\
+\texttt{max\_linear} & $\leq 0.20$ m/s & 528 \\
+\texttt{max\_angular} & $\leq 0.25$ rad/s & 529 \\
+\texttt{recovery\_turn\_angular} & $\leq 0.30$ rad/s & 530 \\
+\texttt{recovery\_turn\_ticks} & $\leq 5$ & 531 \\
+\texttt{stuck\_window\_ticks} & $\geq 25$ & 532 \\
+\texttt{max\_recovery\_attempts} & 3 (if unset) & 534 \\
+\texttt{camera\_watchdog\_ticks} & $\leq 10$ & 535 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All line references are to \texttt{live\_outdoor\_runtime.py}.
+
+\subsubsection*{\texttt{--night-safe}}
+
+This enables:
+
+\begin{itemize}[nosep]
+  \item lamp on,
+  \item vision safety,
+  \item GPS safety,
+  \item IMU safety,
+  \item route corridor guard,
+  \item nav-ready gate,
+  \item traversability.
+\end{itemize}
+
+It also changes the operating profile:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Flag} & \textbf{Cap} & \textbf{Line} \\
+\midrule
+\texttt{tick\_hz} & $\leq 2.0$ Hz & 546 \\
+\texttt{depth\_every\_n} & 1 (every tick) & 547 \\
+\texttt{logonav\_max\_linear} & $\leq 0.16$ m/s & 548 \\
+\texttt{logonav\_max\_angular} & $\leq 0.22$ rad/s & 549 \\
+\texttt{max\_linear} & $\leq 0.16$ m/s & 550 \\
+\texttt{max\_angular} & $\leq 0.22$ rad/s & 551 \\
+\texttt{route\_corridor\_stop\_m} & $\leq 5.0$ m & 552 \\
+\texttt{camera\_watchdog\_ticks} & $\leq 6$ & 553 \\
+\texttt{battery\_warn\_pct} & $\geq 35.0\%$ & 554 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Night-safe also auto-enables \texttt{logonav\_device="auto"} (GPU if available) since
+slower tick rates give more inference budget per tick.
+
+\lessonbox{\texttt{--sidewalk-strict} status}{
+In this active runtime, \texttt{--sidewalk-strict} \emph{does exist} as a real flag
+(\texttt{live\_outdoor\_runtime.py}, parser line~402). It auto-enables a stricter
+bundle centered on pedestrian routing and sidewalk-preservation behavior, including
+\texttt{--osm-route}, \texttt{--osm-no-fallback}, \texttt{--route-corridor-guard},
+\texttt{--gps-safety}, \texttt{--traversability}, \texttt{--semantics},
+\texttt{--semantic-yield}, and \texttt{--semantic-sidewalk-stop}.}
+
+\subsection{Outdoor Traversability}
+
+Traversability used depth to measure whether the forward corridor looked blocked. It
+was not treated as a full world model. It became a stronger local override.
+
+The main role of traversability was:
+
+\begin{itemize}[nosep]
+  \item slow down when the forward corridor starts to look tight,
+  \item stop if the forward corridor is clearly too blocked,
+  \item optionally bias steering based on left/right clearance structure.
+\end{itemize}
+
+\subsection{Outdoor Semantics}
+
+Semantics used SegFormer-derived labels grouped into categories such as:
+
+\begin{itemize}[nosep]
+  \item drivable,
+  \item neutral,
+  \item caution,
+  \item hazard,
+  \item ignored.
+\end{itemize}
+
+This helped with caution and some stop/yield logic, but semantics stayed a support
+layer because the label space and field conditions were not reliable enough to make
+it the full outdoor intelligence layer.
+
+\subsection{Complete Outdoor Safety Layer Table}
+
+This is the table many documents reference but none previously contained in full.
+Every layer is verified against \texttt{live\_outdoor\_runtime.py} with line numbers.
+
+\begin{longtable}{p{0.16\textwidth}p{0.14\textwidth}p{0.10\textwidth}p{0.08\textwidth}p{0.08\textwidth}p{0.06\textwidth}p{0.06\textwidth}}
+\toprule
+\textbf{Layer} & \textbf{Source} & \textbf{CLI flag} & \textbf{Threshold} & \textbf{Confirm} & \textbf{Mara.} & \textbf{Night} \\
+\midrule
+GPS signal/jump & L1043 & \texttt{--gps-safety} & signal$<$4, jump$>$20\,m & 3 ticks & opt & yes \\
+Battery stop & L1082 & \texttt{--battery-stop-pct} & user-set & 0 & opt & opt \\
+Telemetry freeze & L1096 & always & 50 ticks / 2.0\,s & 0 & yes & yes \\
+IMU anti-flip & L1111 & \texttt{--imu-safety} & tilt$>$40\textdegree, gyro$>$150\textdegree/s & 2 & yes & yes \\
+Vision quality & L1128 & \texttt{--vision-safety} & bright$<$42, dark$>$65\% & 3 ticks & opt & yes \\
+Nav-ready gate & L1142 & \texttt{--nav-ready-gate} & cam+GPS+telem & confirm & yes & yes \\
+Route corridor & L1184 & \texttt{--route-corridor-guard} & drift$>$10\,m & 3 ticks & yes & yes \\
+Semantic hard stop & L1238 & \texttt{--semantic-hard-stop} & risk$\geq$0.55 & 2 ticks & opt & opt \\
+Semantic sidewalk & L1258 & \texttt{--semantic-sidewalk-stop} & road$>$55\%, sw$<$5\% & 2 ticks & opt & opt \\
+Semantic yield & runtime & \texttt{--semantic-yield} & risk$\geq$0.25 & 0 & opt & opt \\
+Depth stop/slow & runtime & \texttt{--depth-safety} & stop$<$0.4\,m, slow$<$0.8\,m & 0 & opt & opt \\
+Traversability & runtime & \texttt{--traversability} & obstacle steering & 0 & opt & yes \\
+Stuck detection & runtime & always & window 15 ticks & 0 & yes & yes \\
+Camera watchdog & runtime & \texttt{--camera-watchdog-ticks} & 10 ticks & 0 & yes & yes \\
+Leg pause & runtime & \texttt{--leg-pause} & operator & --- & yes & opt \\
+No-reverse & runtime & \texttt{--no-reverse} & --- & --- & yes & opt \\
+Max recovery & runtime & \texttt{--max-recovery-attempts} & 3 (marathon) & --- & yes & opt \\
+\bottomrule
+\end{longtable}
+
+\textbf{Authority hierarchy}: Hard stop $>$ Halt for operator $>$ Hold (wait) $>$ Constraint (limit) $>$ Soft bias (nudge) $>$ Info (warn).
+
+\textbf{``Mara.''} = always on in \texttt{--ultra-marathon}. \textbf{``Night''} = always on in \texttt{--night-safe}. \textbf{``opt''} = available but must be enabled explicitly.
+
+\subsection{Semantic Label Taxonomy}
+
+The semantic estimator groups ADE20K labels into five categories. This grouping is
+the single most important semantic design decision in the project, and it was the
+direct result of the offline probe showing that naive label grouping produced 83\%
+false-positive obstacle fraction on open off-road terrain.
+
+From \texttt{src/semantic\_risk\_estimator.py}, lines 19--24:
+
+\begin{lstlisting}
+DRIVABLE_LABELS = {"road", "earth", "path", "sidewalk", "dirt track"}
+NEUTRAL_LABELS  = {"grass", "field"}
+HAZARD_LABELS   = {"person", "animal", "pole", "wall", "fence"}
+CAUTION_LABELS  = {"tree", "plant"}
+IGNORE_LABELS   = {"sky"}
+\end{lstlisting}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Category} & \textbf{Labels} & \textbf{Role in scoring} \\
+\midrule
+Drivable & road, earth, path, sidewalk, dirt track & Positive weight (+1.0 in free score) \\
+Neutral & grass, field & Weak positive (+0.30 in free score) \\
+Hazard & person, animal, pole, wall, fence & Hard alerts if $>$ threshold \\
+Caution & tree, plant & $-0.60$ in free score; compound vegetation block \\
+Ignore & sky & Excluded from all scoring \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Why grass is neutral, not obstacle}: The first offline probe treated grass as
+an obstacle. On off-road terrain, that produced an 83\% ``obstacle'' fraction on an
+open baseline frame. Moving grass to neutral with 30\% drivable weight was the single
+most important fix for false positives.
+
+\textbf{The compound vegetation threshold}: Vegetation blockage fires only when BOTH
+conditions are true: drivable center fraction $< 0.10$ AND caution center fraction $>
+0.60$. This prevents false positives on scenes where some earth or path labeling keeps
+the drivable fraction above 10\%.
+
+\subsection{What the semantic estimator is actually computing}
+
+The semantic estimator is not just reading the most common label in the image. It
+measures fractions inside carefully chosen regions:
+
+\begin{itemize}[nosep]
+  \item center corridor fractions,
+  \item left-half fractions,
+  \item right-half fractions.
+\end{itemize}
+
+Then it builds:
+
+\begin{itemize}[nosep]
+  \item a risk score,
+  \item a vegetation-blocked condition,
+  \item and a left-right steering bias.
+\end{itemize}
+
+\subsection{IMU Safety}
+
+The IMU safety layer existed to detect unsafe tilt and dangerous angular motion,
+especially in the marathon setting. It is best thought of as a last-resort
+protection layer. It can stop the rover once the motion becomes unsafe, but it does
+not remove the need for stable upstream controller behavior.
+
+\subsection{Vision Safety}
+
+Night-time or poor visual quality can quietly destroy controller behavior. The
+vision safety monitor existed to gate the controller when the image looked too dark,
+too washed out, or too low-texture to trust.
+
+\subsection{Route Corridor Guard}
+
+The route corridor guard existed because a route is only useful if the rover is
+still plausibly following it. If the rover deviated too far from the intended route
+structure for too long, the runtime could stop, reroute, or hold.
+
+\subsection{What Went Wrong Outdoors}
+
+Outdoor failures were less about one single bug and more about a family of target
+transition problems.
+
+The main failure themes were:
+
+\begin{itemize}[nosep]
+  \item the runtime could hand off routed waypoints too early,
+  \item reroutes could create targets behind the rover,
+  \item alignment behavior could become too aggressive,
+  \item route corridor logic could fight forward progress,
+  \item stopping and resuming after mission transitions could create unstable loops.
+\end{itemize}
+
+\subsection{Failure chronology in plain language}
+
+The most common outdoor failure pattern looked like this:
+
+\begin{enumerate}[nosep]
+  \item the rover makes real progress,
+  \item a waypoint transition happens,
+  \item the new target is interpreted badly,
+  \item the runtime starts aligning, rerouting, or oscillating,
+  \item smooth forward progress disappears.
+\end{enumerate}
+
+\subsection{Important Outdoor Corrections}
+
+The outdoor runtime therefore accumulated a set of very specific corrections:
+
+\begin{itemize}[nosep]
+  \item distinguish mission checkpoints from routed intermediate waypoints,
+  \item shrink and later make dynamic the routed waypoint handoff radius,
+  \item prune behind-the-rover waypoints,
+  \item reroute from live pose rather than stale route state,
+  \item gate hard alignment more carefully,
+  \item strengthen traversability as a local override.
+\end{itemize}
+
+\subsection{Outdoor Competition Outcome}
+
+The outdoor stack had:
+
+\begin{itemize}[nosep]
+  \item one run that reached all checkpoints,
+  \item several other runs around fifty percent successful overall,
+  \item three failed rounds.
+\end{itemize}
+
+This is not a cleanly solved system, but it is also not a fake system. One full run
+means the stack was real. The incomplete reliability means the runtime still had
+too many unstable transition cases.
+
+\subsection{What the outdoor result proves and what it does not}
+
+It proves:
+
+\begin{itemize}[nosep]
+  \item the outdoor stack could complete a full run,
+  \item the controller path was not fake,
+  \item the runtime and safety layers were operationally meaningful.
+\end{itemize}
+
+It does not prove:
+
+\begin{itemize}[nosep]
+  \item repeatable robustness,
+  \item solved waypoint-transition behavior,
+  \item solved marathon-scale stability.
+\end{itemize}
+
+\section{Marathon System: The Full Story}
+
+\subsection{What Marathon Mode Was Trying to Do}
+
+Marathon mode was an attempt to push the outdoor system into a narrower, safer
+operating envelope for a longer run. The point was not more autonomy freedom. The
+point was safe completion.
+
+\subsection{What Marathon Added}
+
+Marathon mode added or emphasized:
+
+\begin{itemize}[nosep]
+  \item IMU safety,
+  \item health gating,
+  \item leg pauses,
+  \item no reverse,
+  \item tighter speed caps,
+  \item route corridor guard,
+  \item stricter recovery behavior,
+  \item preflight checking.
+\end{itemize}
+
+\subsection{Why That Still Was Not Enough}
+
+The marathon failure is important because it shows the limit of adding safety
+layers without enough physical transition testing.
+
+The rover reached one checkpoint. After that:
+
+\begin{itemize}[nosep]
+  \item the runtime did not settle the next target cleanly enough,
+  \item the rover entered repeated turning behavior,
+  \item persistent aggressive turning on real terrain created instability,
+  \item the rover toppled.
+\end{itemize}
+
+So the failure was not well described as ``software failed'' or ``hardware failed''
+alone. It was a coupled runtime-to-platform stability failure.
+
+\subsection{What We Learned From Marathon}
+
+The marathon result forced three lessons:
+
+\begin{itemize}[nosep]
+  \item safer logic does not automatically mean more stable logic,
+  \item waypoint and checkpoint transitions are the most dangerous phase of the
+  current outdoor system,
+  \item physical stability matters just as much as software behavior in long runs.
+\end{itemize}
+
+\subsection{What Should Change After Marathon}
+
+The next improvements are clear:
+
+\begin{itemize}[nosep]
+  \item slower transition behavior,
+  \item wider and calmer turning behavior,
+  \item fewer in-place or aggressive alignment situations,
+  \item improved platform balance or ballast,
+  \item more field-tested runtime behavior before long attempts.
+\end{itemize}
+
+\section{Main Design Decisions and Why They Were Chosen}
+
+\subsection{Why CosPlace}
+
+Because the indoor problem was corridor-specific and repeated. We did not need the
+most elaborate matching system available. We needed a fast and good-enough visual
+localizer that made the corridor legible.
+
+\subsection{Why MBRA for Indoor}
+
+Because MBRA fit the role of short-horizon visual control once the corridor memory
+and graph progression carried the larger navigation structure.
+
+\subsection{Why Not Treat MBRA as Everything}
+
+Because that would have overloaded the learned controller. The project became much
+better once localization, planning, and control were separated cleanly.
+
+\subsection{Why LogoNav for Outdoor}
+
+Because the repo already had a working outdoor controller path, and the project’s
+real outdoor problem was runtime robustness rather than lack of a motion policy.
+
+\subsection{Why Not Pure GPS as Main Direction}
+
+Because pure GPS was useful as a fallback but not rich enough as the main outdoor
+behavior layer. The rover still needed a better local motion policy.
+
+\subsection{Why Depth Did Not Become the Main Backbone}
+
+Because depth was helpful but not trustworthy enough across all real field cases to
+become the only hard truth layer. It became a strong local override instead.
+
+\subsection{Why Semantics Stayed Secondary}
+
+Because semantics was useful for caution and guidance, but ADE20K-style labels and
+real outdoor terrain did not line up cleanly enough to justify full authority.
+
+\subsection{Why No Reverse for Learned Controllers}
+
+Because reverse recovery damaged the learned visual context and created worse
+behavior rather than cleaner recovery.
+
+\subsection{Why Sole Motion Authority Mattered}
+
+Because mixing a learned controller with competing backup steering logic often made
+oscillation worse, not better.
+
+\section{Current Final Mental Model}
+
+If the project has to be explained in one page, the clearest version is this.
+
+\subsection{Indoor}
+
+Indoor is a corridor-memory problem:
+
+\begin{itemize}[nosep]
+  \item CosPlace localizes,
+  \item temporal filtering stabilizes,
+  \item graph planning chooses the next checkpoint/subgoal,
+  \item MBRA executes short-horizon motion,
+  \item depth veto protects against obvious close obstacles.
+\end{itemize}
+
+\subsection{Outdoor}
+
+Outdoor is a mission-runtime problem:
+
+\begin{itemize}[nosep]
+  \item the SDK defines checkpoints,
+  \item OSM can define intermediate route structure,
+  \item LogoNav produces local commands,
+  \item runtime layers enforce safer behavior.
+\end{itemize}
+
+\subsection{Marathon}
+
+Marathon is the outdoor stack under stricter runtime control, where the biggest
+remaining weakness is stable behavior during and after target transitions.
+
+\section{What Still Remains Open}
+
+The biggest remaining open problems are:
+
+\begin{itemize}[nosep]
+  \item calmer and more reliable waypoint handoff outdoors,
+  \item less spin-prone transition behavior,
+  \item better physical stability for long outdoor runs,
+  \item more field validation of depth and semantic intervention,
+  \item cleaner recovery logic that does not fight learned control.
+\end{itemize}
+
+\section{Practical Commands}
+
+\subsection{Indoor competition-style run}
+
+\begin{verbatim}
+python live_indoor_runtime.py \
+  --checkpoint-steps 45 480 761 821 1094 1208 1345 1430 1544 1638 1764 \
+  --auto-advance-checkpoints --send-control --controller mbra --depth-safety
+\end{verbatim}
+
+\subsection{Indoor dry run}
+
+\begin{verbatim}
+python live_indoor_runtime.py \
+  --checkpoint-steps 45 480 761 821 1094 1208 1345 1430 1544 1638 1764 \
+  --auto-advance-checkpoints --controller mbra --depth-safety
+\end{verbatim}
+
+\subsection{Outdoor mission run}
+
+\begin{verbatim}
+python live_outdoor_runtime.py --mission --send-control --controller logonav --osm-route
+\end{verbatim}
+
+\subsection{Outdoor traversability run}
+
+\begin{verbatim}
+python live_outdoor_runtime.py --mission --send-control --traversability
+\end{verbatim}
+
+\subsection{Outdoor marathon run}
+
+\begin{verbatim}
+python live_outdoor_runtime.py \
+  --mission --send-control --controller logonav --osm-route --ultra-marathon
+\end{verbatim}
+
+\subsection{Outdoor night-safe run}
+
+\begin{verbatim}
+python live_outdoor_runtime.py \
+  --mission --send-control --controller logonav --osm-route --night-safe
+\end{verbatim}
+
+\subsection{Canonical Runbook (Use These First)}
+
+If you only keep four commands on hand, keep these:
+
+\begin{center}
+\begin{tabular}{p{0.22\textwidth}p{0.70\textwidth}}
+\toprule
+\textbf{Mode} & \textbf{Canonical command} \\
+\midrule
+Indoor (competition) &
+\texttt{python live\_indoor\_runtime.py --checkpoint-steps 45 480 761 821 1094 1208 1345 1430 1544 1638 1764 --auto-advance-checkpoints --send-control --controller mbra --depth-safety} \\
+Outdoor (standard) &
+\texttt{python live\_outdoor\_runtime.py --mission --send-control --controller logonav --osm-route} \\
+Outdoor (marathon profile) &
+\texttt{python live\_outdoor\_runtime.py --mission --send-control --controller logonav --osm-route --ultra-marathon} \\
+Outdoor (night profile) &
+\texttt{python live\_outdoor\_runtime.py --mission --send-control --controller logonav --osm-route --night-safe} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Do-Not-Combine Command Conflicts}
+
+\begin{longtable}{p{0.32\textwidth}p{0.62\textwidth}}
+\toprule
+\textbf{Conflict} & \textbf{Why to avoid it} \\
+\midrule
+\texttt{--depth-safety} + \texttt{--no-depth-safety} & Contradictory intent. Keep one policy per run and make it explicit in logs. \\
+\texttt{--ultra-marathon} + manual high-speed overrides (\texttt{--max-linear}, \texttt{--nominal-linear}, \texttt{--logonav-max-linear}) & Marathon profile is meant to cap speed conservatively. Manual speed-up defeats the profile's purpose and makes runs harder to compare. \\
+\texttt{--night-safe} + manual high-speed overrides (\texttt{--max-linear}, \texttt{--nominal-linear}, \texttt{--logonav-max-linear}) & Night-safe is intentionally slower for low-visibility stability; speed-up changes the safety envelope. \\
+\texttt{--controller gps} + LogoNav-specific tuning-only sessions & GPS mode bypasses LogoNav policy behavior. If tuning LogoNav behavior, keep \texttt{--controller logonav}. \\
+\texttt{--mission} omitted during field mission testing & Without \texttt{--mission}, you are not exercising real checkpoint progression logic from the SDK mission state machine. \\
+\bottomrule
+\end{longtable}
+
+\warnbox{Operational consistency rule}{
+For field comparisons, do not change profile flags and low-level safety thresholds in the same run.
+Change one layer at a time so failures can be attributed to one decision.}
+
+\section{Verified Reproduction Checklist (Fast Path)}
+
+This checklist is the shortest reliable path to reproduce baseline behavior with
+commands that are already reflected in this documentation and validated by parser
+checks.
+
+\subsection*{Step 1: Indoor dry-run sanity check}
+
+\begin{verbatim}
+python live_indoor_runtime.py \
+  --checkpoint-steps 45 480 761 821 1094 1208 1345 1430 1544 1638 1764 \
+  --auto-advance-checkpoints --controller mbra --depth-safety
+\end{verbatim}
+
+Expected signatures:
+\begin{itemize}[nosep]
+  \item startup block beginning with \texttt{Live indoor runtime}
+  \item periodic tick lines with step/progress context
+  \item if edge cases occur: \texttt{skipping past checkpoint ...} or
+  \texttt{no-progress reset ...}
+\end{itemize}
+
+\subsection*{Step 2: Outdoor mission baseline}
+
+\begin{verbatim}
+python live_outdoor_runtime.py \
+  --mission --send-control --controller logonav --osm-route
+\end{verbatim}
+
+Expected signatures:
+\begin{itemize}[nosep]
+  \item \texttt{navigation\_ready ticks=3}
+  \item \texttt{DONE=... LEG=... WP=... dist=... mode=...}
+  \item \texttt{intermediate waypoint reached at (...)}
+\end{itemize}
+
+\subsection*{Step 3: Marathon profile behavior}
+
+\begin{verbatim}
+python live_outdoor_runtime.py \
+  --mission --send-control --controller logonav --osm-route --ultra-marathon
+\end{verbatim}
+
+Expected signatures:
+\begin{itemize}[nosep]
+  \item conservative speed behavior relative to standard mission mode
+  \item stricter intervention signatures when route or state becomes inconsistent
+  \item in adverse cases: \texttt{route\_corridor\_stop ...} followed by reroute
+\end{itemize}
+
+\warnbox{Repro discipline}{
+Do not tune thresholds while reproducing baseline outcomes. First reproduce
+baseline behavior exactly. Then change one subsystem at a time.}
+
+\section{Preflight Sequence}
+
+Before a marathon or night run, the preflight validator
+(\texttt{scripts/preflight\_marathon.py}, 216 lines) performs checks in this order:
+
+\begin{enumerate}[nosep]
+  \item \textbf{Mission start} (if \texttt{--mission}): calls \texttt{/start-mission},
+  validates checkpoint list
+  \item \textbf{SDK connection}: verifies the SDK bridge is reachable
+  \item \textbf{Telemetry availability}: confirms initial telemetry response
+  \item \textbf{Battery check}: fails if battery $<$ \texttt{--battery-min-pct}
+  (default 70\%)
+  \item \textbf{GPS live}: confirms lat/lon are valid and non-zero
+  \item \textbf{Telemetry advancing}: samples multiple times to verify timestamps are
+  incrementing (not frozen)
+  \item \textbf{Front camera live}: waits up to \texttt{--camera-timeout-s} for a
+  valid frame
+  \item \textbf{GPS signal level}: fails if \texttt{gps\_signal} $<$
+  \texttt{--gps-min-signal} (default 2)
+  \item \textbf{Night-time checks} (if \texttt{--night-safe}): vision safety
+  (brightness, dark fraction, glare, texture) and IMU rest-pose tilt $<$ 20\textdegree
+  \item \textbf{Model weights}: verifies LogoNav weights and config files exist on
+  disk
+  \item \textbf{Mission checkpoint status} (if \texttt{--mission}): confirms checkpoint
+  list and completion state
+  \item \textbf{OSM routing validation} (if \texttt{--osm-route}): expands one test
+  route, checks for fallback straight-line segments
+\end{enumerate}
+
+Any check failure prints a clear diagnostic and exits before the rover moves.
+
+\section{System Architecture Diagram}
+
+\begin{lstlisting}
+  INDOOR PIPELINE                         OUTDOOR PIPELINE
+  ==============                          ================
+
+  Camera Frame                            SDK Mission Checkpoints
+       |                                        |
+  CosPlace VPR                            OSM Route Expansion
+  (corridor_localizer.py)                 (osm_router.py)
+       |                                        |
+  Temporal Stabilization                  Active Local Waypoint
+  (temporal_localization.py)                    |
+       |                                  LogoNav or GPS Controller
+  Graph Planner                           (outdoor_logonav_controller.py
+  (graph_planner.py)                       outdoor_gps_controller.py)
+       |                                        |
+  MBRA or Simple Controller         +-----+-----+-----+-----+-----+
+  (mbra_controller.py               |     |     |     |     |     |
+   local_controller.py)            IMU  Vision GPS  Route Depth Semantic
+       |                           Safe  Safe  Safe Guard Trav  Risk
+  Depth Safety Veto                (imu_  (vis_ (gps (route (trav (sem_
+       |                          safety safety safe  corr  ersab risk
+  SDK Motor Command               .py)  _mon   .py)  .py)  .py)  .py)
+                                         .py)
+                                        |
+                                   Stuck Detection + Recovery
+                                        |
+                                   SDK Motor Command
+
+  SHARED: earthrover_interface.py (SDK bridge)
+          depth_estimator.py (Depth Anything V2)
+          sensor_state.py (heading/gyro filtering)
+\end{lstlisting}
+
+\subsection{Subsystem Diagram: Indoor Localization Pipeline}
+
+\begin{lstlisting}
+front RGB frame
+    |
+    v
+CosPlace descriptor embedding (corridor_localizer)
+    |
+    v
+Top-k retrieval candidates (index, distance)
+    |
+    v
+Temporal scoring
+  score = distance + continuity penalties + optional heading penalty
+    |
+    +--> ambiguity hold? keep previous node
+    |
+    v
+stable corridor step + confidence
+    |
+    v
+graph planner + checkpoint semantics
+\end{lstlisting}
+
+\subsection{Subsystem Diagram: Outdoor Waypoint Lifecycle}
+
+\begin{lstlisting}
+SDK mission checkpoint
+    |
+    +--> direct mode: active target = checkpoint
+    |
+    +--> OSM mode:
+         checkpoint -> routed polyline -> intermediate waypoints
+             |
+             v
+         active waypoint selected
+             |
+             v
+         dynamic intermediate radius handoff
+             |
+             +--> prune behind-waypoint cases
+             |
+             v
+         reached intermediate? advance
+             |
+             v
+         reached mission checkpoint? report + next leg
+\end{lstlisting}
+
+\subsection{Subsystem Diagram: Semantic Scoring Pipeline}
+
+\begin{lstlisting}
+front RGB frame
+    |
+    v
+SegFormer inference -> per-pixel labels
+    |
+    v
+ROI masks (center corridor, left half, right half)
+    |
+    v
+label fractions:
+  drivable, neutral, caution, person/animal/pole/wall
+    |
+    v
+risk score + hard alerts + vegetation_blocked
+    |
+    v
+left/right free-score -> angular bias
+    |
+    v
+runtime policy:
+  semantic_yield / semantic_hard_stop / semantic_sidewalk_stop
+\end{lstlisting}
+
+\section{C4 Architecture Views}
+
+\subsection{C4 Level 1 — System Context}
+
+\begin{lstlisting}
+                         +----------------------+
+                         |    Mission Operator  |
+                         |  (supervised runtime)|
+                         +----------+-----------+
+                                    |
+                                    v
+ +------------------+       +-------+--------+       +-------------------+
+ | Indoor Corridor  |<----->| ERC-3 Rover SW |<----->| EarthRover SDK/API|
+ | Environment      |       | (this repo)    |       | (telemetry/control)|
+ +------------------+       +-------+--------+       +-------------------+
+                                    |
+                                    v
+                         +----------+-----------+
+                         | Outdoor Mission Area |
+                         | (GPS/OSM pedestrian) |
+                         +----------------------+
+\end{lstlisting}
+
+\subsection{C4 Level 2 — Container View}
+
+\begin{lstlisting}
+ +--------------------------- ERC-3 Rover Software ---------------------------+
+ |                                                                           |
+ |  Indoor Runtime Container         Outdoor Runtime Container               |
+ |  (live_indoor_runtime.py)         (live_outdoor_runtime.py)              |
+ |        |                                     |                            |
+ |        v                                     v                            |
+ |  Localization + Planner               Mission + Routing                   |
+ |  (corridor_localizer,                (earthrover_interface,               |
+ |   temporal_localization,              osm_router)                         |
+ |   graph_planner)                             |                            |
+ |        |                                     v                            |
+ |        v                              Local Controller                    |
+ |  MBRA/Simple Controller              (outdoor_logonav / gps)              |
+ |        |                                     |                            |
+ |        +------------> Shared Safety Layers <+                            |
+ |                      (depth, traversability, semantics,                   |
+ |                       imu, vision, gps, corridor guard)                   |
+ +---------------------------------------------------------------------------+
+\end{lstlisting}
+
+\subsection{C4 Level 3 — Dynamic View (Outdoor Tick)}
+
+\begin{lstlisting}
+1) Read telemetry + frame from SDK
+2) Resolve active mission checkpoint / routed waypoint
+3) Controller proposes command (LogoNav or GPS)
+4) Apply safety layers in order:
+   route corridor -> semantics -> depth/traversability -> IMU -> vision/GPS
+5) Apply recovery/align gating if needed
+6) Send command or hold/stop
+7) Evaluate reach conditions and transition target state
+\end{lstlisting}
+
+\section{Complete Outdoor CLI Flag Inventory (112 Flags)}
+
+This section is the exhaustive runtime flag inventory from
+\texttt{live\_outdoor\_runtime.py} argument parsing, grouped by category and including
+default values and source line anchors.
+
+\begin{lstlisting}
+| Category | Flag | Type | Default | Description | Source |
+|---|---|---|---|---|---|
+| Control | `--max-linear` | value | `0.38` | Controller max linear speed. | L353 |
+| Control | `--min-linear` | value | `0.08` | Controller min forward speed. | L354 |
+| Control | `--nominal-linear` | value | `0.33` | Nominal cruise speed. | L355 |
+| Control | `--max-angular` | value | `0.45` | Controller max angular speed. | L356 |
+| Control | `--angular-gain` | value | `0.4` | Proportional gain for steering. | L357 |
+| Control | `--in-place-turn-threshold-deg` | value | `90.0` | Stop forward motion and turn in place above this bearing error. | L358 |
+| Control | `--in-place-turn-exit-deg` | value | `60.0` | Exit turn-in-place mode when bearing error drops below this (hysteresis). | L359 |
+| Control | `--logonav-stuck-progress-epsilon-m` | value | `-0.05` | LogoNav-specific progress threshold for stuck recovery. Raise toward 0.0 to recover sooner from curb / wall traps. | L366 |
+| Control | `--stuck-command-linear` | value | `0.18` | Forward command threshold for no-progress detection. | L367 |
+| Control | `--logonav-min-effective-linear` | value | `0.10` | Minimum effective forward speed to maintain when LogoNav is trying to move and no safety layer is actively slowing it. | L368 |
+| Control | `--logonav-align-turn-threshold-deg` | value | `35.0` | LogoNav: above this bearing error, prioritize turning toward the waypoint before driving forward. | L369 |
+| Control | `--logonav-align-turn-exit-deg` | value | `18.0` | LogoNav: exit the turn-priority mode once bearing error drops below this. | L370 |
+| Control | `--logonav-align-max-linear` | value | `0.04` | LogoNav: maximum forward speed while turn-priority mode is active. | L371 |
+| Control | `--logonav-align-min-angular` | value | `0.18` | LogoNav: minimum angular command while turn-priority mode is active. | L372 |
+| Control | `--logonav-align-distance-m` | value | `6.0` | LogoNav: only force turn-priority below this waypoint distance unless bearing error is very large. | L373 |
+| Control | `--logonav-align-extreme-deg` | value | `60.0` | LogoNav: always allow turn-priority above this bearing error, even for farther waypoints. | L374 |
+| Control | `--logonav-weights` | value | `REPO_ROOT / "mbra_repo" / "deployment" / "model_weights" / "logonav.pth"` | Path to LogoNav weights. | L410 |
+| Control | `--logonav-config` | value | `REPO_ROOT / "mbra_repo" / "train" / "config" / "LogoNav.yaml"` | Path to LogoNav config. | L411 |
+| Control | `--logonav-device` | value | `"cpu"` | Device for LogoNav inference. | L412 |
+| Control | `--logonav-max-linear` | value | `0.30` | LogoNav max linear speed cap. | L413 |
+| Control | `--logonav-max-angular` | value | `0.30` | LogoNav max angular speed cap. | L414 |
+| Depth/Traversability | `--depth-safety` | bool | `-` | Enable depth-based obstacle avoidance (disabled by default - camera geometry causes false stops on this platform). | L382 |
+| Depth/Traversability | `--depth-model-size` | value | `"small"` | Depth model size. | L384 |
+| Depth/Traversability | `--depth-every-n` | value | `2` | Run depth inference every N ticks. | L385 |
+| Depth/Traversability | `--depth-slow-m` | value | `0.8` | Slow down below this forward clearance. | L386 |
+| Depth/Traversability | `--depth-stop-m` | value | `0.4` | Stop below this forward clearance. | L387 |
+| Depth/Traversability | `--traversability` | bool | `-` | Enable middle-band traversability layer (obstacle detection at tree-trunk / wall height). | L388 |
+| Depth/Traversability | `--trav-obstacle-m` | value | `1.5` | Bins below this clearance are treated as blocked by the traversability layer. | L389 |
+| Depth/Traversability | `--trav-stop-m` | value | `0.60` | Traversability: stop below this forward clearance. | L390 |
+| Depth/Traversability | `--trav-slow-m` | value | `1.20` | Traversability: slow below this forward clearance. | L391 |
+| Depth/Traversability | `--trav-memory-frames` | value | `4` | Traversability obstacle memory: use min-pool over last N depth frames. | L392 |
+| Depth/Traversability | `--vfh-bins` | value | `16` | Number of polar clearance bins. | L398 |
+| Depth/Traversability | `--vfh-fov-deg` | value | `90.0` | Horizontal FOV for VFH clearance bins. | L399 |
+| Depth/Traversability | `--vfh-blocked-distance-m` | value | `0.8` | Bins below this clearance are treated as blocked. | L400 |
+| GPS Safety | `--gps-safety` | bool | `-` | Enable GPS signal/fix safety gating and implausible-jump stops. | L447 |
+| GPS Safety | `--gps-min-signal` | value | `2` | Minimum GPS signal level required before continuing. | L448 |
+| GPS Safety | `--cell-min-signal` | value | `1` | Minimum cellular signal level required before continuing. | L449 |
+| GPS Safety | `--gps-safety-confirm-ticks` | value | `3` | Require this many consecutive bad GPS signal/fix ticks before stopping. | L450 |
+| GPS Safety | `--gps-jump-stop-m` | value | `12.0` | Stop if raw GPS position jumps by more than this many meters in a single telemetry step. | L451 |
+| IMU Safety | `--imu-safety` | bool | `-` | Enable IMU-based anti-flip monitoring. | L417 |
+| IMU Safety | `--max-tilt-deg` | value | `40.0` | IMU: emergency stop if tilt exceeds this angle. | L418 |
+| IMU Safety | `--max-gyro-dps` | value | `150.0` | IMU: emergency stop if roll/pitch rate exceeds this (deg/s). | L419 |
+| Loop/Runtime | `--tick-hz` | value | `3.0` | Loop frequency in Hz. | L344 |
+| Loop/Runtime | `--max-steps` | value | `None` | Optional max loop iterations. | L345 |
+| Loop/Runtime | `--send-control` | bool | `-` | Actually send commands to the robot. | L348 |
+| Loop/Runtime | `--print-json` | bool | `-` | Print each loop state as JSON. | L349 |
+| Loop/Runtime | `--heading-fusion` | bool | `-` | Blend compass heading with windowed course-over-ground after stable motion is detected. | L360 |
+| Mission/Targets | `--goal-lat` | value | `None` | Single goal latitude. | L318 |
+| Mission/Targets | `--goal-lon` | value | `None` | Single goal longitude. | L319 |
+| Mission/Targets | `--goal-radius-m` | value | `8.0` | Distance threshold for checkpoint reach. | L350 |
+| Mission/Targets | `--intermediate-goal-radius-m` | value | `3.0` | Maximum distance threshold for routed intermediate waypoint updates. The runtime further tightens this dynamically from actual waypoint spacing so it does not skip ahead too early. | L351 |
+| Mission/Targets | `--checkpoint-confirm-ticks` | value | `1` | How many consecutive ticks inside radius are required. | L352 |
+| Ops/Safety Profiles | `--ultra-marathon` | bool | `-` | Enable all marathon safety features: IMU anti-flip, conservative recovery, speed caps, health gate, leg pauses. | L416 |
+| Ops/Safety Profiles | `--health-gate` | bool | `-` | Run health checks before starting navigation and between legs. | L420 |
+| Ops/Safety Profiles | `--leg-pause` | bool | `-` | Pause for operator confirmation after each mission checkpoint. | L421 |
+| Ops/Safety Profiles | `--camera-watchdog-ticks` | value | `10` | Stop after this many consecutive ticks without a camera frame. | L422 |
+| Ops/Safety Profiles | `--battery-warn-pct` | value | `30.0` | Warn when battery falls below this percentage during the run. | L428 |
+| Ops/Safety Profiles | `--battery-stop-pct` | value | `None` | Emergency stop if battery falls to or below this percentage. | L429 |
+| Ops/Safety Profiles | `--night-safe` | bool | `-` | Enable a night-time outdoor safety profile: lamp on, tighter speed caps, vision safety gate, and semantic pedestrian stops. | L430 |
+| Ops/Safety Profiles | `--lamp-on` | bool | `-` | Keep the rover lamp on while this runtime is active. | L431 |
+| Ops/Safety Profiles | `--nav-ready-gate` | bool | `-` | Require several consecutive healthy ticks before allowing motion after startup, hard stops, or leg transitions. | L452 |
+| Ops/Safety Profiles | `--nav-ready-confirm-ticks` | value | `3` | Navigation readiness gate: consecutive healthy ticks required before motion is allowed. | L453 |
+| Ops/Safety Profiles | `--report-interventions` | bool | `-` | Report hard safety stops to the SDK interventions endpoints. | L454 |
+| Ops/Safety Profiles | `--operator-confirm-hard-stop` | bool | `-` | On hard safety stops, wait for operator ENTER before resuming and optionally report intervention end. | L455 |
+| Other | `--telemetry-freeze-ticks` | value | `4` | Count telemetry as potentially frozen after this many repeated timestamps. | L361 |
+| Other | `--telemetry-freeze-timeout-s` | value | `4.0` | Actually stop only if telemetry has been frozen for at least this many wall-clock seconds. | L362 |
+| Recovery | `--stuck-window-ticks` | value | `15` | Window size for no-progress detection (counts only fresh telemetry ticks). | L363 |
+| Recovery | `--stuck-min-displacement-m` | value | `0.30` | Minimum displacement expected over the stuck window when commanding forward motion. | L364 |
+| Recovery | `--stuck-progress-epsilon-m` | value | `0.20` | Minimum reduction in distance-to-goal expected over the stuck window when commanding forward motion. | L365 |
+| Recovery | `--recovery-reverse-linear` | value | `-0.20` | Reverse command during simple stuck recovery. | L378 |
+| Recovery | `--recovery-turn-angular` | value | `0.85` | Turn command during simple stuck recovery. | L379 |
+| Recovery | `--recovery-reverse-ticks` | value | `5` | How many ticks to reverse during stuck recovery. | L380 |
+| Recovery | `--recovery-turn-ticks` | value | `8` | How many ticks to turn during stuck recovery. | L381 |
+| Recovery | `--no-reverse` | bool | `-` | Disable all reverse maneuvers in stuck recovery. | L423 |
+| Recovery | `--max-recovery-attempts` | value | `0` | Halt for operator after this many stuck recoveries per waypoint (0=unlimited). | L424 |
+| Routing/Corridor | `--osm-prune-behind-waypoints` | bool | `-` | Drop initial routed waypoints that are very close and behind the rover after OSM re-routing. | L375 |
+| Routing/Corridor | `--osm-prune-behind-distance-m` | value | `18.0` | Maximum distance for pruning a behind-the-rover initial waypoint after OSM routing or waypoint handoff. | L376 |
+| Routing/Corridor | `--osm-prune-behind-bearing-deg` | value | `100.0` | Prune initial routed waypoints if they lie farther than this angle behind the rover heading. | L377 |
+| Routing/Corridor | `--osm-route` | bool | `-` | Expand mission legs into pedestrian waypoints using OSM at startup. | L401 |
+| Routing/Corridor | `--sidewalk-strict` | bool | `-` | Enforce strict sidewalk-first outdoor behavior: pedestrian-only OSM routing, no straight-line fallback, tighter route corridor, and stronger semantic sidewalk checks. | L402 |
+| Routing/Corridor | `--osm-no-fallback` | bool | `-` | Abort startup if any OSM leg falls back to a straight-line route. | L403 |
+| Routing/Corridor | `--osm-buffer-m` | value | `300.0` | Bounding-box padding for OSM queries. | L404 |
+| Routing/Corridor | `--osm-query-timeout-s` | value | `25` | Overpass server-side timeout in seconds. | L405 |
+| Routing/Corridor | `--osm-request-retries` | value | `2` | Number of Overpass request attempts before fallback. | L406 |
+| Routing/Corridor | `--osm-max-segment-m` | value | `20.0` | Max gap between routed waypoints after densification. | L407 |
+| Routing/Corridor | `--osm-min-waypoint-spacing-m` | value | `8.0` | Minimum spacing between retained routed waypoints. | L408 |
+| Routing/Corridor | `--osm-max-snap-distance-m` | value | `60.0` | Max allowed snap distance to the OSM graph. | L409 |
+| Routing/Corridor | `--route-corridor-guard` | bool | `-` | Stop if GPS drifts too far away from the active routed path corridor. | L425 |
+| Routing/Corridor | `--route-corridor-stop-m` | value | `10.0` | Maximum lateral deviation from the active routed corridor before stopping. | L426 |
+| Routing/Corridor | `--route-corridor-confirm-ticks` | value | `3` | Require this many consecutive off-corridor ticks before stopping. | L427 |
+| SDK/IO | `--sdk-url` | value | `"http://localhost:8000"` | EarthRover SDK base URL. | L346 |
+| SDK/IO | `--sdk-timeout` | value | `10.0` | SDK request timeout in seconds. | L347 |
+| Semantics | `--semantics` | bool | `-` | Enable semantic scene-understanding soft bias (people / vegetation corridor checks). | L393 |
+| Semantics | `--semantic-model-profile` | value | `None` | Optional semantic model preset. cityscapes is stronger for sidewalk/road structure; mapillary is the heaviest street-scene option. | L394 |
+| Semantics | `--semantics-model-id` | value | `"nvidia/segformer-b0-finetuned-ade-512-512"` | Semantic segmentation model id. Supports plug-and-play Hugging Face semantic/universal segmentation backends. | L395 |
+| Semantics | `--semantics-device` | value | `"cpu"` | Device for semantic segmentation inference. | L396 |
+| Semantics | `--semantics-every-n` | value | `3` | Run semantic inference every N ticks. | L397 |
+| Semantics | `--semantic-hard-stop` | bool | `-` | Enable a hard stop when the semantic model sees a person or animal in the center corridor. | L438 |
+| Semantics | `--semantic-yield` | bool | `-` | Slow aggressively and yield when semantic risk indicates people, animals, or ambiguous sidewalk occupancy ahead. | L439 |
+| Semantics | `--semantic-yield-risk` | value | `0.25` | Semantic yield activation risk threshold. | L440 |
+| Semantics | `--semantic-yield-max-linear` | value | `0.08` | Maximum linear speed while semantic yield mode is active. | L441 |
+| Semantics | `--semantic-stop-risk` | value | `0.55` | Semantic hard stop risk threshold. | L442 |
+| Semantics | `--semantic-stop-confirm-ticks` | value | `2` | Require this many consecutive semantic hazard ticks before stopping. | L443 |
+| Semantics | `--semantic-sidewalk-stop` | bool | `-` | Stop when the center corridor looks road-dominant and not sidewalk-like for several ticks. | L444 |
+| Semantics | `--semantic-road-dominance` | value | `0.55` | Semantic sidewalk stop: road fraction threshold in the center corridor. | L445 |
+| Semantics | `--semantic-sidewalk-min` | value | `0.05` | Semantic sidewalk stop: minimum sidewalk+path fraction expected in the center corridor. | L446 |
+| Vision Safety | `--vision-safety` | bool | `-` | Enable an image-quality safety gate for dark / glare / low-detail night frames. | L432 |
+| Vision Safety | `--vision-min-brightness` | value | `42.0` | Vision safety: minimum mean grayscale brightness (0-255). | L433 |
+| Vision Safety | `--vision-max-dark-fraction` | value | `0.65` | Vision safety: maximum fraction of dark pixels before visibility is considered unsafe. | L434 |
+| Vision Safety | `--vision-max-glare-fraction` | value | `0.12` | Vision safety: maximum fraction of saturated bright pixels before glare is considered unsafe. | L435 |
+| Vision Safety | `--vision-min-texture` | value | `8.0` | Vision safety: minimum gradient-texture score before a frame is considered too low-detail. | L436 |
+| Vision Safety | `--vision-confirm-ticks` | value | `3` | Vision safety: require this many consecutive bad frames before stopping. | L437 |
+\end{lstlisting}
+
+\textbf{Inventory note:} This is exhaustive for parser-defined flags in
+\texttt{live\_outdoor\_runtime.py} at the time of writing (112 flags excluding
+suppressed legacy aliases).
+
+\section{Key File Map}
+
+\begin{longtable}{p{0.30\textwidth}p{0.61\textwidth}}
+\toprule
+\textbf{File} & \textbf{Main purpose} \\
+\midrule
+\texttt{live\_indoor\_runtime.py} & main indoor runtime used in practice \\
+\texttt{live\_indoor\_runtime\_mbra.py} & indoor MBRA-oriented variant \\
+\texttt{live\_indoor\_runtime\_recovery.py} & indoor recovery-heavy variant \\
+\texttt{live\_outdoor\_runtime.py} & main outdoor mission runtime \\
+\texttt{src/corridor\_localizer.py} & indoor visual localization \\
+\texttt{src/temporal\_localization.py} & indoor localization stabilization \\
+\texttt{src/graph\_planner.py} & indoor graph planning \\
+\texttt{src/navigation\_runtime.py} & indoor orchestration \\
+\texttt{src/mbra\_controller.py} & indoor learned controller wrapper \\
+\texttt{src/local\_controller.py} & indoor simple backup controller \\
+\texttt{src/outdoor\_logonav\_controller.py} & outdoor learned controller wrapper \\
+\texttt{src/outdoor\_gps\_controller.py} & outdoor GPS controller backup \\
+\texttt{src/osm\_router.py} & outdoor route expansion \\
+\texttt{src/outdoor\_traversability.py} & depth-based outdoor obstacle logic \\
+\texttt{src/semantic\_risk\_estimator.py} & semantic risk scoring \\
+\texttt{src/imu\_safety.py} & IMU anti-flip safety \\
+\texttt{src/vision\_safety\_monitor.py} & image quality gating \\
+\texttt{src/earthrover\_interface.py} & SDK interface layer \\
+\texttt{baseline.py} & indoor descriptor / database build and query \\
+\bottomrule
+\end{longtable}
+
+\section{How To Read This Project Without Getting Lost}
+
+One of the easiest ways to misunderstand this repository is to assume that every
+file has the same status. They do not.
+
+There are really four layers:
+
+\begin{itemize}[nosep]
+  \item \textbf{Active runtime code}: this is the true behavior layer.
+  \item \textbf{Current narrative docs}: these explain the active behavior and the
+  reasoning behind it.
+  \item \textbf{Historical planning docs}: these explain what people intended at an
+  earlier stage, but not always what finally shipped.
+  \item \textbf{Experiment records}: these explain what was tested, what seemed
+  promising, and what was later demoted.
+\end{itemize}
+
+So the right reading order is not folder order. The right reading order is:
+
+\begin{enumerate}[nosep]
+  \item understand the current split between indoor and outdoor,
+  \item understand what the indoor runtime actually does,
+  \item understand what the outdoor runtime actually does,
+  \item then go back to the historical docs to understand why the final shape looks
+  the way it does.
+\end{enumerate}
+
+\section{Timeline and Major Phases}
+
+\subsection{Phase 1: Indoor Corridor Framing}
+
+The project began by realizing that indoor navigation should not be treated as a
+generic robotics problem. The corridor was known, the dataset could be recorded in
+advance, and the competition checkpoints could be tied to exact corridor steps.
+
+That phase established three durable truths:
+
+\begin{itemize}[nosep]
+  \item localization mattered more than a fancy local controller,
+  \item the corridor graph was a useful abstraction,
+  \item and exact step targets were cleaner than vague image goals.
+\end{itemize}
+
+\subsection{Phase 2: Indoor Controller Confusion and Cleanup}
+
+The indoor work then passed through a messy phase where the project had too many
+runtime ideas at once: stronger recovery logic, multiple runtime variants, and too
+much confusion about whether MBRA itself was supposed to be the whole system.
+
+What survived from that phase was the clearer view:
+
+\begin{itemize}[nosep]
+  \item MBRA is the local controller,
+  \item corridor localization and graph progression remain the backbone,
+  \item no reverse and stale-context reset are better than trying to make MBRA
+  behave like a classical backup controller.
+\end{itemize}
+
+\subsection{Phase 3: Outdoor Runtime Reality}
+
+Outdoor started with a different gift: the repo already had a runnable outdoor
+controller path. That meant the work was not ``invent an outdoor controller from
+zero.'' The work became ``make the outdoor runtime stop doing stupid things in the
+real world.''
+
+\subsection{Phase 4: Safety and Marathon Hardening}
+
+The marathon and night-safe work made the project more honest. At that point the
+question was no longer ``can the rover move.'' The question became ``can the rover
+remain physically and operationally sane over a long run.''
+
+\section{Version-by-Version Evolution (Chronological)}
+
+This section captures the practical evolution in the order the team actually lived
+it. Dates are anchored to document timestamps and runtime change windows in this
+repo, not invented from memory.
+
+\subsection*{V0 — Indoor baseline scaffold (early March)}
+
+\begin{itemize}[nosep]
+  \item Corridor descriptors and graph artifacts existed.
+  \item Runtime could localize and move, but behavior quality was inconsistent.
+  \item The team still treated local-controller choice as the main indoor question.
+\end{itemize}
+
+\subsection*{V1 — Indoor checkpoint-step reframing (mid March)}
+
+\begin{itemize}[nosep]
+  \item Checkpoints were reframed as exact corridor steps.
+  \item Localization, temporal continuity, and graph semantics became central.
+  \item The problem shifted from ``make turning smarter'' to ``make state semantics
+  unambiguous.''
+\end{itemize}
+
+\subsection*{V2 — MBRA-first indoor cleanup (late March)}
+
+\begin{itemize}[nosep]
+  \item MBRA was made a short-horizon local controller, not a stack replacement.
+  \item No-reverse behavior and stale-context reset were emphasized.
+  \item Skip-past-checkpoint behavior was added for forward-only graph edge cases.
+  \item Indoor reached 8/11 checkpoints in the competition-facing run profile.
+\end{itemize}
+
+\subsection*{V3 — Outdoor runtime hardening pass (late March)}
+
+\begin{itemize}[nosep]
+  \item Outdoor was treated as a mission-runtime problem, not only controller tuning.
+  \item OSM route semantics, waypoint semantics, and corridor guard behavior were
+  tightened.
+  \item Traversability and semantic layers remained support layers, not sole truth.
+\end{itemize}
+
+\subsection*{V4 — Ultra-marathon and night-safe profiles (late March)}
+
+\begin{itemize}[nosep]
+  \item Composite safety profiles were codified in runtime flags.
+  \item IMU, vision, GPS, and route discipline were integrated into stricter modes.
+  \item Field behavior exposed transition instability as the dominant remaining risk.
+\end{itemize}
+
+\lessonbox{Why this chronology matters}{
+Without chronology, the architecture looks arbitrary. With chronology, each layer
+is easier to defend: it was introduced to fix a specific class of observed failure,
+not to make the code look sophisticated.}
+
+\section{Hardware and Platform Reality}
+
+Even though this repository is mostly software, the platform mattered constantly.
+
+\subsection{Sensors and Interfaces We Actually Relied On}
+
+The project relied on:
+
+\begin{itemize}[nosep]
+  \item front camera frames,
+  \item GPS,
+  \item IMU data,
+  \item orientation estimates,
+  \item battery and telemetry from the SDK,
+  \item browser / server-side control through the EarthRover SDK bridge.
+\end{itemize}
+
+\subsection{Why The Platform Matters To The Software Story}
+
+Several software choices only make sense once the hardware constraints are visible:
+
+\begin{itemize}[nosep]
+  \item monocular depth can be very sensitive to camera geometry and scale,
+  \item compass/orientation can be noisy indoors,
+  \item aggressive turning is not just a controller issue if the rover has a high
+  center of gravity,
+  \item telemetry freezes can look like controller failure if they are not detected
+  explicitly.
+\end{itemize}
+
+\subsection{Physical Mistakes That Became Software Lessons}
+
+The marathon result made this brutally clear: a runtime can be ``cautious'' and
+still produce unstable turning behavior that becomes a mechanical tipping problem.
+That is why platform stability is part of the architecture story, not an external
+footnote.
+
+\section{Software Architecture, But Told Like It Actually Feels}
+
+\subsection{Indoor Data Flow}
+
+The indoor data flow is easiest to understand as a layered question chain:
+
+\begin{enumerate}[nosep]
+  \item What corridor step does the current image look like?
+  \item Among the plausible steps, which one is consistent with recent history?
+  \item Given that step, which checkpoint are we trying to reach now?
+  \item Given that checkpoint, what nearby subgoal should the controller chase?
+  \item Given that subgoal, what command should MBRA output right now?
+  \item Is the forward depth safe enough to allow that command?
+\end{enumerate}
+
+That layered structure is why the indoor system became explainable.
+
+\subsection{Outdoor Data Flow}
+
+The outdoor flow asks a different chain of questions:
+
+\begin{enumerate}[nosep]
+  \item Has the SDK given us a valid mission and telemetry stream?
+  \item What mission checkpoint is currently active?
+  \item Should we route to that checkpoint directly or through OSM-expanded
+  waypoints?
+  \item What is the current active local target?
+  \item What command does LogoNav or the GPS controller want to send?
+  \item Do traversability, semantics, IMU, vision, GPS, or route-corridor logic
+  say that this command should be clipped, replaced, or blocked?
+\end{enumerate}
+
+This is why the outdoor runtime is large. It is answering a lot of operational
+questions, not just computing one control law.
+
+\subsection{Why The Responsibilities Are Separated}
+
+The separation exists because each layer is answering a fundamentally different
+question:
+
+\begin{itemize}[nosep]
+  \item localization answers \emph{where am I?}
+  \item planning answers \emph{what should I be moving toward next?}
+  \item control answers \emph{how should I move in the next instant?}
+  \item safety answers \emph{should I even allow that motion?}
+  \item recovery answers \emph{what do I do if the main loop stops making sense?}
+\end{itemize}
+
+Whenever the code mixed these responsibilities too aggressively, the system got
+harder to debug.
+
+\section{Design Decision Diary}
+
+\subsection{Why Exact Checkpoint Steps Instead of Indoor Image Lists}
+
+The obvious alternative was to treat indoor checkpoints as arbitrary images. The
+problem with that idea is that an image by itself does not tell the planner where it
+belongs in the corridor graph. Exact step targets were cleaner because they aligned
+localization, planning, and reporting around one common coordinate system.
+
+\subsection{Why MBRA Instead of Keeping the Simple Controller as the Main Indoor Path}
+
+The simple controller remained useful as a backup and for understanding the runtime,
+but it had a basic weakness: indoors it effectively became a forward-driving
+controller with almost no real directional intelligence once subgoal orientation was
+not trusted. MBRA, by contrast, could actually steer toward a visual target image.
+
+\subsection{Why We Did Not Try To Make MBRA Solve Global Planning}
+
+Because that would have forced the wrong tool into the wrong job. The corridor graph
+and place-recognition structure already solved the global part much better than a
+raw learned controller could in this problem setting.
+
+\subsection{Why Outdoor Stayed With LogoNav}
+
+The obvious temptation was to keep searching for a totally different outdoor
+controller. The project instead accepted a more pragmatic truth: the existing
+controller path was good enough to justify runtime hardening around it. That choice
+saved time and exposed the real bottleneck: transition logic.
+
+\subsection{Why OSM Routing Was Worth Keeping}
+
+The simpler alternative was to just chase the final GPS checkpoint directly. That is
+easy to code, but it throws away route structure. OSM routing was worth keeping
+because it gave the rover a more human-plausible local path, even though it also
+introduced waypoint-transition complexity.
+
+\subsection{Why Semantics and Depth Were Kept But Demoted}
+
+This is one of the most important design lessons in the project. Both depth and
+semantics were useful enough to keep. Neither was trustworthy enough to rule the
+whole runtime. So the correct design was not ``delete them'' and not ``trust them
+absolutely.'' The correct design was to use them as supporting safety layers with
+limited authority.
+
+\subsection{What this choice cost us}
+
+Every major design decision in this repo bought clarity at the price of something
+else.
+
+\begin{itemize}[nosep]
+  \item Splitting indoor and outdoor gave honesty and better debugging, but it also
+  meant the repo stopped looking like one clean universal stack.
+  \item Making MBRA the indoor local controller simplified responsibility, but it
+  forced the runtime to become explicit about localization and checkpoint semantics.
+  \item Keeping LogoNav outdoors saved time and preserved a real runnable base, but
+  it forced the team to solve ugly runtime-transition problems instead of hiding
+  behind a new-controller fantasy.
+  \item Demoting depth and semantics kept the stack honest, but it also meant the
+  final system still looks less glamorous than a fake ``fully scene-aware'' story.
+\end{itemize}
+
+\subsection{What these choices enabled}
+
+The same choices also enabled the strongest parts of the final project:
+
+\begin{itemize}[nosep]
+  \item a real indoor backbone that reached 8 of 11 checkpoints,
+  \item an outdoor runtime that could actually complete a mission at least once,
+  \item a project explanation that can survive technical questioning,
+  \item and a codebase whose current failure modes are understandable rather than
+  mystical.
+\end{itemize}
+
+\lessonbox{Design lesson}{
+The final architecture is not elegant because it is small. It is defensible because
+each layer now has a reason to exist, and because the repo no longer pretends that
+one model solved every problem.}
+
+\section{Algorithms and Math, But In The Right Order}
+
+This section is not meant to replace the separate math teaching file. It is meant to
+tie the math back to the runtime behavior.
+
+\subsection{Visual Place Recognition}
+
+Plain English first:
+
+\begin{itemize}[nosep]
+  \item turn each image into a descriptor,
+  \item compare that descriptor to stored corridor descriptors,
+  \item choose the closest match.
+\end{itemize}
+
+In the code, temporal localization then adds extra cost terms:
+
+\[
+\text{score} =
+\text{descriptor distance}
+ + \text{continuity penalty}
+ + \text{heading penalty}
+\]
+
+The continuity penalty itself is piecewise:
+
+\begin{itemize}[nosep]
+  \item no jump penalty if the step jump is small,
+  \item extra cost if the jump is larger than \texttt{max\_step\_jump},
+  \item extra cost if the candidate goes backward.
+\end{itemize}
+
+That math lives directly in \texttt{src/temporal\_localization.py}.
+
+\subsection{Planner Logic}
+
+The planner is not doing continuous optimization. It is doing graph shortest-path
+reasoning, then selecting a node some number of hops ahead as the local subgoal.
+
+Plain English:
+
+\begin{itemize}[nosep]
+  \item find current node,
+  \item find target checkpoint node,
+  \item compute shortest path,
+  \item pick a subgoal a few hops along that path.
+\end{itemize}
+
+\subsection{Semantic Risk}
+
+The semantic runtime is easier to understand if you think in \emph{fractions of the
+image region} rather than in raw labels.
+
+The code measures quantities like:
+
+\begin{itemize}[nosep]
+  \item person fraction in the center region,
+  \item animal fraction in the center region,
+  \item drivable fraction in the center region,
+  \item caution fraction in the center region.
+\end{itemize}
+
+Then it builds a risk score using thresholds such as:
+
+\begin{itemize}[nosep]
+  \item person threshold \(= 0.002\)
+  \item animal threshold \(= 0.002\)
+  \item pole threshold \(= 0.002\)
+  \item wall threshold \(= 0.010\)
+\end{itemize}
+
+The vegetation-blocked condition is compound:
+
+\[
+\text{drivable\_center} < 0.10
+\quad \text{and} \quad
+\text{caution\_center} > 0.60
+\]
+
+In direct code-aligned notation, the risk accumulator is:
+
+\[
+\text{risk} = 0
+\]
+\[
+\text{if } p > 0.002:\ \text{risk} \mathrel{+}= 0.55 + 18.0\,p
+\]
+\[
+\text{if } a > 0.002:\ \text{risk} \mathrel{+}= 0.55 + 18.0\,a
+\]
+\[
+\text{if } \pi > 0.002:\ \text{risk} \mathrel{+}= 0.35 + 10.0\,\pi
+\]
+\[
+\text{if } w > 0.010:\ \text{risk} \mathrel{+}= 0.30 + 8.0\,w
+\]
+\[
+\text{if } (d < 0.10 \land c > 0.60):\ \text{risk} \mathrel{+}= 0.45 + 0.50\,(c-0.60)
+\]
+
+where \(p,a,\pi,w,d,c\) are center-region fractions for person, animal, pole, wall,
+drivable, and caution respectively.
+
+\subsection{Semantic Angular Bias Formula}
+
+The free-score used for left/right steering preference is:
+
+\[
+F = d + 0.30\,n - 0.60\,c
+\]
+
+and in hard mode:
+
+\[
+F = d + 0.30\,n - 0.60\,c - 4.0\,(p+a) - 3.0\,(\pi+w)
+\]
+
+The bias then uses normalized free-score difference:
+
+\[
+\Delta = F_{\text{left}} - F_{\text{right}},\quad
+S = \max(0.25,\ |F_{\text{left}}| + |F_{\text{right}}|)
+\]
+\[
+\text{bias} = \operatorname{clip}\!\left(\frac{\Delta}{S},\ -0.50,\ +0.50\right)
+\]
+
+\subsection{Traversability Geometry}
+
+Traversability slices the image into angular bins and looks at a middle vertical
+band rather than the bottom ground-heavy region. That is a geometric choice, not
+just a coding choice. It says: the useful obstacle evidence is at rover-eye level,
+not in the patch of ground right under the camera.
+
+\subsection{IMU Tilt Logic}
+
+The IMU safety logic calibrates a reference gravity direction and then measures the
+angle between the current accelerometer direction and that reference direction. That
+is how the system estimates tilt.
+
+In math form:
+
+\[
+\hat{a} = \frac{a}{\|a\|},\quad
+\hat{g}_{\text{ref}} = \text{calibrated gravity unit vector}
+\]
+\[
+\theta_{\text{tilt}} = \cos^{-1}\!\left(\operatorname{clip}\left(\hat{a}\cdot\hat{g}_{\text{ref}}, -1, 1\right)\right)\cdot\frac{180}{\pi}
+\]
+
+The code anchor in \texttt{src/imu\_safety.py} is:
+
+\begin{lstlisting}
+dot = float(np.clip(np.dot(accel_unit, gravity_ref), -1.0, 1.0))
+tilt_deg = math.degrees(math.acos(dot))
+\end{lstlisting}
+
+\subsection{Temporal Localization Penalty Formula (Explicit)}
+
+The temporal-localization score used in the code can be written as:
+
+\[
+\text{score}_i
+=
+w_d\,d_i
+ + \lambda_j\,\max(0,\ |\Delta s_i| - S_{\max})
+ + \lambda_b\,\max(0,\ -\Delta s_i)
+ + \lambda_h\,|\Delta \psi_i|
+\]
+
+with:
+
+\begin{itemize}[nosep]
+  \item \(d_i\): descriptor distance for candidate \(i\),
+  \item \(\Delta s_i\): step jump from previous localized step,
+  \item \(S_{\max} = 20\): allowed jump before extra penalty,
+  \item \(\lambda_j = 0.05\), \(\lambda_b = 0.15\), \(\lambda_h = 0.002\),
+  \item confidence \(= 1/(1+\text{best score})\).
+\end{itemize}
+
+\section{Code Anchors For The Behaviors People Ask About Most}
+
+One of the weaknesses of many project guides is that they stay one level too high.
+They describe behavior, but they do not show where that behavior actually lives. The
+sections below fix that for the most commonly misunderstood mechanisms in this repo.
+
+\subsection{Indoor skip-past-checkpoint logic}
+
+This is the logic that stopped the rover from freezing forever when it had already
+localized past a checkpoint in a forward-only graph:
+
+\begin{lstlisting}
+if (
+    is_checkpoint_mode
+    and args.auto_advance_checkpoints
+    and not path_found
+    and cur_step is not None
+    and tgt_step is not None
+    and int(cur_step) > int(tgt_step)
+    and confidence >= 0.45
+):
+    skipped = tgt_step
+    next_cp = runtime.planner.advance_checkpoint()
+\end{lstlisting}
+
+Why it matters:
+
+\begin{itemize}[nosep]
+  \item the planner was not wrong when it said ``no path'',
+  \item the runtime was wrong for still asking it to go backward,
+  \item this logic converts that situation into progress instead of deadlock.
+\end{itemize}
+
+\subsection{Indoor stale-context / no-progress reset}
+
+This is the practical indoor fix that says ``if MBRA is staring at effectively the
+same place for too long, stop trusting the old context'':
+
+\begin{lstlisting}
+if no_progress_count > 0 and no_progress_count % NO_PROGRESS_RESET_TICKS == 0:
+    if hasattr(controller, 'reset'):
+        controller.reset()
+        print(f"[{iteration:04d}] no-progress reset after {no_progress_count} ticks at step {cur_step}")
+\end{lstlisting}
+
+The point is not magic recovery. The point is to stop the controller from dragging
+forward stale visual context that no longer matches what the robot needs to do next.
+
+\subsection{Why indoor localization confidence is not a mysterious black box}
+
+The temporal localizer confidence is currently defined as:
+
+\[
+\text{confidence} = \frac{1}{1 + \text{best score}}
+\]
+
+That matters because it means confidence is not some opaque neural-network
+probability. It is a transformed retrieval score after continuity penalties have
+already shaped the candidate ranking.
+
+\subsection{Outdoor route corridor stop logic}
+
+The route-corridor stop is one of the clearest examples of the runtime being more
+important than any single controller:
+
+\begin{lstlisting}
+if route_corridor_distance is not None and route_corridor_distance > route_corridor_stop_threshold:
+    route_corridor_violation_ticks += 1
+...
+if route_corridor_violation_ticks >= args.route_corridor_confirm_ticks:
+    safe_stop()
+    print(f"[{iteration:04d}] route_corridor_stop dist={route_corridor_distance:.1f}m ...")
+    _rerouted = reroute_from_current_pose(...)
+\end{lstlisting}
+
+This is what turns ``OSM routing is a good idea'' into an executable runtime rule.
+Without this, the route is only a suggestion.
+
+\subsection{Outdoor semantic yield and stop logic}
+
+The runtime does not stop on every semantic signal. It uses specific thresholds and
+specific label families. For example:
+
+\begin{lstlisting}
+_semantic_stop_active = bool(_alerts & {"person", "animal"}) \
+    and last_sem_result.risk_score >= args.semantic_stop_risk
+\end{lstlisting}
+
+and yield can activate if any of these are true:
+
+\begin{itemize}[nosep]
+  \item semantic risk is high enough,
+  \item a person fraction is present,
+  \item an animal fraction is present,
+  \item or the center looks road-dominant without enough sidewalk/path support.
+\end{itemize}
+
+This is important because many people imagine the semantic layer as ``if model sees
+danger, stop.'' The actual logic is more conditional and more careful than that.
+
+\subsection{Outdoor dynamic intermediate waypoint radius}
+
+The repo used to treat routed waypoints too much like real checkpoints. One of the
+important fixes was to make intermediate routed waypoint handoff depend on segment
+geometry:
+
+\begin{lstlisting}
+if bool(target.get("mission_checkpoint", False)):
+    active_goal_radius_m = args.goal_radius_m
+else:
+    _dynamic_radius_m = float(args.intermediate_goal_radius_m)
+    if math.isfinite(_segment_distance_m) and _segment_distance_m > 0.0:
+        _dynamic_radius_m = min(_dynamic_radius_m, max(2.5, 0.35 * _segment_distance_m))
+    active_goal_radius_m = min(args.goal_radius_m, _dynamic_radius_m)
+\end{lstlisting}
+
+This is one of the cleanest examples of a small code change reflecting a deep
+runtime insight: not all targets deserve the same semantics.
+
+\subsection{Outdoor align gating}
+
+The LogoNav alignment behavior now depends not only on bearing error but also on
+distance and target type:
+
+\begin{lstlisting}
+_align_allowed = (
+    math.isfinite(distance_to_goal)
+    and (
+        distance_to_goal <= args.logonav_align_distance_m
+        or (
+            not bool(target.get("mission_checkpoint", False))
+            and _bearing_error_deg >= args.logonav_align_extreme_deg
+        )
+    )
+)
+\end{lstlisting}
+
+That code matters because it captures the later outdoor lesson exactly:
+alignment is not always bad, but blind alignment is bad.
+
+\section{Training and Experimentation History}
+
+\subsection{What Counted as ``Training'' Here}
+
+This repository is not mainly a training repo. Much more of the work was:
+
+\begin{itemize}[nosep]
+  \item runtime integration,
+  \item wrapper design,
+  \item offline analysis,
+  \item parameter sweeps,
+  \item field debugging,
+  \item and deciding what not to trust.
+\end{itemize}
+
+\subsection{Indoor Experimental Progression}
+
+Indoor passed through several conceptual versions:
+
+\begin{enumerate}[nosep]
+  \item baseline corridor localization and graph planning,
+  \item confusion about local control and backup behavior,
+  \item MBRA-first clarification,
+  \item checkpoint-step mode with skip logic,
+  \item no-reverse / stale-context cleanup.
+\end{enumerate}
+
+\subsection{Outdoor Experimental Progression}
+
+Outdoor also passed through several versions:
+
+\begin{enumerate}[nosep]
+  \item plain mission-following baseline,
+  \item controller-first outdoor framing,
+  \item depth/traversability investigation,
+  \item semantic investigation,
+  \item marathon and night safety hardening,
+  \item post-run fixes for waypoint semantics and transition behavior.
+\end{enumerate}
+
+\subsection{Mistakes That Looked Like Improvements At First}
+
+\begin{itemize}[nosep]
+  \item adding heavy recovery behavior around MBRA,
+  \item treating depth as if it were already a reliable hard-stop outdoor backbone,
+  \item treating semantic labels as if they already captured the terrain semantics we
+  cared about,
+  \item assuming more caution automatically meant more stability.
+\end{itemize}
+
+\section{How To Interpret The Results Honestly}
+
+\subsection{What The Indoor Result Proves}
+
+It proves that the indoor stack had a real, working backbone. It does \emph{not}
+prove that indoor navigation was fully solved under every corridor ambiguity or
+recovery case.
+
+\subsection{What The Outdoor Result Proves}
+
+It proves that the outdoor stack was capable of a full mission completion at least
+once. It does \emph{not} prove robust repeatability.
+
+\subsection{What The Marathon Result Proves}
+
+It proves that the runtime and platform were still too fragile during target
+transitions for long-run confidence. It does \emph{not} prove that the safety work
+was pointless; in fact it made the failure easier to interpret.
+
+\section{Operations: How To Run and What a Healthy Run Looks Like}
+
+\subsection{Before You Run Anything}
+
+Do these first:
+
+\begin{enumerate}[nosep]
+  \item verify SDK connectivity,
+  \item verify camera frames are live,
+  \item verify telemetry timestamps are advancing,
+  \item verify correct controller weights are present,
+  \item start with dry-run if behavior is not already trusted.
+\end{enumerate}
+
+\subsection{What A Healthy Indoor Run Looks Like}
+
+\begin{itemize}[nosep]
+  \item localization is stable over multiple ticks,
+  \item confidence does not collapse repeatedly,
+  \item checkpoint progression is legible in the logs,
+  \item MBRA keeps moving toward the subgoal instead of fighting a backup controller.
+\end{itemize}
+
+\subsection{What A Healthy Outdoor Run Looks Like}
+
+\begin{itemize}[nosep]
+  \item mission checkpoints load correctly,
+  \item the current waypoint makes sense,
+  \item the rover is not endlessly re-aligning,
+  \item route corridor deviation stays bounded,
+  \item safety stops, if they happen, are interpretable from the logs.
+\end{itemize}
+
+\subsection{What Not To Touch Too Early}
+
+\begin{itemize}[nosep]
+  \item do not start by rewriting the whole controller,
+  \item do not trust a new safety layer before offline sanity checks,
+  \item do not mix indoor and outdoor assumptions,
+  \item do not change multiple interacting thresholds at once if you want to learn
+  anything from the run.
+\end{itemize}
+
+\section{Troubleshooting}
+
+\begin{longtable}{p{0.28\textwidth}p{0.28\textwidth}p{0.34\textwidth}}
+\toprule
+\textbf{Symptom} & \textbf{Likely cause} & \textbf{What to inspect first} \\
+\midrule
+Indoor says no path repeatedly & rover already past target in forward-only graph & checkpoint step, current step, skip logic \\
+Indoor moves but never steers well & simple controller active or MBRA context not healthy & controller flag, MBRA warmup, subgoal image path \\
+Indoor oscillates after a stop & stale context or backup behavior fighting local control & no-progress reset, recovery logic, depth stop logs \\
+Outdoor keeps rerouting & corridor threshold too aggressive or route geometry unstable & corridor stop threshold, reroute trigger, waypoint radius \\
+Outdoor follows the wrong local target & routed waypoint semantics broken or waypoint behind rover & route expansion, behind-waypoint prune logic \\
+Outdoor spins in place & over-aggressive alignment on the wrong target type & align gating, mission checkpoint vs route waypoint \\
+Night run freezes & image-quality gate or conservative safety stack & lamp, vision safety debug, traversability thresholds \\
+Marathon run feels too hesitant & safety stack too cautious or transition logic unstable & composite flags, speed caps, route guard, post-waypoint behavior \\
+\bottomrule
+\end{longtable}
+
+\section{Known Failure Modes and Current Mitigation Status}
+
+\begin{longtable}{p{0.26\textwidth}p{0.24\textwidth}p{0.24\textwidth}p{0.18\textwidth}}
+\toprule
+\textbf{Failure mode} & \textbf{Observed impact} & \textbf{Current mitigation} & \textbf{Status} \\
+\midrule
+Indoor ambiguous localization jump & wrong step hypothesis, unstable short-term steering & temporal stabilization + jump rejection + checkpoint-step progression & Partially controlled \\
+Indoor forward-only no-path condition & rover appears ``stuck'' near passed checkpoint & skip-past-checkpoint advancement logic & Controlled in known cases \\
+Indoor stale MBRA context while stationary & repeated low-value commands with low net progress & no-progress context reset for MBRA & Partially controlled \\
+Outdoor intermediate-waypoint handoff instability & ALIGN-heavy loop and delayed forward recovery & dynamic waypoint radius + behind-waypoint pruning + align gating & Partially controlled \\
+Outdoor route corridor drift deadlock & repeated stops without meaningful progress & corridor-stop reroute from current pose & Partially controlled \\
+Outdoor over-cautious intervention stack & excessive hesitation / slow crawl in some scenes & profile-specific caps + guarded intervention tuning & Not fully resolved \\
+Marathon post-transition spin + physical tip risk & run termination after checkpoint progress & stricter profile + IMU safety + route discipline; platform dynamics still limiting & Open \\
+\bottomrule
+\end{longtable}
+
+\section{Interview Mode}
+
+\subsection{Short clean answer: What is this project?}
+
+It is a split indoor/outdoor rover autonomy stack. Indoors, the system uses visual
+place recognition, temporal smoothing, graph planning, and MBRA as a local
+controller. Outdoors, the system uses mission checkpoints, OSM-expanded waypoints,
+LogoNav as a local controller, and a layered runtime safety envelope.
+
+\subsection{Short clean answer: What is the hardest part?}
+
+Transitions. Indoors it is checkpoint-step and stale-context transitions. Outdoors
+it is waypoint and checkpoint handoff stability. Marathon proved that transition
+stability is the biggest remaining outdoor weakness.
+
+\subsection{Blunt answer: Did it work?}
+
+Yes, but unevenly. Indoor worked best and reached 8 of 11 checkpoints. Outdoor
+worked well enough to complete a run once, but not robustly enough to claim solved
+reliability. Marathon failed in a way that exposed the remaining transition and
+stability problem very clearly.
+
+\subsection{Aggressive answer: Why is the design defensible?}
+
+Because the final architecture follows the actual structure of the problem instead
+of pretending there is one universal controller. The indoor and outdoor problems are
+different, so the stack is different. That is the honest and technically defensible
+choice.
+
+\subsection{Strong answer: What are you most proud of?}
+
+That the project became understandable. By the end, the roles of localization,
+planning, control, safety, recovery, and mission logic were much clearer and more
+defensible than they were when the work started.
+
+\section{Repo Map By Question}
+
+\subsection*{If I want to understand indoor localization}
+
+Read:
+
+\begin{itemize}[nosep]
+  \item \texttt{baseline.py}
+  \item \texttt{src/corridor\_localizer.py}
+  \item \texttt{src/temporal\_localization.py}
+\end{itemize}
+
+\subsection*{If I want to understand indoor planning}
+
+Read:
+
+\begin{itemize}[nosep]
+  \item \texttt{src/graph\_planner.py}
+  \item \texttt{src/navigation\_runtime.py}
+  \item \texttt{live\_indoor\_runtime.py}
+\end{itemize}
+
+\subsection*{If I want to understand MBRA integration}
+
+Read:
+
+\begin{itemize}[nosep]
+  \item \texttt{src/mbra\_controller.py}
+  \item \texttt{live\_indoor\_runtime.py}
+  \item \texttt{docs/our\_mbra\_discoveries.tex}
+\end{itemize}
+
+\subsection*{If I want to understand outdoor control}
+
+Read:
+
+\begin{itemize}[nosep]
+  \item \texttt{live\_outdoor\_runtime.py}
+  \item \texttt{src/outdoor\_logonav\_controller.py}
+  \item \texttt{src/outdoor\_gps\_controller.py}
+\end{itemize}
+
+\subsection*{If I want to understand outdoor safety}
+
+Read:
+
+\begin{itemize}[nosep]
+  \item \texttt{src/outdoor\_traversability.py}
+  \item \texttt{src/semantic\_risk\_estimator.py}
+  \item \texttt{src/imu\_safety.py}
+  \item \texttt{src/vision\_safety\_monitor.py}
+\end{itemize}
+
+\subsection*{If I want the project story}
+
+Read:
+
+\begin{itemize}[nosep]
+  \item \texttt{live\_indoor\_runtime\_story.tex}
+  \item \texttt{live\_outdoor\_ultra\_marathon\_story.tex}
+  \item \texttt{outdoor\_perception\_review.tex}
+\end{itemize}
+
+\section{Glossary}
+
+\begin{description}[style=nextline]
+  \item[VPR] Visual place recognition. In this project, that means matching a live
+  corridor frame against stored corridor descriptors.
+  \item[CosPlace] The descriptor model used for corridor retrieval. People often
+  misunderstand it as a full navigation method. It is only the localization part.
+  \item[Temporal stabilization] The continuity-aware layer that stops localization
+  from jumping too aggressively between plausible corridor matches.
+  Also called temporal filtering in some notes, though the implementation here is
+  lighter-weight and more hand-structured than what many people imagine from that
+  phrase.
+  \item[Checkpoint-step mode] Indoor competition mode where checkpoints are exact
+  corridor steps rather than vague target images.
+  Older notes may still talk in terms of checkpoint images; the decisive later
+  improvement was to collapse those ideas into explicit step semantics.
+  \item[MBRA] Model-Based Re-Annotation. In this project, used as a short-horizon
+  indoor local controller, not as a planner. A common misconception is that MBRA
+  was the indoor system. It was only one layer.
+  \item[Sole motion authority] The idea that when MBRA is active, backup motion logic
+  should not constantly fight it.
+  \item[LogoNav] The learned outdoor local motion policy. Not the whole outdoor
+  autonomy stack. A common misunderstanding is to treat LogoNav as the outdoor
+  equivalent of ``the whole brain.'' It is not.
+  \item[OSM-expanded waypoint] An intermediate route point created from
+  OpenStreetMap path expansion, not a real mission checkpoint.
+  \item[Mission checkpoint] A real task-level target from the SDK. Not the same
+  thing as a local routed waypoint.
+  \item[Traversability] The depth-based local estimate of whether the forward region
+  looks open enough to drive through. In this repo it became a middle-band,
+  obstacle-height interpretation rather than an underfoot ground detector.
+  \item[Semantic risk] A compact score built from semantic label fractions in key
+  regions of the image.
+  \item[Route corridor guard] A runtime rule that watches how far the rover drifts
+  from the intended routed path.
+  \item[Stale context] Old controller context that no longer describes the current
+  motion situation well enough to trust.
+  \item[Jump rejection] The indoor runtime rule that rejects very large localization
+  jumps unless confidence is high enough to justify them.
+  \item[Held on ambiguity] A temporal-localization outcome where the filter keeps the
+  previous node because the new best candidate is not decisively better.
+  \item[Forward-only graph behavior] The indoor phenomenon where the planner can
+  correctly return no backward path once the rover has already moved past a
+  checkpoint.
+  \item[Semantic yield] An outdoor behavior where motion is strongly slowed rather
+  than fully stopped because the scene looks risky or socially occupied.
+  \item[Semantic sidewalk stop] An outdoor stop condition triggered when the center
+  corridor looks road-dominant and insufficiently sidewalk-like.
+  \item[Health gate] A pre-run or inter-leg validation step that checks telemetry,
+  GPS, camera, and battery before motion is allowed.
+  \item[Nav-ready gate] A runtime gate requiring several consecutive healthy ticks
+  before motion resumes after startup or hard stops.
+  \item[Ultra-marathon mode] The stricter outdoor safety profile that combines IMU
+  protection, route discipline, speed caps, recovery restraint, and readiness
+  gating.
+  \item[Night-safe mode] The night-time outdoor profile that reduces speed, enables
+  image-quality safety, and makes the runtime more conservative overall.
+\end{description}
+
+\section{Common Misconceptions That Waste Time}
+
+\subsection*{``The project is basically MBRA indoors and LogoNav outdoors''}
+
+That sentence is too shallow to be useful. It hides localization, graph planning,
+target semantics, safety layers, and runtime transitions. If someone says that in
+an interview, they sound like they only know the names of the controllers.
+
+\subsection*{``Indoor failed because MBRA was weak''}
+
+Not mainly. Indoor became strong only after the team stopped blaming the controller
+for problems that were really about localization drift, forward-only graph logic, or
+stale runtime state.
+
+\subsection*{``Outdoor failed because LogoNav was bad''}
+
+Also too shallow. The more honest statement is that the outdoor runtime was brittle
+around target transitions, especially when intermediate routed waypoints were handed
+off badly or alignment logic overreacted.
+
+\subsection*{``More safety would have saved marathon''}
+
+Not automatically. Safety only helps if it preserves a calm loop. Marathon showed
+that a stack can become safer on paper and still become less stable in practice if
+transitions become stop-turn-stop-turn loops.
+
+\subsection*{``Depth and semantics did not matter because they were not the main controller''}
+
+Wrong in the other direction. They mattered a lot. They just did not earn the right
+to become the whole truth layer. That is different from being useless.
+
+\section{Historical Status and Later Branch Update}
+
+\subsection*{Competition-Era Capability vs Experimental Capability Matrix}
+
+\begin{longtable}{p{0.30\textwidth}p{0.20\textwidth}p{0.42\textwidth}}
+\toprule
+\textbf{Capability} & \textbf{State} & \textbf{Notes} \\
+\midrule
+Indoor checkpoint-step runtime & Production-ready (competition use) & Delivered 8/11 checkpoints; behavior understood and debuggable. \\
+Indoor MBRA local-control path & Production-ready (with guardrails) & Stable when used as sole motion authority with checkpoint-step semantics. \\
+Outdoor mission runtime with LogoNav + OSM & Operational / partially reliable & One full completion achieved; repeatability still mixed across runs. \\
+Outdoor traversability intervention & Operational / tuning-sensitive & Useful for local obstacle handling; still environment-dependent. \\
+Outdoor semantic risk layer & Experimental support layer & Valuable bias/intervention signal, but not trusted as primary authority. \\
+Marathon ultra-safe profile & Operational but not race-robust & Safety layering is substantial; transition and platform stability remain open. \\
+No-GPS rough-terrain route repeat & Implemented but unproven & Front-camera route preparation and command path work; physical autonomous repeat has not been demonstrated. \\
+\bottomrule
+\end{longtable}
+
+\subsection*{What was working in the competition-era stacks}
+
+\begin{itemize}[nosep]
+  \item indoor localization backbone,
+  \item indoor graph progression,
+  \item indoor MBRA-first runtime path,
+  \item outdoor mission runtime skeleton,
+  \item outdoor LogoNav path,
+  \item multiple outdoor safety and intervention layers.
+\end{itemize}
+
+\subsection*{What remained partially working}
+
+\begin{itemize}[nosep]
+  \item outdoor repeatability,
+  \item semantic runtime value in the field,
+  \item traversability calibration across many scene types,
+  \item long-run outdoor stability.
+\end{itemize}
+
+\subsection*{What remained open}
+
+\begin{itemize}[nosep]
+  \item truly calm waypoint / checkpoint transition behavior outdoors,
+  \item better physical stability for marathon conditions,
+  \item stronger confidence that the runtime will not fall into repeated align-turn
+  loops under field stress.
+\end{itemize}
+
+\subsection*{What the next clean milestone was for the original outdoor branch}
+
+The next clean milestone is not ``add more models.'' It is:
+
+\begin{quote}
+make the outdoor runtime boring during transitions.
+\end{quote}
+
+That means fewer surprising waypoint handoffs, less spinning, better route
+semantics, and calmer platform behavior.
+
+\section{Source of Truth, Historical Drift, and How Not To Get Lied To By The Repo}
+
+One of the reasons this repository feels harder than it should is that it contains
+multiple generations of thought at once. Some files are active runtime truth. Some
+files are historical explanations. Some files are experiments that were valuable,
+but never became final authority.
+
+\subsection{What counts as source of truth}
+
+If two documents disagree, code determines what the runtime can do, while field
+evidence determines whether it actually worked on the rover. For the later
+no-GPS branch, read
+\texttt{obsidian\_vault/01 Source of Truth/No-GPS Field Trial - Findings.md}
+before any historical deployment claim. The primary active code paths are:
+
+\begin{itemize}[nosep]
+  \item \texttt{live\_indoor\_runtime.py}
+  \item \texttt{scripts/run\_prepared\_route.py}
+  \item \texttt{src/adaptive\_pursuit\_controller.py}
+  \item \texttt{live\_outdoor\_runtime.py}
+  \item \texttt{src/temporal\_localization.py}
+  \item \texttt{src/graph\_planner.py}
+  \item \texttt{src/mbra\_controller.py}
+  \item \texttt{src/outdoor\_logonav\_controller.py}
+  \item \texttt{src/outdoor\_traversability.py}
+  \item \texttt{src/semantic\_risk\_estimator.py}
+  \item \texttt{src/imu\_safety.py}
+\end{itemize}
+
+\subsection{What is historical but still valuable}
+
+The long story and review documents remain valuable because they preserve the
+reasoning path:
+
+\begin{itemize}[nosep]
+  \item \texttt{live\_indoor\_runtime\_story.tex}
+  \item \texttt{live\_outdoor\_ultra\_marathon\_story.tex}
+  \item \texttt{outdoor\_perception\_review.tex}
+  \item \texttt{semantic\_segmentation\_research\_review.tex}
+  \item \texttt{docs/our\_mbra\_discoveries.tex}
+\end{itemize}
+
+These are not junk. They explain why certain ideas were promoted, demoted, or
+left half-integrated. But they should not override the current code.
+
+\warnbox{Important reading rule}{
+Many misunderstandings in this repo come from treating a historical document as if
+it were a live configuration file. The stories tell you how the team learned. The
+runtime files tell you what the rover actually does now.}
+
+\subsection{Examples of historical drift that matter}
+
+\begin{itemize}[nosep]
+  \item Older indoor discussions often revolve around 4-hop MBRA subgoals. The
+  current competition-facing indoor runtime uses 8 hops in MBRA mode.
+  \item Older docs sometimes talk about depth or semantics as if they were about to
+  become the main outdoor truth layer. The current code keeps them as support layers
+  with bounded authority.
+  \item Older marathon notes may sound like more safety automatically meant a better
+  run. The field result made it obvious that over-cautious logic can still produce a
+  worse control loop if transitions become unstable.
+\end{itemize}
+
+\section{If You Only Remember Ten Things, Remember These}
+
+\begin{enumerate}[nosep]
+  \item Indoor and outdoor are different systems that happen to share the same rover.
+  \item Indoor became solvable only after it was reframed as a known-corridor graph
+  problem.
+  \item Outdoor became understandable only after it was reframed as a mission-runtime
+  problem rather than a single-controller problem.
+  \item MBRA was never the whole indoor stack; it was the short-horizon indoor local
+  controller.
+  \item LogoNav was never the whole outdoor stack; it was the outdoor local motion
+  policy inside a much larger runtime.
+  \item The best indoor insight was that localization and graph progression were the
+  backbone.
+  \item The best outdoor insight was that target semantics and transition behavior
+  were the real bottleneck.
+  \item Depth and semantics were worth keeping, but not worth worshipping.
+  \item The marathon failure was not random. It was the most compressed possible
+  demonstration of the project’s remaining weakness: unstable outdoor transitions.
+  \item The next milestone is not a new model. It is a calmer outdoor runtime.
+\end{enumerate}
+
+\section{Indoor Runtime: A Tick-By-Tick Walkthrough}
+
+The easiest way to really understand indoor is to watch one iteration of the loop as
+if you were the code.
+
+\subsection{Step 1: a camera frame arrives}
+
+The runtime receives a live RGB frame from the front camera. At this moment the
+system still does not know where it is. It only knows that it has an image.
+
+\subsection{Step 2: corridor localization produces candidates}
+
+The corridor localizer embeds the live frame and compares it against the stored
+corridor descriptors. The raw output is not just one definitive answer. It is a set
+of plausible corridor positions ranked by descriptor distance.
+
+What a newcomer often misses is that this is the first place where the project
+became tractable. Without a corridor memory, indoor would have been vague. With a
+corridor memory, indoor becomes a repeated recognition task.
+
+\subsection{Step 3: temporal localization decides whether to trust the jump}
+
+The temporal localizer then scores the candidates again using continuity penalties.
+In the current code this is literally:
+
+\begin{lstlisting}
+score = distance_weight * distance
+score += continuity_cost(candidate_index)
+score += heading_cost(candidate_heading, observation_heading)
+\end{lstlisting}
+
+The continuity cost itself does two important things:
+
+\begin{itemize}[nosep]
+  \item penalize large jumps beyond \texttt{max\_step\_jump = 20}
+  \item penalize backward movement using \texttt{backward\_penalty = 0.15}
+\end{itemize}
+
+If the best and second-best candidates are too close in score, and switching would
+require a sufficiently large jump, the filter can hold the previous state instead of
+jumping on weak evidence.
+
+\lessonbox{Why this mattered so much}{
+Indoor corridor images repeat. Without continuity logic, the rover can look at one
+wall segment and suddenly believe it is 50 steps away in a visually similar place.
+Temporal stabilization is what turns place recognition into usable localization.}
+
+\subsection{Step 4: the graph planner asks the right question}
+
+Once the current node is stable enough, the planner asks:
+
+\begin{quote}
+What checkpoint am I actually trying to reach now, and what nearby subgoal should I
+use so the local controller is not forced to reason too far ahead?
+\end{quote}
+
+That is why \texttt{GraphPlanner} does shortest-path reasoning and then selects a
+subgoal node several hops along that path.
+
+In the generic planner config the default is:
+
+\begin{itemize}[nosep]
+  \item \texttt{max\_subgoal\_hops = 3}
+  \item \texttt{min\_confidence\_to\_advance = 0.55}
+  \item \texttt{checkpoint\_reach\_tolerance = 3}
+\end{itemize}
+
+But in the actual indoor competition runtime, MBRA mode overrides the hop count to
+8. That is an important example of runtime truth outranking generic library
+defaults.
+
+\subsection{Step 5: MBRA gets a much smaller problem than global navigation}
+
+At this point MBRA is not being asked to decide where the rover is in the building.
+It is not being asked which checkpoint comes next. It is being asked a much more
+reasonable question:
+
+\begin{quote}
+Given the current image and the chosen subgoal image, what should the next short
+motion command be?
+\end{quote}
+
+That is why the wrapper description in \texttt{src/mbra\_controller.py} is so
+important. It explicitly says MBRA is being kept in the only role that makes sense
+for this project: short-horizon local control between nearby graph subgoals.
+
+\subsection{Step 6: depth can veto motion, but it does not own the loop}
+
+Only after localization, temporal smoothing, planning, and controller inference does
+indoor depth safety get a say. In MBRA mode the depth thresholds are:
+
+\begin{itemize}[nosep]
+  \item stop below 0.25 m
+  \item slow below 0.60 m
+\end{itemize}
+
+This ordering matters. If depth had been turned into the central intelligence layer,
+the indoor system would have become much harder to reason about. Instead, depth
+stayed a local safety veto.
+
+\subsection{Step 7: checkpoint advancement is not the same thing as image matching}
+
+The runtime then decides whether the current checkpoint should be considered reached.
+That uses localized step, confidence, and checkpoint-step tolerance rather than a
+romantic idea of ``the image looks close enough.'' This was one of the most
+important clarity improvements in the whole project.
+
+\section{Outdoor Runtime: A Tick-By-Tick Walkthrough}
+
+Outdoor needs the same treatment because people often collapse it into ``GPS +
+LogoNav,'' which is not even close to enough.
+
+\subsection{Step 1: the SDK defines the mission world}
+
+The outdoor runtime begins by talking to the EarthRover SDK. That means:
+
+\begin{itemize}[nosep]
+  \item fetching mission checkpoints,
+  \item reading telemetry,
+  \item receiving camera frames,
+  \item sending motion commands,
+  \item optionally reporting checkpoint completion and interventions.
+\end{itemize}
+
+This is why the outdoor system is inseparable from the mission runtime. It is not a
+controller demo script.
+
+\subsection{Step 2: a mission checkpoint may become a routed corridor of local targets}
+
+If OSM routing is enabled, the active checkpoint is not followed directly. Instead,
+the runtime queries OpenStreetMap and expands the leg into a sequence of local
+waypoints that roughly respect pedestrian structure.
+
+This is why the outdoor problem became subtle. The rover now has to understand the
+difference between:
+
+\begin{itemize}[nosep]
+  \item the real mission checkpoint, which matters for task completion,
+  \item the temporary routed waypoint, which only exists to guide local progress.
+\end{itemize}
+
+\warnbox{Outdoor misconception}{
+Many outdoor bugs looked like controller weakness. In reality they came from the
+runtime confusing target types. A routed intermediate waypoint is not a mission
+checkpoint, and treating them the same created bad handoffs, bad alignment, and bad
+reroutes.}
+
+\subsection{Step 3: LogoNav proposes motion}
+
+LogoNav then turns the current perception state and target geometry into a local
+command. That command is valuable, but it is never the final truth. The rest of the
+runtime still has a chance to reject, clip, or redirect it.
+
+\subsection{Step 4: traversability, semantics, and guards decide whether motion is sane}
+
+The learned controller output then passes through multiple checks:
+
+\begin{itemize}[nosep]
+  \item traversability can clip linear speed or suggest a safer heading,
+  \item semantics can apply a soft bias or, in stricter modes, participate in stop
+  or yield logic,
+  \item IMU safety can hard-stop on dangerous motion,
+  \item vision safety can halt motion if image quality collapses,
+  \item GPS safety can block motion if signal or position consistency looks bad,
+  \item route corridor logic can stop or reroute if the rover drifts too far from
+  the intended corridor.
+\end{itemize}
+
+\subsection{Step 5: the runtime asks whether the target should still be trusted}
+
+This is where many of the late outdoor fixes live. The system must ask:
+
+\begin{itemize}[nosep]
+  \item is the current routed waypoint already effectively reached?
+  \item is the next routed waypoint behind the rover?
+  \item should a reroute happen from the live pose rather than stale route memory?
+  \item is the current bearing error large enough to justify alignment behavior?
+\end{itemize}
+
+The reason the outdoor runtime grew so much is that these questions are not
+optional. If you do not answer them explicitly, the rover answers them badly in the
+field.
+
+\section{What Older Docs Still Get Wrong, or At Least Leave Ambiguous}
+
+\subsection{``MBRA was the indoor system''}
+
+No. MBRA was the indoor local controller. The indoor system was corridor memory,
+localization, temporal stabilization, graph planning, checkpoint-step semantics,
+MBRA, and depth veto.
+
+\subsection{``LogoNav was the outdoor system''}
+
+Also no. LogoNav was the outdoor learned motion policy inside a mission runtime
+that had to manage checkpoint semantics, route semantics, safety, and recovery.
+
+\subsection{``Depth was almost the full outdoor safety answer''}
+
+No. Depth helped, especially once the old bottom-heavy crop was replaced by the
+middle-band traversability interpretation. But the repo itself warns against
+treating old outdoor depth safety as fully reliable on this platform.
+
+\subsection{``Semantics was about to become the full scene understanding layer''}
+
+Not honestly. Semantics helped the team reason about people, vegetation, sidewalk
+structure, and caution zones, but the runtime never had enough evidence to hand it
+full authority.
+
+\subsection{``More recovery logic is always better''}
+
+Indoor disproved this with MBRA, and marathon disproved it again outdoors. Recovery
+logic can save you from real failure, but it can also keep injecting its own
+failure mode if it fights the controller or destabilizes a transition.
+
+\section{Concrete Configuration Appendix}
+
+This section exists because newcomers often want the exact parameters after they
+finally understand the story. That is a good instinct. The project becomes much
+easier to reason about once the numbers are visible.
+
+\subsection{Temporal localization defaults}
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+\texttt{top\_k} & 10 \\
+\texttt{max\_step\_jump} & 20 \\
+\texttt{distance\_weight} & 1.0 \\
+\texttt{jump\_penalty} & 0.05 \\
+\texttt{backward\_penalty} & 0.15 \\
+\texttt{heading\_penalty} & 0.002 \\
+\texttt{ambiguity\_margin} & 0.05 \\
+\texttt{hold\_on\_ambiguity} & True \\
+\texttt{ambiguity\_hold\_min\_jump} & 4 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Graph planner defaults}
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+\texttt{max\_subgoal\_hops} & 3 (generic planner default) \\
+\texttt{min\_confidence\_to\_advance} & 0.55 \\
+\texttt{checkpoint\_reach\_tolerance} & 3 steps \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Indoor competition runtime overrides}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Parameter} & \textbf{MBRA mode} & \textbf{Simple mode} \\
+\midrule
+\texttt{max\_subgoal\_hops} & 8 & 15 \\
+\texttt{tick\_hz} & 3.0 & 2.0 \\
+\texttt{depth\_stop\_m} & 0.25 & 0.40 \\
+\texttt{depth\_slow\_m} & 0.60 & 0.80 \\
+\texttt{NO\_PROGRESS\_RESET\_TICKS} & 10 & 10 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{MBRA wrapper deployment values}
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+\texttt{context\_size} & 6 frames of history \\
+\texttt{vel\_past\_linear} & 0.5 \\
+\texttt{vel\_past\_angular} & 0.0 \\
+\texttt{max\_linear} & 0.40 \\
+\texttt{min\_linear} & 0.18 \\
+\texttt{max\_angular} & 0.34 \\
+\texttt{min\_confidence} & 0.45 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Traversability defaults}
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+\texttt{num\_bins} & 16 \\
+\texttt{fov\_horizontal\_deg} & 90.0 \\
+\texttt{crop\_top\_frac} & 0.15 \\
+\texttt{crop\_bot\_frac} & 0.60 \\
+\texttt{obstacle\_distance\_m} & 1.5 \\
+\texttt{stop\_distance\_m} & 0.60 \\
+\texttt{slow\_distance\_m} & 1.20 \\
+\texttt{memory\_frames} & 4 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Semantic runtime thresholds}
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+\texttt{roi\_top\_frac} & 0.40 \\
+\texttt{roi\_bottom\_frac} & 0.80 \\
+\texttt{roi\_left\_frac} & 0.30 \\
+\texttt{roi\_right\_frac} & 0.70 \\
+\texttt{person\_thresh} & 0.002 \\
+\texttt{animal\_thresh} & 0.002 \\
+\texttt{pole\_thresh} & 0.002 \\
+\texttt{wall\_thresh} & 0.010 \\
+\texttt{drive\_thresh} & 0.10 \\
+\texttt{caution\_thresh} & 0.60 \\
+\texttt{max\_bias} & 0.50 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{IMU safety thresholds}
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+\texttt{max\_tilt\_deg} & 40.0 \\
+\texttt{max\_pitch\_roll\_rate\_dps} & 150.0 \\
+\texttt{gyro\_min\_tilt\_deg} & 12.0 \\
+\texttt{gyro\_min\_vibration} & 1.0 \\
+\texttt{vibration\_limit} & 3.0 \\
+\texttt{consecutive\_trips\_to\_stop} & 2 \\
+\texttt{calibration\_samples} & 8 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Layer-by-Layer Debug Playbooks}
+
+This section is deliberately more procedural than the rest of the document. It is
+for the moment when the rover does something dumb and you do not want philosophy;
+you want order.
+
+\subsection{Indoor debug playbook}
+
+\begin{enumerate}[nosep]
+  \item Confirm the controller mode first. If \texttt{--controller simple} is active,
+  do not expect MBRA-like steering behavior.
+  \item Look at localized step, confidence, and stability before blaming control.
+  \item If the planner says \texttt{no\_path}, check whether the rover has already
+  passed the active checkpoint in the forward graph.
+  \item If MBRA is active but behavior looks random, ask whether stale context or a
+  safety backup just destroyed its visual history.
+  \item Only after those checks should you start tuning controller behavior.
+\end{enumerate}
+
+\subsection{Outdoor debug playbook}
+
+\begin{enumerate}[nosep]
+  \item Confirm the mission state loaded correctly and the active checkpoint is real.
+  \item Confirm whether the active target is a mission checkpoint or an intermediate
+  routed waypoint.
+  \item If the rover keeps stopping or rerouting, inspect route-corridor deviation
+  and target handoff radius before blaming LogoNav.
+  \item If it spins, inspect align gating and the bearing regime of the new target.
+  \item If it slows strangely, check traversability and semantic intervention before
+  concluding the controller lost confidence.
+\end{enumerate}
+
+\subsection{Marathon debug playbook}
+
+\begin{enumerate}[nosep]
+  \item Ask whether the system is too cautious, not just whether it is too bold.
+  \item Inspect every post-checkpoint transition because that is the most dangerous
+  regime.
+  \item Check whether repeated alignment is happening on a target that should have
+  been handed off more gently.
+  \item Check whether IMU or route-corridor stops are revealing a real instability
+  or merely reacting to an already broken target interpretation.
+  \item Remember that physical stability is part of the diagnosis, not an unrelated
+  hardware footnote.
+\end{enumerate}
+
+\section{Harder Interview Questions and Better Answers}
+
+\subsection*{Why did the project split instead of converging to one universal stack?}
+
+Because the data geometry and operational questions are different. Indoor has a
+known corridor, recorded imagery, and exact checkpoint-step structure. Outdoor has
+live GPS mission semantics, route semantics, and uncontrolled terrain. Pretending
+they were one problem would have produced worse engineering.
+
+\subsection*{Why not just use one end-to-end controller for everything?}
+
+Because the repo already showed that controller quality was only part of the story.
+Localization, target semantics, route structure, safety, and recovery all had to be
+made explicit. Hiding them inside one slogan would have reduced explainability
+without actually fixing the runtime.
+
+\subsection*{What is the main mathematical idea indoors?}
+
+Nearest-neighbor place recognition becomes usable only when continuity penalties are
+added over time and the resulting stable node estimate is passed through a graph
+planner instead of directly into control.
+
+\subsection*{What is the main mathematical idea outdoors?}
+
+Outdoor is not dominated by one equation. It is dominated by layered gating:
+controller proposals are filtered by geometric route logic, local depth structure,
+semantic fractions, IMU thresholds, and mission state.
+
+\subsection*{What did the marathon failure really teach you?}
+
+That transition stability matters more than piling on additional safety flags.
+Safety helps only if the system still interprets the next target calmly.
+
+\section{A One-Week Onboarding Plan For A New Team Member}
+
+If someone had one week to become useful in this repo, the fastest route would be:
+
+\subsection*{Day 1}
+
+Read this document up to the end of the indoor and outdoor story sections. Do not
+edit code yet.
+
+\subsection*{Day 2}
+
+Read:
+
+\begin{itemize}[nosep]
+  \item \texttt{live\_indoor\_runtime.py}
+  \item \texttt{src/temporal\_localization.py}
+  \item \texttt{src/graph\_planner.py}
+  \item \texttt{src/mbra\_controller.py}
+\end{itemize}
+
+Goal: understand the indoor loop end to end.
+
+\subsection*{Day 3}
+
+Read:
+
+\begin{itemize}[nosep]
+  \item \texttt{live\_outdoor\_runtime.py}
+  \item \texttt{src/outdoor\_logonav\_controller.py}
+  \item \texttt{src/osm\_router.py}
+  \item \texttt{src/outdoor\_traversability.py}
+\end{itemize}
+
+Goal: understand the outdoor loop end to end.
+
+\subsection*{Day 4}
+
+Read the long story and review docs. Goal: understand what failed and why the
+current architecture looks the way it does.
+
+\subsection*{Day 5}
+
+Run one indoor dry run and one outdoor dry run with logs enabled. Goal: learn what
+healthy behavior and unhealthy behavior look like.
+
+\subsection*{Day 6}
+
+Pick one subsystem and trace it from CLI flag to runtime effect. Good choices:
+semantic risk, traversability, or IMU safety.
+
+\subsection*{Day 7}
+
+Explain the full project out loud without looking at notes. If you still collapse it
+into ``MBRA and LogoNav,'' repeat the week.
+
+\section{What I Would Tell A New Teammate In The First Hour}
+
+This is the informal version, because this is usually what people need most.
+
+\begin{enumerate}[nosep]
+  \item Indoor and outdoor are different problems. If you mix assumptions between
+  them, you will waste days.
+  \item Indoors, do not touch controller tuning first. Check localization confidence,
+  checkpoint-step semantics, and graph progression first.
+  \item MBRA is not a planner. It is the short-horizon controller once state
+  semantics are already clean.
+  \item If indoor says \texttt{no\_path}, first ask whether the rover is already past
+  the active checkpoint in a forward-only graph.
+  \item Outdoors, controller output is only one vote. Route semantics and safety
+  gates can and should override it.
+  \item Most ugly outdoor failures are transition bugs, not raw speed bugs.
+  \item A routed intermediate waypoint is not a mission checkpoint. Treating them the
+  same is how you create loops.
+  \item Marathon failure did not mean ``all safety was wrong.'' It meant transition
+  stability and physical stability were still underpowered.
+  \item If you want one thing to improve next, make outdoor transitions boring.
+  \item Read the logs like a state-machine trace, not like a random stream.
+\end{enumerate}
+
+\section{Ground-Truth Evidence Appendix}
+
+This appendix ties headline claims back to concrete evidence artifacts so results
+can be defended without hand-waving.
+
+\subsection{Outcome Provenance Table}
+
+\begin{center}
+\begin{tabular}{p{0.17\textwidth}p{0.25\textwidth}p{0.20\textwidth}p{0.28\textwidth}}
+\toprule
+\textbf{Track} & \textbf{Claim used in this doc} & \textbf{Evidence level} & \textbf{Primary source} \\
+\midrule
+Indoor & 8 / 11 checkpoints reached & Direct run result summary & \texttt{competition\_results.tex}, Section ``Indoor Run: 8 of 11 Checkpoints'' \\
+Outdoor standard & One full completion; other runs partial (about 50\% overall) & Direct run-result summary + repeated notes & \texttt{competition\_results.tex}, Section ``Outdoor Standard Run'' \\
+Marathon & Reached one checkpoint, then toppled & Direct run-result summary + operator narrative & \texttt{competition\_results.tex}, Section ``Marathon Attempt'' \\
+Outdoor transition issue & Route-corridor stop and reroute loops happened in field logs & Direct log signature & \texttt{live\_outdoor\_ultra\_marathon\_story.tex}, appendix ``Representative Failure Logs'' \\
+Waypoint handoff issue & Intermediate-waypoint handoff sometimes entered ALIGN-heavy behavior & Direct log signature & \texttt{live\_outdoor\_ultra\_marathon\_story.tex}, appendix ``Representative Failure Logs'' \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Representative Field Log Signatures}
+
+The exact values below are from operator terminal logs and are preserved here
+because they explain why specific runtime guardrails were added.
+
+\subsubsection*{A. Corridor-stop triggered reroute}
+\begin{verbatim}
+[0416] route_corridor_stop dist=6.0m threshold=6.0m ticks=3
+[routing] re-routing from current pose due to route_corridor_stop...
+[routing] building leg 2/47 reroute via OSM for 1 checkpoint(s)...
+\end{verbatim}
+
+Interpretation: route-corridor enforcement was active and forced a reroute when
+deviation persisted.
+
+\subsubsection*{B. Intermediate waypoint handoff entered ALIGN mode}
+\begin{verbatim}
+[0290] intermediate waypoint reached at (37.869384, -122.259327)
+[0293] DONE=1/47 LEG=2/47 WP=3/8 dist=13.7m ... mode=ALIGN ...
+\end{verbatim}
+
+Interpretation: after a local waypoint completion, target transition entered an
+alignment-dominant phase. This is exactly the handoff region that remained fragile.
+
+\subsubsection*{C. ALIGN saturation signature}
+\begin{verbatim}
+[0318] ... mode=ALIGN lin=+0.000 ang=-0.279 ...
+[0320] ... mode=ALIGN lin=+0.000 ang=-0.280 ...
+[0322] ... mode=ALIGN lin=+0.000 ang=-0.280 ...
+\end{verbatim}
+
+Interpretation: repeated high angular command with zero linear motion indicates
+turn-priority lock behavior under transition stress.
+
+\subsubsection*{D. Post-reroute recovery to forward motion}
+\begin{verbatim}
+[0450] ... mode=logonav_ lin=+0.160 ang=-0.277 ...
+[0453] ... mode=logonav_ lin=+0.201 ang=-0.239 ...
+[0460] ... mode=logonav_ lin=+0.190 ang=-0.232 ...
+\end{verbatim}
+
+Interpretation: after the ALIGN-heavy period, the controller recovered forward
+motion, but still with substantial steering load.
+
+\subsection{How To Use This Evidence Correctly}
+
+\begin{itemize}[nosep]
+  \item Treat indoor 8/11 as proof of a working indoor backbone, not proof that
+  all corridor ambiguity is solved.
+  \item Treat outdoor full completion as proof the stack can work, not proof it is
+  robustly repeatable yet.
+  \item Treat the marathon failure as a transition-and-platform stability failure,
+  not as proof that every added safety layer was wrong.
+  \item When debating architecture choices, use failure signatures above and map
+  them back to specific guards in \texttt{live\_outdoor\_runtime.py}.
+\end{itemize}
+
+\section{Math Companion File}
+
+This document now has a matching intuition-first math teaching file:
+
+\begin{center}
+\texttt{erc3\_mathematics\_guide.txt}
+\end{center}
+
+That file is written for someone who does not yet think fluently in robotics math.
+It explains the core quantitative ideas in this project from intuition upward and
+ends with quiz questions so the reader can test whether the ideas actually stuck.
+
+\section{Conclusion}
+
+The project ended with one strong completed system and one partially successful but
+still evolving system.
+
+The strong completed system was the indoor corridor stack:
+
+\begin{itemize}[nosep]
+  \item corridor localization,
+  \item temporal smoothing,
+  \item graph progression,
+  \item MBRA local control,
+  \item 8 of 11 checkpoints reached.
+\end{itemize}
+
+The outdoor system proved it could work, but also showed exactly where it still
+breaks:
+
+\begin{itemize}[nosep]
+  \item one run reached all checkpoints,
+  \item several others only partially succeeded,
+  \item marathon exposed transition instability and physical tipping risk clearly.
+\end{itemize}
+
+The biggest success was not just that the rover moved. The biggest success was that
+the architecture became understandable. By the end, the roles of localization,
+planning, controller behavior, safety, recovery, and mission logic were much
+clearer than they had been at the start.
+
+\section{Related Documents}
+
+This master document is part of a larger documentation system. The companion documents
+add depth in specific areas:
+
+\begin{description}[style=nextline, leftmargin=2em]
+  \item[\texttt{CLAUDE.md}] Historical indoor quick-reference guide. If it differs
+  from active code or current field evidence, treat it as historical context.
+  \item[\texttt{no\_gps\_route\_repeat\_story.tex}] Full later no-GPS branch
+  narrative: route data, control architecture, field evidence, and validation gate.
+  \item[\texttt{live\_indoor\_runtime\_story.tex}] The full indoor narrative — from
+  blank slate through MBRA debugging to working system. Deeper indoor history than this
+  document provides.
+  \item[\texttt{live\_outdoor\_ultra\_marathon\_story.tex}] The full outdoor/marathon
+  narrative — three implementation stages, every safety feature, what was explored but
+  not shipped.
+  \item[\texttt{outdoor\_perception\_review.tex}] The depth and semantic investigation
+  story — what was tried, what failed, what shipped, and what the probe results actually
+  showed.
+  \item[\texttt{semantic\_segmentation\_research\_review.tex}] The semantic research
+  from first offline probe through production estimator — every recommendation and how
+  each was addressed.
+  \item[\texttt{docs/our\_mbra\_discoveries.tex}] The MBRA bug post-mortem — 7
+  discoveries that shaped both indoor and outdoor systems (vel\_past, no-reverse, sole
+  motion authority).
+  \item[\texttt{docs/march19.tex}] The mid-March retrospective — the longest single
+  narrative document (1158 lines), covering both tracks reaching working state.
+  \item[\texttt{docs/current\_codebase\_deep\_read.tex}] Code analysis snapshot — what
+  every file does, with indoor and outdoor coverage.
+  \item[\texttt{docs/discoveries.tex}] Literature review — ViNT, PlaceNav, MBRA papers
+  fact-checked against what was actually built.
+  \item[\texttt{live\_outdoor\_runtime\_explained.tex}] Plain-language outdoor runtime
+  walkthrough with safety layer details.
+\end{description}
+
+\end{document}

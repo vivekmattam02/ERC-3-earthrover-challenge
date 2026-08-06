@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /home/lunar/Desktop/rover/ERC-3-earthrover-challenge -type d -name *outdoor* -o -type d -name *data* -o -type d -name *dataset* -o -type d -name *run*)",
+      "Bash(python3:*)",
+      "Bash(python -m py_compile live_outdoor_runtime.py)",
+      "Bash(python -c \"import ast; ast.parse\\(open\\(''src/outdoor_gps_controller.py''\\).read\\(\\)\\); print\\(''outdoor_gps_controller OK''\\)\")",
+      "Bash(python -c \"import ast; ast.parse\\(open\\(''live_outdoor_runtime.py''\\).read\\(\\)\\); print\\(''live_outdoor_runtime OK''\\)\")",
+      "Bash(python:*)",
+      "Bash(find /home/lunar/Desktop/rover/ERC-3-earthrover-challenge -type d -name mbra_repo* -o -name nyu-earthrover-main)",
+      "Bash(find /home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data -name *.png -type f)",
+      "Bash(ls:*)",
+      "Bash(wc -l /home/lunar/Desktop/rover_desktop/ERC-3-earthrover-challenge/**/*.tex /home/lunar/Desktop/rover_desktop/ERC-3-earthrover-challenge/*.tex)",
+      "Bash(find /home/lunar/Desktop/rover/ERC-3-earthrover-challenge -type f \\\\\\(-name *.txt -o -name *.rst -o -name *.doc -o -name *.docx \\\\\\))",
+      "Bash(for f:*)",
+      "Bash(do head:*)",
+      "Bash(done)",
+      "Bash(find /home/lunar/Desktop/rover_desktop/ERC-3-earthrover-challenge -name *.tex -type f)",
+      "Bash(find /home/lunar/Desktop/rover_desktop/ERC-3-earthrover-challenge -name *.md -not -path */node_modules/* -not -path */.git/* -not -path */mbra_repo* -not -path */nyu-earthrover* -not -path */third_party/* -not -path */models/* -type f)",
+      "Bash(find /home/lunar/Desktop/rover_desktop/ERC-3-earthrover-challenge/nyutemplate -name *.tex)",
+      "Bash(wc:*)",
+      "Bash(sort -k6,7)"
+    ]
+  }
+}

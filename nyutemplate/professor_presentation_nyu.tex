@@ -1,0 +1,171 @@
+\documentclass{beamer}
+
+\mode<presentation>
+{
+  \usetheme{NYU}
+  \usecolortheme{default}
+  \usefonttheme{default}
+  \setbeamertemplate{navigation symbols}{}
+  \setbeamertemplate{caption}[numbered]
+}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\title[EarthRover Update]{ERC-3 EarthRover Project Update}
+\subtitle{Indoor, Outdoor, and Marathon Summary}
+\author{Lunar}
+\institute[NYU]{New York University}
+\date{April 1, 2026}
+\titlegraphic{\hfill\includegraphics[height=1.4cm]{nyu_stacked_color}}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\section{Indoor}
+
+\begin{frame}{Indoor}
+\textbf{What we chose}
+\begin{itemize}
+  \item MBRA as the main indoor controller
+  \item exact checkpoint-step navigation
+  \item a cleaner runtime around it
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{Why we chose it}
+\begin{itemize}
+  \item indoor is a known corridor problem
+  \item MBRA worked better with simpler recovery
+  \item exact steps were cleaner than vague targets
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Indoor Results}
+\textbf{What worked}
+\begin{itemize}
+  \item \textbf{8 / 11 checkpoints reached}
+  \item the system became more stable
+  \item the MBRA-first direction became clearer
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{What failed / what was difficult}
+\begin{itemize}
+  \item forward-only graph caused no-path issues
+  \item stale context could trap the robot
+  \item recovery still needed care
+\end{itemize}
+\end{frame}
+
+\section{Outdoor}
+
+\begin{frame}{Outdoor}
+\textbf{What we chose}
+\begin{itemize}
+  \item LogoNav as the main outdoor controller
+  \item OSM route expansion
+  \item safety layers around the runtime
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{Why we chose it}
+\begin{itemize}
+  \item outdoor was not a from-scratch controller problem
+  \item we already had a working base runtime
+  \item the bigger need was safety and stability
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Outdoor Results}
+\textbf{What worked}
+\begin{itemize}
+  \item one run reached \textbf{all checkpoints}
+  \item the others were around \textbf{50\% success}
+  \item rerouting and waypoint fixes helped a lot
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{What failed / what was difficult}
+\begin{itemize}
+  \item \textbf{3 rounds failed}
+  \item spinning and bad waypoint transitions hurt us
+  \item curbs and steps are still a weak point
+\end{itemize}
+\end{frame}
+
+\section{Marathon}
+
+\begin{frame}{Marathon}
+\textbf{What we chose}
+\begin{itemize}
+  \item keep the same outdoor base runtime
+  \item add stricter safety layers
+  \item focus on stability, not full autonomy
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{What we added}
+\begin{itemize}
+  \item IMU safety
+  \item route corridor guard
+  \item rerouting from live GPS
+  \item better waypoint handling
+  \item clearer logs
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Marathon Result And Failure Reason}
+\Large
+\centering
+\textbf{Reached 1 checkpoint}
+
+\vspace{0.8em}
+\textbf{Then the robot spun and toppled}
+
+\normalsize
+\vspace{1.0em}
+\raggedright
+\textbf{What happened}
+\begin{itemize}
+  \item after checkpoint progress, the next target handling became unstable
+  \item that led to repeated turning in place
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{Why this likely happened}
+\begin{itemize}
+  \item the runtime likely got confused after checkpoint transition
+  \item that created bad alignment behavior
+  \item repeated aggressive turning made the robot unstable
+\end{itemize}
+\end{frame}
+
+\section{Summary}
+
+\begin{frame}{Final Summary}
+\textbf{Indoor}
+\begin{itemize}
+  \item best current direction: MBRA-first
+  \item result: \textbf{8 / 11}
+\end{itemize}
+
+\textbf{Outdoor}
+\begin{itemize}
+  \item best current direction: LogoNav + route + safety layers
+  \item result: \textbf{1 full success}, others around \textbf{50\%}
+\end{itemize}
+
+\textbf{Marathon}
+\begin{itemize}
+  \item result: \textbf{1 checkpoint, then toppled}
+  \item next focus: stability after transitions
+\end{itemize}
+\end{frame}
+
+\end{document}

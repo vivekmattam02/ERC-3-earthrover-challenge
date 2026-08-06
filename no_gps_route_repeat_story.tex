@@ -1,0 +1,266 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{listings}
+\hypersetup{colorlinks=true, linkcolor=blue!60!black, urlcolor=blue!60!black}
+\lstset{basicstyle=\ttfamily\small, breaklines=true, frame=single, columns=fullflexible}
+
+\newcommand{\statusbox}[2]{
+\begin{center}
+\fcolorbox{blue!40!black}{blue!5}{\parbox{0.92\textwidth}{
+\textbf{#1}\\[4pt]#2
+}}
+\end{center}
+}
+\newcommand{\warningbox}[2]{
+\begin{center}
+\fcolorbox{red!50!black}{red!5}{\parbox{0.92\textwidth}{
+\textbf{#1}\\[4pt]#2
+}}
+\end{center}
+}
+
+\title{No-GPS Rough-Terrain Route Repeat\\
+\large Field Evidence, System Design, and Validation Plan}
+\author{}
+\date{July 16, 2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\warningbox{Current Status}{
+The no-GPS route-repeat pipeline is implemented and can send live rover
+commands. It has \textbf{not} demonstrated a reliable autonomous repeat of the
+taught route on the physical terrain. This is an experimental prototype, not a
+cleared final-competition autonomy system.}
+
+\section{Why This Is A Separate Branch}
+
+The earlier outdoor system assumed a GPS mission: obtain checkpoint coordinates,
+optionally expand the route with OpenStreetMap, execute a local controller, and
+guard it with safety and recovery logic. The current session does not satisfy
+that assumption. Telemetry reported placeholder GPS coordinates
+\texttt{(1000, 1000)}, so a GPS controller cannot provide a meaningful global
+navigation target.
+
+The problem therefore changed from GPS mission execution to visual
+teach-and-repeat:
+
+\begin{center}
+manual traversal $\rightarrow$ visual route memory $\rightarrow$ online visual
+localization $\rightarrow$ local route-follow command
+\end{center}
+
+This is not generic exploration and it is not direct flag-seeking autonomy. It
+is a route-specific repeated-navigation problem for a differential-drive rover
+on rocky, uneven terrain.
+
+\section{The System Contract}
+
+\subsection{Sensors And Assumptions}
+
+The branch deliberately has a narrow sensor contract:
+
+\begin{itemize}[nosep]
+  \item The live route-repeat runtime uses the \textbf{front camera only} through
+  \texttt{/v2/front}.
+  \item Rear camera imagery is not fused into localization or control.
+  \item GPS is treated as unavailable for route following.
+  \item IMU orientation, gyro rate, and RPM are support signals for tilt,
+  turn-rate, and motion/stall reasoning; they are not a full pose estimator.
+  \item The route is manually taught before the repeat attempt.
+\end{itemize}
+
+The front-only decision is intentional. Mixing an unvalidated rear stream into
+the active localization input would make the visual reference problem less
+clear, not more robust.
+
+\subsection{Pipeline}
+
+The implemented route pipeline is:
+
+\begin{enumerate}[nosep]
+  \item \texttt{scripts/record\_sdk\_session.py} records a manual traversal into
+  an H5 bag. Front capture is the default.
+  \item \texttt{tools/extract\_h5\_dataset.py} turns the H5 bag into ordered
+  front images and metadata.
+  \item \texttt{baseline.py} builds the descriptor database, place graph, and
+  directed navigation graph.
+  \item \texttt{scripts/prepare\_manual\_route.py} packages those stages into a
+  reusable route directory.
+  \item \texttt{scripts/run\_prepared\_route.py} launches the live runtime from
+  that route package.
+  \item \texttt{live\_indoor\_runtime.py} performs online localization, graph
+  planning, control, recovery, and optional command sending.
+\end{enumerate}
+
+The runtime name is historical. In this branch it acts as the live no-GPS
+route-repeat runner, not as the original indoor competition-only system.
+
+\section{Route Data And What It Can Prove}
+
+\begin{longtable}{p{0.27\textwidth}p{0.25\textwidth}p{0.38\textwidth}}
+\toprule
+\textbf{Artifact} & \textbf{Role} & \textbf{Current interpretation} \\
+\midrule
+\texttt{run\_01\_1521.h5} & Main manual teach bag & Strongest route-coverage candidate; not proof of autonomous repeat. \\
+\texttt{smoke\_run01\_c} & 126-frame route package, target step 125 & Main reference and comparison package; not a deployment route. \\
+\texttt{run\_01\_1521\_pp\_v3} & 15-frame post-processing experiment & Useful evidence that motion-aware selection is better; too sparse for primary use. \\
+\texttt{run\_02\_1537.h5} & Alternate bag & Weaker due to a dark segment and poor tilted tail. \\
+\texttt{run\_03\_1551.h5} & Alternate bag & Usable comparison only; weaker coverage than run 1. \\
+\texttt{run\_05\_clean\_teach.h5} & Later recording & Saved but not yet post-processed or accepted as a route reference. \\
+\bottomrule
+\end{longtable}
+
+\subsection{What The Bags Do Not Contain}
+
+The manually recorded bags have an empty \texttt{controls} stream. They preserve
+video, telemetry, IMU, magnetometer, and RPM evidence, but they do not preserve
+the human driver's original linear and angular commands. Therefore, exact teleop
+replay or direct command imitation cannot be reconstructed from the current
+bags. Visual route following and command imitation are different problems.
+
+\section{Localization, Planning, And Control}
+
+\subsection{Visual Localization And Route Progression}
+
+Each front frame is encoded against the taught route's descriptor database.
+Temporal logic and a route corridor constrain the retrieved step, while the graph
+planner selects a forward subgoal. This produces a controller input that includes
+the current step, subgoal step, confidence, visual context, tilt, turn-rate, and
+RPM motion information.
+
+The conceptual loop is:
+
+\begin{lstlisting}
+front frame -> visual localization -> temporal/corridor check -> graph subgoal
+            -> local controller -> terrain/recovery guard -> rover command
+\end{lstlisting}
+
+The graph step is a useful progress signal, but it is not physical ground truth.
+It can remain unchanged while the rover moves if the live image does not match
+the reference route well enough.
+
+\subsection{Adaptive Pursuit And Runtime Recovery}
+
+Rough-terrain prepared-route runs select
+\texttt{src/adaptive\_pursuit\_controller.py}. The controller is intended to
+move away from a brittle align-then-drive policy by combining forward motion with
+continuous curvature-like steering. Its speed and turn behavior are conditioned
+by:
+
+\begin{itemize}[nosep]
+  \item localization confidence,
+  \item current and subgoal route steps,
+  \item heading/turn-rate support signals,
+  \item tilt,
+  \item RPM motion hints,
+  \item and no-progress state.
+\end{itemize}
+
+The surrounding runtime state machine adds startup probing, no-progress
+relocalization, tilt-aware speed scheduling, stall handling, and jump rejection.
+This is important: the observed robot behavior is the controller \emph{plus}
+the recovery state machine, not the controller alone.
+
+\subsection{Route Heading}
+
+Route-heading guidance was tested, but compass/route-heading behavior was not
+reliable in the field. In rough-terrain prepared-route mode,
+\texttt{scripts/run\_prepared\_route.py} now defaults to
+\texttt{--no-route-heading}. \texttt{--use-route-heading} is an explicit
+opt-in for a route where it has been independently validated.
+
+\section{What The Field Trials Actually Showed}
+
+The field trials established several facts.
+
+\begin{itemize}[nosep]
+  \item The SDK connection, camera path, model loading, localization loop, and
+  command-sending path all executed.
+  \item The rover did physically move under \texttt{--send-control}.
+  \item Localization repeatedly remained around startup steps 0, 1, or 8, often
+  with moderate confidence in the approximate range 0.49--0.59.
+  \item The runtime repeatedly entered \texttt{relocalize\_scan} and
+  \texttt{relocalize\_probe\_forward} cycles without sustained graph-step
+  progression.
+  \item At roughly 14--22 degrees of tilt, cautious crawl commands often lacked
+  enough authority to cross rocks, while stronger probes still did not create a
+  durable reference-route match.
+  \item A tightly constrained startup corridor prevented unsafe global jumps,
+  but it could not create a valid localization match when the live start did not
+  visually agree with the taught reference.
+\end{itemize}
+
+The correct conclusion is not that the rover ``did nothing.'' It moved. The
+failure was that physical motion, visual localization, and graph progression did
+not remain mutually consistent enough to prove route following.
+
+\section{Implemented Does Not Mean Proven}
+
+\begin{longtable}{p{0.36\textwidth}p{0.19\textwidth}p{0.35\textwidth}}
+\toprule
+\textbf{Capability} & \textbf{State} & \textbf{Meaning} \\
+\midrule
+Manual recording and route preparation & Implemented & A teach bag can become a visual route package. \\
+Front-camera live localization & Implemented & The runtime receives and queries live front frames. \\
+Adaptive-pursuit route command path & Implemented & Commands are computed and can be sent. \\
+Terrain-aware recovery & Implemented / heuristic & Recovery behavior exists but is not field-proven to resolve localization failure. \\
+Reliable autonomous taught-route repeat & Unproven & No controlled physical test has shown repeatable sustained progression. \\
+Final-competition autonomous deployment & Not justified & The required validation evidence does not yet exist. \\
+\bottomrule
+\end{longtable}
+
+\section{The Only Valid Next Milestone}
+
+The next goal is not ``make the rover move more'' and not ``add another model.''
+It is to prove one short, repeatable hardware-in-the-loop segment on the exact
+physical route:
+
+\begin{enumerate}[nosep]
+  \item Place the rover where the physical scene visibly matches the taught
+  route start.
+  \item Run the route follower in dry-run and confirm that localization stays in
+  the expected route corridor.
+  \item Enable supervised control only after the dry-run output is coherent.
+  \item Require meaningful forward graph-step progression without repeated
+  scan/probe cycling.
+  \item Repeat the same short segment successfully at least once.
+\end{enumerate}
+
+Failure to meet any one of these conditions means the branch remains an
+experimental evaluation system. Moving physically is not enough; the movement
+must be consistent with the taught route and reproducible.
+
+\section{What Carries Forward From Older Work}
+
+The no-GPS branch is distinct from the older GPS mission and marathon systems,
+but it inherits their most important systems lessons:
+
+\begin{itemize}[nosep]
+  \item transition stability matters more than adding layers on paper;
+  \item a weak perception signal must not be promoted into false authority;
+  \item a recovery behavior can make a system look active while preventing real
+  progress;
+  \item physical stability, traction, and tilt are part of the control problem;
+  \item field evidence outranks an attractive architecture diagram.
+\end{itemize}
+
+\section{Source Of Truth}
+
+For exact implementation details, trust active code. For maturity and field
+claims, trust the recorded test evidence first. The concise current status is in
+\texttt{obsidian\_vault/00 Home/Current No-GPS - Read This First.md}; detailed
+evidence is in
+\texttt{obsidian\_vault/01 Source of Truth/No-GPS Field Trial - Findings.md}.
+
+\end{document}

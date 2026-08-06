@@ -1,0 +1,545 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{mdframed}
+
+\hypersetup{colorlinks=true, linkcolor=blue!70!black, urlcolor=blue!70!black}
+
+\title{Current Codebase Deep Read\\[0.3em]
+\large Read-only summary of the current SDK, runtime, and MBRA paths}
+\author{Project Working Draft}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Purpose}
+
+This note is a \textbf{read-only understanding document} for the current state
+of the repository after many iterative changes.
+
+The goal is not to propose a redesign. The goal is to capture what the code
+\textbf{actually does now}, especially in the following areas:
+
+\begin{itemize}[nosep]
+  \item the SDK bridge,
+  \item the live runtime,
+  \item the current simple-controller path,
+  \item the localization / temporal state path,
+  \item the current MBRA deployment wrapper,
+  \item the optional depth-safety path.
+\end{itemize}
+
+
+\section{High-Level Bottom Line}
+
+\begin{mdframed}
+The repo is no longer just ``baseline localization + graph planner + a small
+controller.'' It is now a more integrated system with:
+
+\begin{itemize}[nosep]
+  \item a \textbf{hybrid SDK bridge} that supports both browser-relay and direct RTM fallback,
+  \item a much heavier \textbf{live runtime wrapper} with recovery and guardrails,
+  \item a \textbf{simple controller} that has become more forward-biased and less heading-driven,
+  \item a \textbf{temporal localizer} that can now be reverted after jump rejection,
+  \item a more faithful \textbf{MBRA inference wrapper},
+  \item optional \textbf{depth veto / slowdown} support.
+\end{itemize}
+\end{mdframed}
+
+
+\section{SDK Bridge: What It Does Now}
+
+\subsection{Core idea}
+
+The SDK side is now built as a \textbf{hybrid bridge}.
+
+It no longer depends on only one path for command or telemetry flow.
+
+\subsection{Control paths}
+
+There are now two meaningful control paths:
+
+\begin{enumerate}[nosep]
+  \item \texttt{/control}
+  \item \texttt{/control-legacy}
+\end{enumerate}
+
+\textbf{\texttt{/control}} uses the browser-backed path:
+\begin{itemize}[nosep]
+  \item the backend initializes a browser session,
+  \item opens \texttt{/sdk},
+  \item joins the SDK page,
+  \item sends control through the JavaScript \texttt{window.sendMessage(...)} hook.
+\end{itemize}
+
+\textbf{\texttt{/control-legacy}} uses direct RTM send without requiring the
+browser relay.
+
+This means manual control and autonomous control are now more resilient to
+browser-session failures than before.
+
+\subsection{Telemetry paths}
+
+Telemetry is also hybrid now.
+
+The frontend JavaScript actively pushes data back into the backend:
+
+\begin{itemize}[nosep]
+  \item \texttt{basicRtm.js} listens to incoming RTM peer messages and posts them to \texttt{/api/update\_data}.
+  \item \texttt{basicVideoCall.js} periodically captures the front camera frame and posts it to \texttt{/api/update\_frame}.
+\end{itemize}
+
+Then the backend exposes:
+
+\begin{itemize}[nosep]
+  \item \texttt{/data}
+  \item \texttt{/v2/front}
+\end{itemize}
+
+Those endpoints now:
+
+\begin{itemize}[nosep]
+  \item prefer the lightweight cache populated by the JS push path,
+  \item but fall back to \texttt{browser\_service} if the cache is empty.
+\end{itemize}
+
+\subsection{Practical consequence}
+
+This is a major structural improvement over a pure pyppeteer-pull design.
+
+The current SDK bridge is trying to achieve three things at once:
+
+\begin{itemize}[nosep]
+  \item low-latency data access through pushed caches,
+  \item survivability when the lightweight cache is empty,
+  \item a legacy fallback when the browser-backed command path is not healthy.
+\end{itemize}
+
+\subsection{Manual teleop}
+
+The current intended manual teleop is \texttt{examples/keyboard\_control.py}.
+
+Its behavior is:
+
+\begin{itemize}[nosep]
+  \item initialize \texttt{/sdk},
+  \item capture live W/A/S/D key state with \texttt{pynput},
+  \item smooth target velocities,
+  \item send commands through \texttt{/control},
+  \item fall back to \texttt{/control-legacy} if needed.
+\end{itemize}
+
+\texttt{examples/simple\_control.py} was also upgraded, but it is more of a
+minimal terminal teleop helper than the main curses-based teleop path.
+
+
+\section{Live Runtime: What It Does Now}
+
+\subsection{Original role vs current role}
+
+Originally, the live runtime was conceptually a thin loop:
+
+\begin{center}
+\fbox{\parbox{0.92\textwidth}{
+camera $\rightarrow$ localize $\rightarrow$ plan $\rightarrow$ controller
+$\rightarrow$ send command
+}}
+\end{center}
+
+That is no longer the full story.
+
+The current \texttt{live\_indoor\_runtime.py} contains a large amount of
+\textbf{runtime policy} and \textbf{recovery logic} around the controller.
+
+\subsection{What the live loop does now}
+
+The loop still performs the same main phases:
+
+\begin{enumerate}[nosep]
+  \item get camera frame from the SDK,
+  \item get telemetry from the SDK,
+  \item run the motion-state filter,
+  \item run localization,
+  \item run graph planning,
+  \item assemble controller input,
+  \item ask the selected controller for a command,
+  \item post-process that command through runtime safety / recovery logic,
+  \item optionally send the command.
+\end{enumerate}
+
+But after controller inference, the runtime now adds several additional layers.
+
+\subsection{Runtime layers added on top of the controller}
+
+\begin{enumerate}[nosep]
+  \item \textbf{Controller-specific defaults}:
+  \item MBRA defaults to 3 Hz and 4 subgoal hops.
+  \item Simple defaults to 2 Hz and 15 subgoal hops.
+\end{enumerate}
+
+\begin{enumerate}[resume,nosep]
+  \item \textbf{Target reached confirmation}:
+  \item target is not declared reached from one frame alone,
+  \item it requires confidence and repeated confirmation ticks.
+\end{enumerate}
+
+\begin{enumerate}[resume,nosep]
+  \item \textbf{Localization jump rejection}:
+  \item large step jumps require higher confidence,
+  \item rejected jumps trigger localizer state revert.
+\end{enumerate}
+
+\begin{enumerate}[resume,nosep]
+  \item \textbf{Proximity slowdown}:
+  \item forward speed is reduced near the target.
+\end{enumerate}
+
+\begin{enumerate}[resume,nosep]
+  \item \textbf{Recovery backup mode}:
+  \item a reverse override can temporarily replace normal control,
+  \item after recovery, runtime and controller state can be reset.
+\end{enumerate}
+
+\begin{enumerate}[resume,nosep]
+  \item \textbf{Angular saturation override}:
+  \item repeated near-max angular output triggers a forced straight override.
+\end{enumerate}
+
+\begin{enumerate}[resume,nosep]
+  \item \textbf{Optional monocular depth veto}:
+  \item slows or stops forward motion if forward clearance looks small.
+\end{enumerate}
+
+\begin{enumerate}[resume,nosep]
+  \item \textbf{RPM stall detection}:
+  \item low RPM during commanded forward motion can trigger backup recovery.
+\end{enumerate}
+
+\begin{enumerate}[resume,nosep]
+  \item \textbf{No-progress reset}:
+  \item if the localized step does not change for long enough, the controller can be reset.
+\end{enumerate}
+
+\subsection{Most important conceptual consequence}
+
+The controller file is no longer the whole control story.
+
+The current on-robot behavior is a combination of:
+
+\begin{itemize}[nosep]
+  \item the selected controller,
+  \item the sensor-state filter,
+  \item localization confidence and jump rejection,
+  \item runtime overrides,
+  \item recovery logic,
+  \item optional depth safety.
+\end{itemize}
+
+So when the robot behaves a certain way, it may not be coming from the
+controller alone.
+
+
+\section{Current Simple Controller: What It Really Is}
+
+\subsection{What changed in spirit}
+
+The current simple controller is much less like a continuous heading controller
+than the original baseline intuition suggested.
+
+It is now closer to:
+
+\begin{center}
+\fbox{\parbox{0.92\textwidth}{
+brief alignment when needed $\rightarrow$ then mostly forward crawl
+with outer runtime logic handling many failures
+}}
+\end{center}
+
+\subsection{Important current settings}
+
+Key changes in the current simple controller:
+
+\begin{itemize}[nosep]
+  \item \texttt{min\_linear} increased to 0.10,
+  \item \texttt{drive\_heading\_gain} is now 0.0,
+  \item alignment thresholds are much wider,
+  \item alignment duration is capped by \texttt{max\_align\_ticks},
+  \item no-heading mode is more aggressive and always maintains forward crawl.
+\end{itemize}
+
+\subsection{Very important runtime interaction}
+
+The runtime now explicitly sets:
+
+\begin{center}
+\texttt{controller\_input["subgoal\_orientation"] = None}
+\end{center}
+
+That means the simple controller usually does \textbf{not} operate with real
+subgoal heading information during the live loop.
+
+In practice, this pushes it into the \texttt{no\_heading\_forward\_crawl} style
+of behavior much more often.
+
+\subsection{Implication}
+
+The current simple path is best described as:
+
+\begin{itemize}[nosep]
+  \item localization says where we are,
+  \item planning says which nearby graph step is ahead,
+  \item the controller tries to move forward conservatively,
+  \item the runtime wrapper provides many of the recovery behaviors.
+\end{itemize}
+
+This is not a rich trajectory-following controller at the moment.
+
+
+\section{Motion-State Filter}
+
+\subsection{Role}
+
+\texttt{sensor\_state.py} is still a lightweight motion-prior layer, not a full
+sensor-fusion backbone.
+
+\subsection{Current signals used}
+
+It currently derives:
+
+\begin{itemize}[nosep]
+  \item filtered heading from orientation,
+  \item filtered heading-rate from gyro Z,
+  \item filtered RPM mean from the latest RPM packet,
+  \item telemetry freshness / stale status.
+\end{itemize}
+
+\subsection{Important change}
+
+The stale logic no longer depends on ``did update() get called just now?''
+
+It now tries to use the sensor timestamp to decide whether data is actually
+fresh. That is a more correct design.
+
+The timeout is also now more tolerant at 5 seconds.
+
+\subsection{Practical effect}
+
+This filter is not driving localization directly in a heavy fusion sense.
+Instead, it provides:
+
+\begin{itemize}[nosep]
+  \item heading hints,
+  \item turn-rate damping hints,
+  \item RPM-based motion hints,
+  \item a freshness stop signal.
+\end{itemize}
+
+
+\section{Localization and Temporal State}
+
+\subsection{Corridor localizer}
+
+The core localization backbone remains the same:
+
+\begin{itemize}[nosep]
+  \item preprocess frame,
+  \item run CosPlace descriptor inference,
+  \item retrieve nearest database matches,
+  \item score candidates through the temporal localizer.
+\end{itemize}
+
+\subsection{New practical changes}
+
+The corridor localizer now adds two deployment-focused capabilities:
+
+\begin{itemize}[nosep]
+  \item explicit device selection / CPU fallback for CUDA incompatibility,
+  \item the ability to revert the last temporal update.
+\end{itemize}
+
+\subsection{Temporal localizer change}
+
+The temporal localizer now supports:
+
+\begin{itemize}[nosep]
+  \item \texttt{save\_state()}
+  \item \texttt{revert\_state()}
+\end{itemize}
+
+This is specifically there so runtime jump rejection can say:
+
+\begin{quote}
+``That large localization jump was not trusted, so roll back the temporal
+state and keep the previous estimate.''
+\end{quote}
+
+\subsection{Meaning}
+
+This is an important conceptual change.
+
+Before, temporal localization was just a forward accumulator.
+Now it is part of a runtime closed loop where:
+
+\begin{itemize}[nosep]
+  \item localization proposes a step,
+  \item runtime judges whether that jump is believable,
+  \item runtime can reject it and restore the previous temporal state.
+\end{itemize}
+
+
+\section{Navigation Runtime Handoff}
+
+\texttt{navigation\_runtime.py} is still a fairly clean handoff layer.
+
+Its main job is:
+
+\begin{enumerate}[nosep]
+  \item localize,
+  \item plan path to target,
+  \item load the subgoal image if available,
+  \item package controller input.
+\end{enumerate}
+
+\subsection{Important portability fix}
+
+It now repairs absolute image paths from graph artifacts when they were created
+on another machine.
+
+This is practical and important because many graph databases were generated on a
+different system and carried over.
+
+
+\section{Current MBRA Path}
+
+\subsection{Main conceptual stance}
+
+The code now treats MBRA as a \textbf{short-horizon local controller only}.
+
+That matches the intended project architecture and also matches the strongest
+handoff documents.
+
+\subsection{What the current wrapper does}
+
+The MBRA wrapper now:
+
+\begin{itemize}[nosep]
+  \item loads model config and weights,
+  \item maintains only the observation image history,
+  \item uses a fixed \texttt{vel\_past} tensor,
+  \item uses timestep \texttt{[0,0]} as the immediate action,
+  \item clamps output to the repo's safe command range,
+  \item enforces a minimum forward command to avoid deadlock.
+\end{itemize}
+
+\subsection{Why this matters}
+
+Earlier deployment-style hacks such as:
+
+\begin{itemize}[nosep]
+  \item feeding back previous predicted commands into \texttt{vel\_past},
+  \item EMA blending over outputs,
+  \item keeping controller-side motion history,
+\end{itemize}
+
+have been removed.
+
+The current wrapper is therefore much closer to:
+
+\begin{quote}
+``run the MBRA model the way the original design intended, then only add small
+deployment clamps and confidence gating.''
+\end{quote}
+
+\subsection{MBRA utility loading}
+
+\texttt{mbra\_repo/deployment/utils\_logonav.py} was changed to lazy-load heavy
+model families.
+
+This is not a navigation-policy change. It is a deployment / dependency change.
+
+Its practical value is:
+
+\begin{itemize}[nosep]
+  \item MBRA and IL paths can load with fewer unnecessary imports,
+  \item unrelated heavyweight stacks do not need to be imported unless actually used.
+\end{itemize}
+
+
+\section{Depth Path}
+
+\texttt{depth\_estimator.py} remains an optional helper around Depth Anything V2.
+
+The most important practical change is not the inference logic itself, but the
+checkpoint search:
+
+\begin{itemize}[nosep]
+  \item it now searches the actual HuggingFace-style metric indoor filenames,
+  \item it also preserves some legacy filename variants.
+\end{itemize}
+
+In the live runtime, depth currently acts only as:
+
+\begin{itemize}[nosep]
+  \item a forward-clearance slowdown layer,
+  \item a forward-clearance stop layer,
+  \item a trigger for recovery backup.
+\end{itemize}
+
+It is not part of localization or planning.
+
+
+\section{Most Important Practical Takeaways}
+
+\begin{enumerate}[nosep]
+  \item \textbf{The SDK path is much stronger than before.}
+  Command and telemetry now both have redundancy.
+
+  \item \textbf{The live runtime is now a major source of behavior.}
+  Reading only the controller file is no longer enough to understand the robot.
+
+  \item \textbf{The simple controller is currently a crawl-heavy baseline.}
+  It is not doing rich heading-based local control in the live loop.
+
+  \item \textbf{Localization remains the strongest validated subsystem.}
+  The newer changes mainly make it more robust to deployment issues and jump rejection.
+
+  \item \textbf{MBRA has been made more faithful to the original reference behavior.}
+  That makes live evaluation more meaningful than before.
+
+  \item \textbf{Many changes were practical deployment fixes, not architectural replacements.}
+  The codebase has been hardened in-place rather than rebuilt from scratch.
+\end{enumerate}
+
+
+\section{Current Interpretation of the Stack}
+
+\begin{mdframed}
+\textbf{Best current reading of the codebase:}
+
+\begin{itemize}[nosep]
+  \item visual localization + temporal filtering + graph planning remain the backbone,
+  \item the SDK bridge is now materially better than it was before,
+  \item the runtime wrapper has become much more responsible for recovery and command shaping,
+  \item the simple controller is conservative and forward-biased,
+  \item MBRA is now implemented more faithfully as an optional short-horizon controller,
+  \item the main uncertainty is not plumbing anymore, but real autonomous execution behavior.
+\end{itemize}
+\end{mdframed}
+
+
+\section{Related Documents}
+\begin{itemize}
+  \item \texttt{erc3\_full\_documentation.tex} --- single master guide for the complete project story and current architecture.
+  \item \texttt{live\_indoor\_runtime\_story.tex} --- indoor evolution, MBRA integration, and checkpoint-step runtime behavior.
+  \item \texttt{live\_outdoor\_ultra\_marathon\_story.tex} --- outdoor and marathon runtime evolution with safety-layer reasoning.
+  \item \texttt{outdoor\_perception\_review.tex} --- depth/semantic perception findings and their runtime implications.
+\end{itemize}
+
+\end{document}

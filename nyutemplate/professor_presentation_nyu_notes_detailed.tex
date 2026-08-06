@@ -1,0 +1,384 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{enumitem}
+
+\title{NYU Presentation Notes: Detailed Technical Version}
+\author{Lunar}
+\date{April 1, 2026}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\section*{How To Use This Version}
+This is the deeper companion to the simpler note file.
+
+Use this if:
+\begin{itemize}[leftmargin=*]
+\item you want more technical confidence while presenting,
+\item your professor starts asking system-level questions,
+\item you want slightly richer wording than the lightweight notes.
+\end{itemize}
+
+Do not try to say all of this out loud. The slide deck is intentionally simple. This file is for:
+\begin{itemize}[leftmargin=*]
+\item backup technical language,
+\item cleaner explanations,
+\item follow-up questions.
+\end{itemize}
+
+Main idea:
+\begin{itemize}[leftmargin=*]
+\item the slides are simple,
+\item these notes are the technical layer underneath them.
+\end{itemize}
+
+\section*{Slide 1: Title}
+\textbf{Short spoken version}
+
+This is a short update on the ERC-3 EarthRover project. I will focus on indoor, outdoor, and marathon, and I will keep it to what we chose, why we chose it, what worked, and what failed.
+
+\textbf{Technical framing}
+
+The cleanest way to present the project is not as one monolithic autonomy stack. The indoor and outdoor parts evolved into different engineering problems with different failure modes, different assumptions, and different evaluation criteria.
+
+If you want one concise technical sentence:
+
+The most important systems-level insight was that indoor and outdoor needed different runtime mental models.
+
+\section*{Slide 2: Indoor}
+\textbf{Short spoken version}
+
+For indoor, we chose MBRA as the main controller and used exact checkpoint-step navigation, because indoor turned out to be a known corridor problem rather than a generic exploration problem.
+
+\textbf{Technical explanation}
+
+Indoor became much clearer once we stopped framing it as generic navigation and instead treated it as:
+\begin{itemize}[leftmargin=*]
+\item visual localization against a known corridor dataset,
+\item temporal stabilization of localization,
+\item graph progression over corridor steps,
+\item local short-horizon control toward the next subgoal.
+\end{itemize}
+
+That means the core structure is not:
+\begin{itemize}[leftmargin=*]
+\item explore freely,
+\item detect arbitrary goals,
+\item do generic global planning.
+\end{itemize}
+
+It is:
+\begin{itemize}[leftmargin=*]
+\item determine where we are in the corridor,
+\item determine which step or checkpoint comes next,
+\item generate a forward subgoal,
+\item use MBRA to execute the short local segment.
+\end{itemize}
+
+\textbf{Why MBRA made sense}
+
+MBRA was useful once it was treated as the local controller rather than the whole intelligence of the stack. It worked better when:
+\begin{itemize}[leftmargin=*]
+\item the target was clear,
+\item the runtime was simpler,
+\item reverse-heavy recovery was removed,
+\item stale context could be reset.
+\end{itemize}
+
+\textbf{Important technical points to remember}
+\begin{itemize}[leftmargin=*]
+\item exact checkpoint-step targets were cleaner than vague image goals,
+\item MBRA is a short-horizon image-goal controller,
+\item indoor structure comes from the corridor graph, not from MBRA alone.
+\end{itemize}
+
+\textbf{One strong sentence if asked}
+
+The indoor improvement was not mostly about inventing a better controller. It was about respecting the corridor structure and using MBRA in the right role.
+
+\section*{Slide 3: Indoor Results}
+\textbf{Short spoken version}
+
+For indoor, we reached 8 out of 11 checkpoints. That was our strongest indoor result, and it also made the system much more understandable.
+
+\textbf{Technical interpretation}
+
+The number 8 / 11 matters, but the more important engineering result is that the indoor failure modes became legible. The big ones were:
+\begin{itemize}[leftmargin=*]
+\item forward-only graph behavior,
+\item stale localization context,
+\item poor recovery logic for MBRA.
+\end{itemize}
+
+\textbf{Forward-only graph explanation}
+
+One of the most important indoor realizations was that the corridor graph behaves like a forward-only graph in practice. That means:
+\begin{itemize}[leftmargin=*]
+\item if the rover localizes past a target step,
+\item the planner may correctly report there is no path backward.
+\end{itemize}
+
+This looks like planner failure, but it is really a runtime interpretation problem.
+
+That is why skip-past-checkpoint logic matters.
+
+\textbf{Stale context explanation}
+
+MBRA can become trapped if the visual context stays stale while the rover makes little or no real progress. That is why the runtime now benefits from:
+\begin{itemize}[leftmargin=*]
+\item no reverse for MBRA,
+\item no-progress reset behavior,
+\item clearer controller-specific defaults.
+\end{itemize}
+
+\textbf{What improved}
+\begin{itemize}[leftmargin=*]
+\item exact checkpoint-step mode,
+\item cleaner MBRA-first framing,
+\item more sensible recovery assumptions.
+\end{itemize}
+
+\textbf{What still remains}
+\begin{itemize}[leftmargin=*]
+\item stronger repeatability,
+\item cleaner handling of edge cases,
+\item more confidence that good runs are not fragile.
+\end{itemize}
+
+\textbf{If asked why not 11 / 11}
+
+The main remaining gap is repeatability and edge-case handling, not lack of a direction. We now understand the failure modes much better.
+
+\section*{Slide 4: Outdoor}
+\textbf{Short spoken version}
+
+For outdoor, we kept LogoNav as the main controller, used OSM route expansion, and added safety layers around the runtime. We chose this because outdoor already had a usable runtime base. The bigger problem was not replacing the controller. The bigger problem was making the runtime safer and less brittle.
+
+\textbf{Technical explanation}
+
+Outdoor already had important pieces:
+\begin{itemize}[leftmargin=*]
+\item mission checkpoints from the SDK,
+\item resume logic,
+\item LogoNav as the main learned controller,
+\item optional OSM routing,
+\item perception support hooks.
+\end{itemize}
+
+So the highest-value engineering work was not:
+\begin{itemize}[leftmargin=*]
+\item throw everything away,
+\item replace the main controller,
+\item restart the stack from zero.
+\end{itemize}
+
+It was:
+\begin{itemize}[leftmargin=*]
+\item harden the runtime,
+\item control route behavior,
+\item make waypoint progression saner,
+\item make field failures visible and recoverable.
+\end{itemize}
+
+\textbf{Why LogoNav remained the choice}
+
+LogoNav remained the practical local controller because the main engineering bottleneck outdoors was not ``there is no controller.'' It was:
+\begin{itemize}[leftmargin=*]
+\item target transition instability,
+\item route-following discipline,
+\item safety around mission progression,
+\item local obstacle interactions.
+\end{itemize}
+
+\textbf{Important technical phrase}
+
+Outdoor progress came more from runtime hardening than controller replacement.
+
+\section*{Slide 5: Outdoor Results}
+\textbf{Short spoken version}
+
+For outdoor, one run reached all checkpoints, which was our strongest success. The other runs were around a 50 percent success rate overall, and three rounds failed.
+
+\textbf{How to explain this technically}
+
+This means the outdoor stack is clearly capable of end-to-end success, but it is not yet robust.
+
+That is an important distinction:
+\begin{itemize}[leftmargin=*]
+\item capability exists,
+\item stability is incomplete.
+\end{itemize}
+
+\textbf{What worked}
+\begin{itemize}[leftmargin=*]
+\item one full checkpoint run proves the pipeline can complete,
+\item rerouting improvements helped,
+\item waypoint handling improved,
+\item logging became much more useful for debugging.
+\end{itemize}
+
+\textbf{What failed}
+
+The outdoor failures were strongly tied to runtime behavior:
+\begin{itemize}[leftmargin=*]
+\item spinning,
+\item poor waypoint transitions,
+\item inconsistent field behavior,
+\item sensitivity to real geometry and low obstacles.
+\end{itemize}
+
+\textbf{Why outdoor is harder than indoor}
+
+Outdoor adds:
+\begin{itemize}[leftmargin=*]
+\item live GPS uncertainty,
+\item route expansion,
+\item transition handling between mission and routed targets,
+\item real curb and step geometry,
+\item changing lighting and scene conditions.
+\end{itemize}
+
+\textbf{If asked what 50 percent success really means}
+
+It means the outdoor system is partially successful and clearly improved, but I would still describe it as supervised and unstable under some conditions.
+
+\textbf{If asked what the biggest outdoor weakness is}
+
+Low-lying hazards and runtime stability around waypoint transitions.
+
+\section*{Slide 6: Marathon}
+\textbf{Short spoken version}
+
+For the marathon, we kept the same outdoor runtime and made it stricter. We added stronger safety logic because the marathon problem is really about safe supervised completion, not just reaching checkpoints under ideal conditions.
+
+\textbf{What we added technically}
+\begin{itemize}[leftmargin=*]
+\item IMU safety,
+\item route corridor guard,
+\item rerouting from live GPS,
+\item waypoint handling improvements,
+\item clearer operator logs.
+\end{itemize}
+
+\textbf{Key point}
+
+The marathon work was not about inventing a new algorithm. It was about wrapping the existing runtime in stronger discipline.
+
+\textbf{If asked why this matters}
+
+Because for a marathon-style task, the runtime envelope matters as much as the controller. A controller that works sometimes is not enough if the surrounding mission logic can still enter unstable states.
+
+\section*{Slide 7: Marathon Result And Failure Reason}
+\textbf{Short spoken version}
+
+In the marathon run, the robot reached one checkpoint, but after that it started spinning and toppled.
+
+\textbf{Best technical explanation}
+
+The most useful explanation is:
+\begin{itemize}[leftmargin=*]
+\item after checkpoint progress,
+\item the runtime likely became unstable around the next target transition,
+\item this created repeated turning or align behavior,
+\item repeated aggressive turning led to physical instability.
+\end{itemize}
+
+\textbf{Why this is the cleanest explanation}
+
+It is specific enough to be meaningful, but not so speculative that it overclaims certainty.
+
+\textbf{What not to say}
+
+Avoid saying:
+\begin{itemize}[leftmargin=*]
+\item it was definitely one exact line of code,
+\item it was definitely the model only,
+\item it was definitely the hardware only.
+\end{itemize}
+
+The more honest answer is:
+
+This looks like a runtime transition and stability failure after checkpoint progress.
+
+\textbf{Deeper technical wording if asked}
+
+My current understanding is that the post-checkpoint target interpretation became poor enough to create repeated alignment behavior, and once turning became too persistent, the platform became physically unstable.
+
+\textbf{Main marathon lesson}
+
+The marathon exposed that:
+\begin{itemize}[leftmargin=*]
+\item reaching checkpoints is not enough,
+\item the runtime must remain stable after checkpoint transitions.
+\end{itemize}
+
+That is why the marathon should be described as a runtime-discipline problem, not only a navigation problem.
+
+\section*{Slide 8: Final Summary}
+\textbf{Short spoken version}
+
+So the short summary is this: for indoor, MBRA-first is our best direction and we reached 8 out of 11 checkpoints. For outdoor, LogoNav plus route and safety layers is still our best direction, with one full success and the others around 50 percent. For marathon, the main thing we still need to solve is stability after checkpoint and waypoint transitions.
+
+\textbf{Strong closing sentence}
+
+The project is better not because everything is solved, but because the remaining problems are now much clearer.
+
+\textbf{Alternative closing sentence}
+
+The main value of this work is that the system is now much better understood, and the failures are much less mysterious.
+
+\section*{Follow-Up Questions You May Get}
+\textbf{Why MBRA indoors?}
+
+Because indoor has strong corridor structure already. MBRA works best as the short-horizon controller once exact checkpoint-step targets and graph progression define the overall motion structure.
+
+\textbf{Why LogoNav outdoors?}
+
+Because the outdoor stack already had a usable controller base, and the larger engineering problem was mission-runtime stability and safety, not absence of a controller.
+
+\textbf{Why not unify indoor and outdoor?}
+
+Because the assumptions are too different. Indoor depends on corridor localization and step progression. Outdoor depends on mission transitions, GPS, route expansion, and safety wrappers.
+
+\textbf{What was the biggest indoor systems insight?}
+
+That the graph is effectively forward-only in practice, so runtime logic must handle that instead of blaming the planner.
+
+\textbf{What was the biggest outdoor systems insight?}
+
+That runtime behavior around waypoint and checkpoint transitions matters as much as the controller itself.
+
+\textbf{What is the biggest unresolved issue?}
+
+Low-lying hazards outdoors and stable behavior after target transitions.
+
+\textbf{What improved the project most?}
+
+Not any one model. The biggest improvement was understanding the problem correctly and using real failures to harden the runtime.
+
+\section*{Numbers To Remember}
+\begin{itemize}[leftmargin=*]
+\item indoor: 8 / 11
+\item outdoor best run: all checkpoints
+\item outdoor overall: around 50\%
+\item outdoor failed rounds: 3
+\item marathon: 1 checkpoint, then toppled
+\end{itemize}
+
+\section*{Final Advice}
+\begin{itemize}[leftmargin=*]
+\item keep the main talk simple,
+\item use these notes only when you need more depth,
+\item do not try to prove too much,
+\item explain choices and failures clearly.
+\end{itemize}
+
+When in doubt, say the honest systems version:
+
+We improved the runtime by understanding where it was getting confused.
+
+\end{document}

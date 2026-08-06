@@ -1,0 +1,173 @@
+\documentclass[aspectratio=169]{beamer}
+\usetheme{Madrid}
+\usecolortheme{default}
+\setbeamertemplate{navigation symbols}{}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+
+\title{ERC-3 EarthRover Project Update}
+\subtitle{Indoor, Outdoor, and Marathon Summary}
+\author{Lunar}
+\date{April 1, 2026}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Current Status Update: Later No-GPS Branch}
+\textbf{This deck is an April 2026 snapshot of indoor, GPS-outdoor, and marathon work.}
+
+\vspace{0.5em}
+\begin{itemize}
+  \item A later branch uses front-camera-only visual teach-and-repeat because GPS is unavailable.
+  \item Recording, route preparation, localization, and live command sending work.
+  \item A reliable autonomous physical route repeat is \textbf{not yet proven}.
+  \item The correct current claim is: experimental prototype, not competition-ready autonomy.
+\end{itemize}
+
+\vspace{0.5em}
+\small Current evidence: \texttt{obsidian\_vault/01 Source of Truth/No-GPS Field Trial - Findings.md}
+\end{frame}
+
+\begin{frame}{Indoor}
+\textbf{What we chose}
+\begin{itemize}
+  \item MBRA as the main indoor controller
+  \item exact checkpoint-step navigation
+  \item a simpler runtime around it
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{Why we chose it}
+\begin{itemize}
+  \item indoor is a known corridor problem
+  \item MBRA worked better with simpler recovery
+  \item exact steps were cleaner than vague targets
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Indoor Results}
+\textbf{What worked}
+\begin{itemize}
+  \item \textbf{8 / 11 checkpoints reached}
+  \item the system became more stable
+  \item the MBRA-first direction became clearer
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{What failed / what was difficult}
+\begin{itemize}
+  \item forward-only graph caused no-path issues
+  \item stale context could trap the robot
+  \item recovery still needed care
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Outdoor}
+\textbf{What we chose}
+\begin{itemize}
+  \item LogoNav as the main outdoor controller
+  \item OSM route expansion
+  \item safety layers around the runtime
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{Why we chose it}
+\begin{itemize}
+  \item outdoor was not a from-scratch controller problem
+  \item we already had a working base runtime
+  \item the bigger need was safety and stability
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Outdoor Results}
+\textbf{What worked}
+\begin{itemize}
+  \item one run reached \textbf{all checkpoints}
+  \item the others were around \textbf{50\% success}
+  \item rerouting and waypoint fixes helped a lot
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{What failed / what was difficult}
+\begin{itemize}
+  \item \textbf{3 rounds failed}
+  \item spinning and bad waypoint transitions hurt us
+  \item curbs and steps are still a weak point
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Marathon}
+\textbf{What we chose}
+\begin{itemize}
+  \item keep the same outdoor base runtime
+  \item add stricter safety layers
+  \item focus on stability, not full autonomy
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{What we added}
+\begin{itemize}
+  \item IMU safety
+  \item route corridor guard
+  \item rerouting from live GPS
+  \item better waypoint handling
+  \item clearer logs
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Marathon Result And Failure Reason}
+\Large
+\centering
+\textbf{Reached 1 checkpoint}
+
+\vspace{0.8em}
+\textbf{Then the robot spun and toppled}
+
+\normalsize
+\vspace{1.0em}
+\textbf{What happened}
+\begin{itemize}
+  \item after checkpoint progress, the next target handling became unstable
+  \item that led to repeated turning in place
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{Why this likely happened}
+\begin{itemize}
+  \item the runtime likely got confused after checkpoint transition
+  \item that created bad alignment behavior
+  \item repeated aggressive turning made the robot unstable
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{Main lesson}
+
+The marathon problem was not just navigation. It was stability after checkpoint and waypoint transitions.
+\end{frame}
+
+\begin{frame}{Final Summary}
+\textbf{Indoor}
+\begin{itemize}
+  \item best current direction: MBRA-first
+  \item result: \textbf{8 / 11}
+\end{itemize}
+
+\textbf{Outdoor}
+\begin{itemize}
+  \item best current direction: LogoNav + route + safety layers
+  \item result: \textbf{1 full success}, others around \textbf{50\%}
+\end{itemize}
+
+\textbf{Marathon}
+\begin{itemize}
+  \item result: \textbf{1 checkpoint, then toppled}
+  \item next focus: stability after transitions
+\end{itemize}
+\end{frame}
+
+\end{document}

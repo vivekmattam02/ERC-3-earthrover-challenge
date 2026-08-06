@@ -1,0 +1,12 @@
+{
+  "output_h5": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/recordings/run_05_clean_teach.h5",
+  "session_name": "manual_flag_collection",
+  "telemetry_rows": 160,
+  "front_frames": 160,
+  "rear_frames": 0,
+  "accels": 720,
+  "gyros": 720,
+  "mags": 144,
+  "rpms": 720,
+  "controls": 0
+}

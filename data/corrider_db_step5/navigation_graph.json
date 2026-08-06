@@ -1,0 +1,2246 @@
+{
+  "directed": true,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "index": 0,
+      "name": "000000.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000000.png",
+      "id": 0
+    },
+    {
+      "index": 1,
+      "name": "000005.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000005.png",
+      "id": 1
+    },
+    {
+      "index": 2,
+      "name": "000010.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000010.png",
+      "id": 2
+    },
+    {
+      "index": 3,
+      "name": "000015.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000015.png",
+      "id": 3
+    },
+    {
+      "index": 4,
+      "name": "000020.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000020.png",
+      "id": 4
+    },
+    {
+      "index": 5,
+      "name": "000025.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000025.png",
+      "id": 5
+    },
+    {
+      "index": 6,
+      "name": "000030.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000030.png",
+      "id": 6
+    },
+    {
+      "index": 7,
+      "name": "000035.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000035.png",
+      "id": 7
+    },
+    {
+      "index": 8,
+      "name": "000040.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000040.png",
+      "id": 8
+    },
+    {
+      "index": 9,
+      "name": "000045.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000045.png",
+      "id": 9
+    },
+    {
+      "index": 10,
+      "name": "000050.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000050.png",
+      "id": 10
+    },
+    {
+      "index": 11,
+      "name": "000055.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000055.png",
+      "id": 11
+    },
+    {
+      "index": 12,
+      "name": "000060.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000060.png",
+      "id": 12
+    },
+    {
+      "index": 13,
+      "name": "000065.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000065.png",
+      "id": 13
+    },
+    {
+      "index": 14,
+      "name": "000070.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000070.png",
+      "id": 14
+    },
+    {
+      "index": 15,
+      "name": "000075.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000075.png",
+      "id": 15
+    },
+    {
+      "index": 16,
+      "name": "000080.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000080.png",
+      "id": 16
+    },
+    {
+      "index": 17,
+      "name": "000085.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000085.png",
+      "id": 17
+    },
+    {
+      "index": 18,
+      "name": "000090.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000090.png",
+      "id": 18
+    },
+    {
+      "index": 19,
+      "name": "000095.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000095.png",
+      "id": 19
+    },
+    {
+      "index": 20,
+      "name": "000100.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000100.png",
+      "id": 20
+    },
+    {
+      "index": 21,
+      "name": "000105.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000105.png",
+      "id": 21
+    },
+    {
+      "index": 22,
+      "name": "000110.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000110.png",
+      "id": 22
+    },
+    {
+      "index": 23,
+      "name": "000115.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000115.png",
+      "id": 23
+    },
+    {
+      "index": 24,
+      "name": "000120.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000120.png",
+      "id": 24
+    },
+    {
+      "index": 25,
+      "name": "000125.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000125.png",
+      "id": 25
+    },
+    {
+      "index": 26,
+      "name": "000130.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000130.png",
+      "id": 26
+    },
+    {
+      "index": 27,
+      "name": "000135.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000135.png",
+      "id": 27
+    },
+    {
+      "index": 28,
+      "name": "000140.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000140.png",
+      "id": 28
+    },
+    {
+      "index": 29,
+      "name": "000145.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000145.png",
+      "id": 29
+    },
+    {
+      "index": 30,
+      "name": "000150.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000150.png",
+      "id": 30
+    },
+    {
+      "index": 31,
+      "name": "000155.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000155.png",
+      "id": 31
+    },
+    {
+      "index": 32,
+      "name": "000160.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000160.png",
+      "id": 32
+    },
+    {
+      "index": 33,
+      "name": "000165.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000165.png",
+      "id": 33
+    },
+    {
+      "index": 34,
+      "name": "000170.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000170.png",
+      "id": 34
+    },
+    {
+      "index": 35,
+      "name": "000175.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000175.png",
+      "id": 35
+    },
+    {
+      "index": 36,
+      "name": "000180.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000180.png",
+      "id": 36
+    },
+    {
+      "index": 37,
+      "name": "000185.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000185.png",
+      "id": 37
+    },
+    {
+      "index": 38,
+      "name": "000190.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000190.png",
+      "id": 38
+    },
+    {
+      "index": 39,
+      "name": "000195.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000195.png",
+      "id": 39
+    },
+    {
+      "index": 40,
+      "name": "000200.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000200.png",
+      "id": 40
+    },
+    {
+      "index": 41,
+      "name": "000205.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000205.png",
+      "id": 41
+    },
+    {
+      "index": 42,
+      "name": "000210.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000210.png",
+      "id": 42
+    },
+    {
+      "index": 43,
+      "name": "000215.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000215.png",
+      "id": 43
+    },
+    {
+      "index": 44,
+      "name": "000220.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000220.png",
+      "id": 44
+    },
+    {
+      "index": 45,
+      "name": "000225.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000225.png",
+      "id": 45
+    },
+    {
+      "index": 46,
+      "name": "000230.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000230.png",
+      "id": 46
+    },
+    {
+      "index": 47,
+      "name": "000235.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000235.png",
+      "id": 47
+    },
+    {
+      "index": 48,
+      "name": "000240.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000240.png",
+      "id": 48
+    },
+    {
+      "index": 49,
+      "name": "000245.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000245.png",
+      "id": 49
+    },
+    {
+      "index": 50,
+      "name": "000250.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000250.png",
+      "id": 50
+    },
+    {
+      "index": 51,
+      "name": "000255.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000255.png",
+      "id": 51
+    },
+    {
+      "index": 52,
+      "name": "000260.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000260.png",
+      "id": 52
+    },
+    {
+      "index": 53,
+      "name": "000265.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000265.png",
+      "id": 53
+    },
+    {
+      "index": 54,
+      "name": "000270.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000270.png",
+      "id": 54
+    },
+    {
+      "index": 55,
+      "name": "000275.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000275.png",
+      "id": 55
+    },
+    {
+      "index": 56,
+      "name": "000280.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000280.png",
+      "id": 56
+    },
+    {
+      "index": 57,
+      "name": "000285.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000285.png",
+      "id": 57
+    },
+    {
+      "index": 58,
+      "name": "000290.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000290.png",
+      "id": 58
+    },
+    {
+      "index": 59,
+      "name": "000295.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000295.png",
+      "id": 59
+    },
+    {
+      "index": 60,
+      "name": "000300.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000300.png",
+      "id": 60
+    },
+    {
+      "index": 61,
+      "name": "000305.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000305.png",
+      "id": 61
+    },
+    {
+      "index": 62,
+      "name": "000310.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000310.png",
+      "id": 62
+    },
+    {
+      "index": 63,
+      "name": "000315.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000315.png",
+      "id": 63
+    },
+    {
+      "index": 64,
+      "name": "000320.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000320.png",
+      "id": 64
+    },
+    {
+      "index": 65,
+      "name": "000325.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000325.png",
+      "id": 65
+    },
+    {
+      "index": 66,
+      "name": "000330.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000330.png",
+      "id": 66
+    },
+    {
+      "index": 67,
+      "name": "000335.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000335.png",
+      "id": 67
+    },
+    {
+      "index": 68,
+      "name": "000340.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000340.png",
+      "id": 68
+    },
+    {
+      "index": 69,
+      "name": "000345.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000345.png",
+      "id": 69
+    },
+    {
+      "index": 70,
+      "name": "000350.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000350.png",
+      "id": 70
+    },
+    {
+      "index": 71,
+      "name": "000355.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000355.png",
+      "id": 71
+    },
+    {
+      "index": 72,
+      "name": "000360.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000360.png",
+      "id": 72
+    },
+    {
+      "index": 73,
+      "name": "000365.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000365.png",
+      "id": 73
+    },
+    {
+      "index": 74,
+      "name": "000370.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000370.png",
+      "id": 74
+    },
+    {
+      "index": 75,
+      "name": "000375.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000375.png",
+      "id": 75
+    },
+    {
+      "index": 76,
+      "name": "000380.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000380.png",
+      "id": 76
+    },
+    {
+      "index": 77,
+      "name": "000385.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000385.png",
+      "id": 77
+    },
+    {
+      "index": 78,
+      "name": "000390.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000390.png",
+      "id": 78
+    },
+    {
+      "index": 79,
+      "name": "000395.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000395.png",
+      "id": 79
+    },
+    {
+      "index": 80,
+      "name": "000400.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000400.png",
+      "id": 80
+    },
+    {
+      "index": 81,
+      "name": "000405.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000405.png",
+      "id": 81
+    },
+    {
+      "index": 82,
+      "name": "000410.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000410.png",
+      "id": 82
+    },
+    {
+      "index": 83,
+      "name": "000415.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000415.png",
+      "id": 83
+    },
+    {
+      "index": 84,
+      "name": "000420.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000420.png",
+      "id": 84
+    },
+    {
+      "index": 85,
+      "name": "000425.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000425.png",
+      "id": 85
+    },
+    {
+      "index": 86,
+      "name": "000430.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000430.png",
+      "id": 86
+    },
+    {
+      "index": 87,
+      "name": "000435.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000435.png",
+      "id": 87
+    },
+    {
+      "index": 88,
+      "name": "000440.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000440.png",
+      "id": 88
+    },
+    {
+      "index": 89,
+      "name": "000445.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000445.png",
+      "id": 89
+    },
+    {
+      "index": 90,
+      "name": "000450.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000450.png",
+      "id": 90
+    },
+    {
+      "index": 91,
+      "name": "000455.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000455.png",
+      "id": 91
+    },
+    {
+      "index": 92,
+      "name": "000460.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000460.png",
+      "id": 92
+    },
+    {
+      "index": 93,
+      "name": "000465.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000465.png",
+      "id": 93
+    },
+    {
+      "index": 94,
+      "name": "000470.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000470.png",
+      "id": 94
+    },
+    {
+      "index": 95,
+      "name": "000475.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000475.png",
+      "id": 95
+    },
+    {
+      "index": 96,
+      "name": "000480.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000480.png",
+      "id": 96
+    },
+    {
+      "index": 97,
+      "name": "000485.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000485.png",
+      "id": 97
+    },
+    {
+      "index": 98,
+      "name": "000490.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000490.png",
+      "id": 98
+    },
+    {
+      "index": 99,
+      "name": "000495.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000495.png",
+      "id": 99
+    },
+    {
+      "index": 100,
+      "name": "000500.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000500.png",
+      "id": 100
+    },
+    {
+      "index": 101,
+      "name": "000505.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000505.png",
+      "id": 101
+    },
+    {
+      "index": 102,
+      "name": "000510.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000510.png",
+      "id": 102
+    },
+    {
+      "index": 103,
+      "name": "000515.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000515.png",
+      "id": 103
+    },
+    {
+      "index": 104,
+      "name": "000520.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000520.png",
+      "id": 104
+    },
+    {
+      "index": 105,
+      "name": "000525.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000525.png",
+      "id": 105
+    },
+    {
+      "index": 106,
+      "name": "000530.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000530.png",
+      "id": 106
+    },
+    {
+      "index": 107,
+      "name": "000535.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000535.png",
+      "id": 107
+    },
+    {
+      "index": 108,
+      "name": "000540.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000540.png",
+      "id": 108
+    },
+    {
+      "index": 109,
+      "name": "000545.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000545.png",
+      "id": 109
+    },
+    {
+      "index": 110,
+      "name": "000550.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000550.png",
+      "id": 110
+    },
+    {
+      "index": 111,
+      "name": "000555.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000555.png",
+      "id": 111
+    },
+    {
+      "index": 112,
+      "name": "000560.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000560.png",
+      "id": 112
+    },
+    {
+      "index": 113,
+      "name": "000565.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000565.png",
+      "id": 113
+    },
+    {
+      "index": 114,
+      "name": "000570.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000570.png",
+      "id": 114
+    },
+    {
+      "index": 115,
+      "name": "000575.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000575.png",
+      "id": 115
+    },
+    {
+      "index": 116,
+      "name": "000580.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000580.png",
+      "id": 116
+    },
+    {
+      "index": 117,
+      "name": "000585.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000585.png",
+      "id": 117
+    },
+    {
+      "index": 118,
+      "name": "000590.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000590.png",
+      "id": 118
+    },
+    {
+      "index": 119,
+      "name": "000595.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000595.png",
+      "id": 119
+    },
+    {
+      "index": 120,
+      "name": "000600.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000600.png",
+      "id": 120
+    },
+    {
+      "index": 121,
+      "name": "000605.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000605.png",
+      "id": 121
+    },
+    {
+      "index": 122,
+      "name": "000610.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000610.png",
+      "id": 122
+    },
+    {
+      "index": 123,
+      "name": "000615.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000615.png",
+      "id": 123
+    },
+    {
+      "index": 124,
+      "name": "000620.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000620.png",
+      "id": 124
+    },
+    {
+      "index": 125,
+      "name": "000625.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000625.png",
+      "id": 125
+    },
+    {
+      "index": 126,
+      "name": "000630.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000630.png",
+      "id": 126
+    },
+    {
+      "index": 127,
+      "name": "000635.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000635.png",
+      "id": 127
+    },
+    {
+      "index": 128,
+      "name": "000640.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000640.png",
+      "id": 128
+    },
+    {
+      "index": 129,
+      "name": "000645.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000645.png",
+      "id": 129
+    },
+    {
+      "index": 130,
+      "name": "000650.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000650.png",
+      "id": 130
+    },
+    {
+      "index": 131,
+      "name": "000655.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000655.png",
+      "id": 131
+    },
+    {
+      "index": 132,
+      "name": "000660.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000660.png",
+      "id": 132
+    },
+    {
+      "index": 133,
+      "name": "000665.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000665.png",
+      "id": 133
+    },
+    {
+      "index": 134,
+      "name": "000670.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000670.png",
+      "id": 134
+    },
+    {
+      "index": 135,
+      "name": "000675.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000675.png",
+      "id": 135
+    },
+    {
+      "index": 136,
+      "name": "000680.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000680.png",
+      "id": 136
+    },
+    {
+      "index": 137,
+      "name": "000685.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000685.png",
+      "id": 137
+    },
+    {
+      "index": 138,
+      "name": "000690.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000690.png",
+      "id": 138
+    },
+    {
+      "index": 139,
+      "name": "000695.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000695.png",
+      "id": 139
+    },
+    {
+      "index": 140,
+      "name": "000700.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000700.png",
+      "id": 140
+    },
+    {
+      "index": 141,
+      "name": "000705.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000705.png",
+      "id": 141
+    },
+    {
+      "index": 142,
+      "name": "000710.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000710.png",
+      "id": 142
+    },
+    {
+      "index": 143,
+      "name": "000715.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000715.png",
+      "id": 143
+    },
+    {
+      "index": 144,
+      "name": "000720.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000720.png",
+      "id": 144
+    },
+    {
+      "index": 145,
+      "name": "000725.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000725.png",
+      "id": 145
+    },
+    {
+      "index": 146,
+      "name": "000730.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000730.png",
+      "id": 146
+    },
+    {
+      "index": 147,
+      "name": "000735.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000735.png",
+      "id": 147
+    },
+    {
+      "index": 148,
+      "name": "000740.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000740.png",
+      "id": 148
+    },
+    {
+      "index": 149,
+      "name": "000745.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000745.png",
+      "id": 149
+    },
+    {
+      "index": 150,
+      "name": "000750.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000750.png",
+      "id": 150
+    },
+    {
+      "index": 151,
+      "name": "000755.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000755.png",
+      "id": 151
+    },
+    {
+      "index": 152,
+      "name": "000760.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000760.png",
+      "id": 152
+    },
+    {
+      "index": 153,
+      "name": "000765.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000765.png",
+      "id": 153
+    },
+    {
+      "index": 154,
+      "name": "000770.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000770.png",
+      "id": 154
+    },
+    {
+      "index": 155,
+      "name": "000775.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000775.png",
+      "id": 155
+    },
+    {
+      "index": 156,
+      "name": "000780.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000780.png",
+      "id": 156
+    },
+    {
+      "index": 157,
+      "name": "000785.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000785.png",
+      "id": 157
+    },
+    {
+      "index": 158,
+      "name": "000790.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000790.png",
+      "id": 158
+    },
+    {
+      "index": 159,
+      "name": "000795.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000795.png",
+      "id": 159
+    },
+    {
+      "index": 160,
+      "name": "000800.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000800.png",
+      "id": 160
+    },
+    {
+      "index": 161,
+      "name": "000805.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000805.png",
+      "id": 161
+    },
+    {
+      "index": 162,
+      "name": "000810.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000810.png",
+      "id": 162
+    },
+    {
+      "index": 163,
+      "name": "000815.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000815.png",
+      "id": 163
+    },
+    {
+      "index": 164,
+      "name": "000820.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000820.png",
+      "id": 164
+    },
+    {
+      "index": 165,
+      "name": "000825.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000825.png",
+      "id": 165
+    },
+    {
+      "index": 166,
+      "name": "000830.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000830.png",
+      "id": 166
+    },
+    {
+      "index": 167,
+      "name": "000835.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000835.png",
+      "id": 167
+    },
+    {
+      "index": 168,
+      "name": "000840.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000840.png",
+      "id": 168
+    },
+    {
+      "index": 169,
+      "name": "000845.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000845.png",
+      "id": 169
+    },
+    {
+      "index": 170,
+      "name": "000850.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000850.png",
+      "id": 170
+    },
+    {
+      "index": 171,
+      "name": "000855.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000855.png",
+      "id": 171
+    },
+    {
+      "index": 172,
+      "name": "000860.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000860.png",
+      "id": 172
+    },
+    {
+      "index": 173,
+      "name": "000865.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000865.png",
+      "id": 173
+    },
+    {
+      "index": 174,
+      "name": "000870.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000870.png",
+      "id": 174
+    },
+    {
+      "index": 175,
+      "name": "000875.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000875.png",
+      "id": 175
+    },
+    {
+      "index": 176,
+      "name": "000880.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000880.png",
+      "id": 176
+    },
+    {
+      "index": 177,
+      "name": "000885.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000885.png",
+      "id": 177
+    },
+    {
+      "index": 178,
+      "name": "000890.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000890.png",
+      "id": 178
+    },
+    {
+      "index": 179,
+      "name": "000895.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000895.png",
+      "id": 179
+    },
+    {
+      "index": 180,
+      "name": "000900.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000900.png",
+      "id": 180
+    },
+    {
+      "index": 181,
+      "name": "000905.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000905.png",
+      "id": 181
+    },
+    {
+      "index": 182,
+      "name": "000910.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000910.png",
+      "id": 182
+    },
+    {
+      "index": 183,
+      "name": "000915.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000915.png",
+      "id": 183
+    },
+    {
+      "index": 184,
+      "name": "000920.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000920.png",
+      "id": 184
+    },
+    {
+      "index": 185,
+      "name": "000925.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000925.png",
+      "id": 185
+    },
+    {
+      "index": 186,
+      "name": "000930.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000930.png",
+      "id": 186
+    },
+    {
+      "index": 187,
+      "name": "000935.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000935.png",
+      "id": 187
+    },
+    {
+      "index": 188,
+      "name": "000940.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000940.png",
+      "id": 188
+    },
+    {
+      "index": 189,
+      "name": "000945.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000945.png",
+      "id": 189
+    },
+    {
+      "index": 190,
+      "name": "000950.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000950.png",
+      "id": 190
+    },
+    {
+      "index": 191,
+      "name": "000955.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000955.png",
+      "id": 191
+    },
+    {
+      "index": 192,
+      "name": "000960.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000960.png",
+      "id": 192
+    },
+    {
+      "index": 193,
+      "name": "000965.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000965.png",
+      "id": 193
+    },
+    {
+      "index": 194,
+      "name": "000970.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000970.png",
+      "id": 194
+    },
+    {
+      "index": 195,
+      "name": "000975.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000975.png",
+      "id": 195
+    },
+    {
+      "index": 196,
+      "name": "000980.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000980.png",
+      "id": 196
+    },
+    {
+      "index": 197,
+      "name": "000985.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000985.png",
+      "id": 197
+    },
+    {
+      "index": 198,
+      "name": "000990.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000990.png",
+      "id": 198
+    },
+    {
+      "index": 199,
+      "name": "000995.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/000995.png",
+      "id": 199
+    },
+    {
+      "index": 200,
+      "name": "001000.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001000.png",
+      "id": 200
+    },
+    {
+      "index": 201,
+      "name": "001005.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001005.png",
+      "id": 201
+    },
+    {
+      "index": 202,
+      "name": "001010.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001010.png",
+      "id": 202
+    },
+    {
+      "index": 203,
+      "name": "001015.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001015.png",
+      "id": 203
+    },
+    {
+      "index": 204,
+      "name": "001020.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001020.png",
+      "id": 204
+    },
+    {
+      "index": 205,
+      "name": "001025.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001025.png",
+      "id": 205
+    },
+    {
+      "index": 206,
+      "name": "001030.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001030.png",
+      "id": 206
+    },
+    {
+      "index": 207,
+      "name": "001035.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001035.png",
+      "id": 207
+    },
+    {
+      "index": 208,
+      "name": "001040.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001040.png",
+      "id": 208
+    },
+    {
+      "index": 209,
+      "name": "001045.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001045.png",
+      "id": 209
+    },
+    {
+      "index": 210,
+      "name": "001050.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001050.png",
+      "id": 210
+    },
+    {
+      "index": 211,
+      "name": "001055.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001055.png",
+      "id": 211
+    },
+    {
+      "index": 212,
+      "name": "001060.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001060.png",
+      "id": 212
+    },
+    {
+      "index": 213,
+      "name": "001065.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001065.png",
+      "id": 213
+    },
+    {
+      "index": 214,
+      "name": "001070.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001070.png",
+      "id": 214
+    },
+    {
+      "index": 215,
+      "name": "001075.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001075.png",
+      "id": 215
+    },
+    {
+      "index": 216,
+      "name": "001080.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001080.png",
+      "id": 216
+    },
+    {
+      "index": 217,
+      "name": "001085.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001085.png",
+      "id": 217
+    },
+    {
+      "index": 218,
+      "name": "001090.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001090.png",
+      "id": 218
+    },
+    {
+      "index": 219,
+      "name": "001095.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001095.png",
+      "id": 219
+    },
+    {
+      "index": 220,
+      "name": "001100.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001100.png",
+      "id": 220
+    },
+    {
+      "index": 221,
+      "name": "001105.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001105.png",
+      "id": 221
+    },
+    {
+      "index": 222,
+      "name": "001110.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001110.png",
+      "id": 222
+    },
+    {
+      "index": 223,
+      "name": "001115.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001115.png",
+      "id": 223
+    },
+    {
+      "index": 224,
+      "name": "001120.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001120.png",
+      "id": 224
+    },
+    {
+      "index": 225,
+      "name": "001125.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001125.png",
+      "id": 225
+    },
+    {
+      "index": 226,
+      "name": "001130.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001130.png",
+      "id": 226
+    },
+    {
+      "index": 227,
+      "name": "001135.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001135.png",
+      "id": 227
+    },
+    {
+      "index": 228,
+      "name": "001140.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001140.png",
+      "id": 228
+    },
+    {
+      "index": 229,
+      "name": "001145.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001145.png",
+      "id": 229
+    },
+    {
+      "index": 230,
+      "name": "001150.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001150.png",
+      "id": 230
+    },
+    {
+      "index": 231,
+      "name": "001155.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001155.png",
+      "id": 231
+    },
+    {
+      "index": 232,
+      "name": "001160.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001160.png",
+      "id": 232
+    },
+    {
+      "index": 233,
+      "name": "001165.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001165.png",
+      "id": 233
+    },
+    {
+      "index": 234,
+      "name": "001170.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001170.png",
+      "id": 234
+    },
+    {
+      "index": 235,
+      "name": "001175.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001175.png",
+      "id": 235
+    },
+    {
+      "index": 236,
+      "name": "001180.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001180.png",
+      "id": 236
+    },
+    {
+      "index": 237,
+      "name": "001185.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001185.png",
+      "id": 237
+    },
+    {
+      "index": 238,
+      "name": "001190.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001190.png",
+      "id": 238
+    },
+    {
+      "index": 239,
+      "name": "001195.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001195.png",
+      "id": 239
+    },
+    {
+      "index": 240,
+      "name": "001200.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001200.png",
+      "id": 240
+    },
+    {
+      "index": 241,
+      "name": "001205.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001205.png",
+      "id": 241
+    },
+    {
+      "index": 242,
+      "name": "001210.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001210.png",
+      "id": 242
+    },
+    {
+      "index": 243,
+      "name": "001215.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001215.png",
+      "id": 243
+    },
+    {
+      "index": 244,
+      "name": "001220.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001220.png",
+      "id": 244
+    },
+    {
+      "index": 245,
+      "name": "001225.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001225.png",
+      "id": 245
+    },
+    {
+      "index": 246,
+      "name": "001230.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001230.png",
+      "id": 246
+    },
+    {
+      "index": 247,
+      "name": "001235.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001235.png",
+      "id": 247
+    },
+    {
+      "index": 248,
+      "name": "001240.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001240.png",
+      "id": 248
+    },
+    {
+      "index": 249,
+      "name": "001245.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001245.png",
+      "id": 249
+    },
+    {
+      "index": 250,
+      "name": "001250.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001250.png",
+      "id": 250
+    },
+    {
+      "index": 251,
+      "name": "001255.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001255.png",
+      "id": 251
+    },
+    {
+      "index": 252,
+      "name": "001260.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001260.png",
+      "id": 252
+    },
+    {
+      "index": 253,
+      "name": "001265.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001265.png",
+      "id": 253
+    },
+    {
+      "index": 254,
+      "name": "001270.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001270.png",
+      "id": 254
+    },
+    {
+      "index": 255,
+      "name": "001275.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001275.png",
+      "id": 255
+    },
+    {
+      "index": 256,
+      "name": "001280.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001280.png",
+      "id": 256
+    },
+    {
+      "index": 257,
+      "name": "001285.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001285.png",
+      "id": 257
+    },
+    {
+      "index": 258,
+      "name": "001290.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001290.png",
+      "id": 258
+    },
+    {
+      "index": 259,
+      "name": "001295.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001295.png",
+      "id": 259
+    },
+    {
+      "index": 260,
+      "name": "001300.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001300.png",
+      "id": 260
+    },
+    {
+      "index": 261,
+      "name": "001305.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001305.png",
+      "id": 261
+    },
+    {
+      "index": 262,
+      "name": "001310.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001310.png",
+      "id": 262
+    },
+    {
+      "index": 263,
+      "name": "001315.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001315.png",
+      "id": 263
+    },
+    {
+      "index": 264,
+      "name": "001320.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001320.png",
+      "id": 264
+    },
+    {
+      "index": 265,
+      "name": "001325.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001325.png",
+      "id": 265
+    },
+    {
+      "index": 266,
+      "name": "001330.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001330.png",
+      "id": 266
+    },
+    {
+      "index": 267,
+      "name": "001335.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001335.png",
+      "id": 267
+    },
+    {
+      "index": 268,
+      "name": "001340.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001340.png",
+      "id": 268
+    },
+    {
+      "index": 269,
+      "name": "001345.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001345.png",
+      "id": 269
+    },
+    {
+      "index": 270,
+      "name": "001350.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001350.png",
+      "id": 270
+    },
+    {
+      "index": 271,
+      "name": "001355.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001355.png",
+      "id": 271
+    },
+    {
+      "index": 272,
+      "name": "001360.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001360.png",
+      "id": 272
+    },
+    {
+      "index": 273,
+      "name": "001365.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001365.png",
+      "id": 273
+    },
+    {
+      "index": 274,
+      "name": "001370.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001370.png",
+      "id": 274
+    },
+    {
+      "index": 275,
+      "name": "001375.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001375.png",
+      "id": 275
+    },
+    {
+      "index": 276,
+      "name": "001380.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001380.png",
+      "id": 276
+    },
+    {
+      "index": 277,
+      "name": "001385.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001385.png",
+      "id": 277
+    },
+    {
+      "index": 278,
+      "name": "001390.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001390.png",
+      "id": 278
+    },
+    {
+      "index": 279,
+      "name": "001395.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001395.png",
+      "id": 279
+    },
+    {
+      "index": 280,
+      "name": "001400.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001400.png",
+      "id": 280
+    },
+    {
+      "index": 281,
+      "name": "001405.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001405.png",
+      "id": 281
+    },
+    {
+      "index": 282,
+      "name": "001410.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001410.png",
+      "id": 282
+    },
+    {
+      "index": 283,
+      "name": "001415.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001415.png",
+      "id": 283
+    },
+    {
+      "index": 284,
+      "name": "001420.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001420.png",
+      "id": 284
+    },
+    {
+      "index": 285,
+      "name": "001425.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001425.png",
+      "id": 285
+    },
+    {
+      "index": 286,
+      "name": "001430.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001430.png",
+      "id": 286
+    },
+    {
+      "index": 287,
+      "name": "001435.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001435.png",
+      "id": 287
+    },
+    {
+      "index": 288,
+      "name": "001440.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001440.png",
+      "id": 288
+    },
+    {
+      "index": 289,
+      "name": "001445.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001445.png",
+      "id": 289
+    },
+    {
+      "index": 290,
+      "name": "001450.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001450.png",
+      "id": 290
+    },
+    {
+      "index": 291,
+      "name": "001455.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001455.png",
+      "id": 291
+    },
+    {
+      "index": 292,
+      "name": "001460.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001460.png",
+      "id": 292
+    },
+    {
+      "index": 293,
+      "name": "001465.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001465.png",
+      "id": 293
+    },
+    {
+      "index": 294,
+      "name": "001470.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001470.png",
+      "id": 294
+    },
+    {
+      "index": 295,
+      "name": "001475.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001475.png",
+      "id": 295
+    },
+    {
+      "index": 296,
+      "name": "001480.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001480.png",
+      "id": 296
+    },
+    {
+      "index": 297,
+      "name": "001485.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001485.png",
+      "id": 297
+    },
+    {
+      "index": 298,
+      "name": "001490.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001490.png",
+      "id": 298
+    },
+    {
+      "index": 299,
+      "name": "001495.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001495.png",
+      "id": 299
+    },
+    {
+      "index": 300,
+      "name": "001500.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001500.png",
+      "id": 300
+    },
+    {
+      "index": 301,
+      "name": "001505.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001505.png",
+      "id": 301
+    },
+    {
+      "index": 302,
+      "name": "001510.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001510.png",
+      "id": 302
+    },
+    {
+      "index": 303,
+      "name": "001515.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001515.png",
+      "id": 303
+    },
+    {
+      "index": 304,
+      "name": "001520.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001520.png",
+      "id": 304
+    },
+    {
+      "index": 305,
+      "name": "001525.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001525.png",
+      "id": 305
+    },
+    {
+      "index": 306,
+      "name": "001530.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001530.png",
+      "id": 306
+    },
+    {
+      "index": 307,
+      "name": "001535.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001535.png",
+      "id": 307
+    },
+    {
+      "index": 308,
+      "name": "001540.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001540.png",
+      "id": 308
+    },
+    {
+      "index": 309,
+      "name": "001545.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001545.png",
+      "id": 309
+    },
+    {
+      "index": 310,
+      "name": "001550.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001550.png",
+      "id": 310
+    },
+    {
+      "index": 311,
+      "name": "001555.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001555.png",
+      "id": 311
+    },
+    {
+      "index": 312,
+      "name": "001560.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001560.png",
+      "id": 312
+    },
+    {
+      "index": 313,
+      "name": "001565.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001565.png",
+      "id": 313
+    },
+    {
+      "index": 314,
+      "name": "001570.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001570.png",
+      "id": 314
+    },
+    {
+      "index": 315,
+      "name": "001575.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001575.png",
+      "id": 315
+    },
+    {
+      "index": 316,
+      "name": "001580.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001580.png",
+      "id": 316
+    },
+    {
+      "index": 317,
+      "name": "001585.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001585.png",
+      "id": 317
+    },
+    {
+      "index": 318,
+      "name": "001590.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001590.png",
+      "id": 318
+    },
+    {
+      "index": 319,
+      "name": "001595.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001595.png",
+      "id": 319
+    },
+    {
+      "index": 320,
+      "name": "001600.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001600.png",
+      "id": 320
+    },
+    {
+      "index": 321,
+      "name": "001605.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001605.png",
+      "id": 321
+    },
+    {
+      "index": 322,
+      "name": "001610.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001610.png",
+      "id": 322
+    },
+    {
+      "index": 323,
+      "name": "001615.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001615.png",
+      "id": 323
+    },
+    {
+      "index": 324,
+      "name": "001620.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001620.png",
+      "id": 324
+    },
+    {
+      "index": 325,
+      "name": "001625.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001625.png",
+      "id": 325
+    },
+    {
+      "index": 326,
+      "name": "001630.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001630.png",
+      "id": 326
+    },
+    {
+      "index": 327,
+      "name": "001635.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001635.png",
+      "id": 327
+    },
+    {
+      "index": 328,
+      "name": "001640.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001640.png",
+      "id": 328
+    },
+    {
+      "index": 329,
+      "name": "001645.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001645.png",
+      "id": 329
+    },
+    {
+      "index": 330,
+      "name": "001650.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001650.png",
+      "id": 330
+    },
+    {
+      "index": 331,
+      "name": "001655.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001655.png",
+      "id": 331
+    },
+    {
+      "index": 332,
+      "name": "001660.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001660.png",
+      "id": 332
+    },
+    {
+      "index": 333,
+      "name": "001665.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001665.png",
+      "id": 333
+    },
+    {
+      "index": 334,
+      "name": "001670.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001670.png",
+      "id": 334
+    },
+    {
+      "index": 335,
+      "name": "001675.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001675.png",
+      "id": 335
+    },
+    {
+      "index": 336,
+      "name": "001680.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001680.png",
+      "id": 336
+    },
+    {
+      "index": 337,
+      "name": "001685.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001685.png",
+      "id": 337
+    },
+    {
+      "index": 338,
+      "name": "001690.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001690.png",
+      "id": 338
+    },
+    {
+      "index": 339,
+      "name": "001695.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001695.png",
+      "id": 339
+    },
+    {
+      "index": 340,
+      "name": "001700.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001700.png",
+      "id": 340
+    },
+    {
+      "index": 341,
+      "name": "001705.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001705.png",
+      "id": 341
+    },
+    {
+      "index": 342,
+      "name": "001710.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001710.png",
+      "id": 342
+    },
+    {
+      "index": 343,
+      "name": "001715.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001715.png",
+      "id": 343
+    },
+    {
+      "index": 344,
+      "name": "001720.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001720.png",
+      "id": 344
+    },
+    {
+      "index": 345,
+      "name": "001725.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001725.png",
+      "id": 345
+    },
+    {
+      "index": 346,
+      "name": "001730.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001730.png",
+      "id": 346
+    },
+    {
+      "index": 347,
+      "name": "001735.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001735.png",
+      "id": 347
+    },
+    {
+      "index": 348,
+      "name": "001740.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001740.png",
+      "id": 348
+    },
+    {
+      "index": 349,
+      "name": "001745.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001745.png",
+      "id": 349
+    },
+    {
+      "index": 350,
+      "name": "001750.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001750.png",
+      "id": 350
+    },
+    {
+      "index": 351,
+      "name": "001755.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001755.png",
+      "id": 351
+    },
+    {
+      "index": 352,
+      "name": "001760.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001760.png",
+      "id": 352
+    },
+    {
+      "index": 353,
+      "name": "001765.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001765.png",
+      "id": 353
+    },
+    {
+      "index": 354,
+      "name": "001770.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001770.png",
+      "id": 354
+    },
+    {
+      "index": 355,
+      "name": "001775.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001775.png",
+      "id": 355
+    },
+    {
+      "index": 356,
+      "name": "001780.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001780.png",
+      "id": 356
+    },
+    {
+      "index": 357,
+      "name": "001785.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001785.png",
+      "id": 357
+    },
+    {
+      "index": 358,
+      "name": "001790.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001790.png",
+      "id": 358
+    },
+    {
+      "index": 359,
+      "name": "001795.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001795.png",
+      "id": 359
+    },
+    {
+      "index": 360,
+      "name": "001800.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001800.png",
+      "id": 360
+    },
+    {
+      "index": 361,
+      "name": "001805.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001805.png",
+      "id": 361
+    },
+    {
+      "index": 362,
+      "name": "001810.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001810.png",
+      "id": 362
+    },
+    {
+      "index": 363,
+      "name": "001815.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001815.png",
+      "id": 363
+    },
+    {
+      "index": 364,
+      "name": "001820.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001820.png",
+      "id": 364
+    },
+    {
+      "index": 365,
+      "name": "001825.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001825.png",
+      "id": 365
+    },
+    {
+      "index": 366,
+      "name": "001830.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001830.png",
+      "id": 366
+    },
+    {
+      "index": 367,
+      "name": "001835.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001835.png",
+      "id": 367
+    },
+    {
+      "index": 368,
+      "name": "001840.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001840.png",
+      "id": 368
+    },
+    {
+      "index": 369,
+      "name": "001845.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001845.png",
+      "id": 369
+    },
+    {
+      "index": 370,
+      "name": "001850.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001850.png",
+      "id": 370
+    },
+    {
+      "index": 371,
+      "name": "001855.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001855.png",
+      "id": 371
+    },
+    {
+      "index": 372,
+      "name": "001860.png",
+      "path": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider_extracted/front_images/001860.png",
+      "id": 372
+    }
+  ],
+  "links": []
+}

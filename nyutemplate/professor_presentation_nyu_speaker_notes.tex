@@ -1,0 +1,230 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{enumitem}
+
+\title{NYU Presentation Speaker Notes}
+\author{Lunar}
+\date{April 1, 2026}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\section*{How To Use This}
+This is the short speaking version for a 5--7 minute presentation.
+
+Use it like this:
+\begin{itemize}[leftmargin=*]
+\item say the short line for each slide,
+\item add one technical sentence only if needed,
+\item answer questions using the backup lines below,
+\item do not drift into extra implementation detail.
+\end{itemize}
+
+Main structure:
+\begin{itemize}[leftmargin=*]
+\item indoor
+\item outdoor
+\item marathon
+\item final summary
+\end{itemize}
+
+The overall story is simple:
+\begin{itemize}[leftmargin=*]
+\item indoor is MBRA plus corridor steps,
+\item outdoor is LogoNav plus OSM-expanded waypoints and safety layers,
+\item marathon was where the runtime became too unstable after checkpoint transition.
+\end{itemize}
+
+\section*{Slide 1: Title}
+\textbf{Say this}
+
+This is a short update on the ERC-3 EarthRover project. I will keep it simple and focus on three parts: indoor, outdoor, and marathon. For each one, I will say what we chose, why we chose it, what worked, and what failed.
+
+\textbf{If you want one more sentence}
+
+The main point is that we learned the right role for each controller and where the runtime still breaks.
+
+\section*{Slide 2: Indoor}
+\textbf{Say this}
+
+For indoor, we chose MBRA as the main controller and used exact checkpoint-step navigation. Indoor turned out to be a corridor problem, not a generic exploration problem, so a short-horizon controller on top of known steps made more sense.
+
+\textbf{What that means technically}
+\begin{itemize}[leftmargin=*]
+\item MBRA is the short-horizon local controller, not the planner.
+\item The corridor graph and localization decide which step to target.
+\item Exact checkpoint steps are cleaner because the indoor dataset already gives us real graph positions.
+\end{itemize}
+
+\textbf{If asked why this choice made sense}
+
+The strongest part of indoor was already the corridor structure. The weaker part was local runtime behavior, so the right move was to keep the structure and make the controller/runtime relationship cleaner.
+
+\section*{Slide 3: Indoor Results}
+\textbf{Say this}
+
+For indoor, we reached 8 out of 11 checkpoints. That was our strongest indoor result, and it made the system much easier to understand.
+
+\textbf{What worked}
+\begin{itemize}[leftmargin=*]
+\item exact checkpoint-step mode was cleaner than vague goals,
+\item MBRA-first was better than trying to make many controllers equally primary,
+\item removing bad recovery behavior helped.
+\end{itemize}
+
+\textbf{What failed}
+\begin{itemize}[leftmargin=*]
+\item the graph behaves like a forward-only graph in practice,
+\item stale context could trap the robot,
+\item recovery still needed care.
+\end{itemize}
+
+\textbf{If asked why not 11/11}
+
+The remaining gap is repeatability and edge cases, not lack of direction. We understand the failure modes much better now.
+
+\section*{Slide 4: Outdoor}
+\textbf{Say this}
+
+For outdoor, we kept LogoNav as the main controller, used OSM-expanded waypoints, and added safety layers around the runtime. We chose this because outdoor already had a usable runtime base. The bigger problem was not replacing the controller. The bigger problem was making the runtime safer and less brittle.
+
+\textbf{What that means technically}
+\begin{itemize}[leftmargin=*]
+\item LogoNav is the outdoor local motion policy.
+\item OSM-expanded waypoints means one mission target is broken into smaller route targets from OpenStreetMap.
+\item The important work was runtime hardening, route discipline, and safer waypoint transitions.
+\end{itemize}
+
+\textbf{If asked why LogoNav stayed}
+
+Outdoor progress came more from runtime hardening than from changing the learned controller.
+
+\section*{Slide 5: Outdoor Results}
+\textbf{Say this}
+
+For outdoor, one run reached all checkpoints, which was our strongest success. The other runs were around a 50 percent success rate overall, and three rounds failed.
+
+\textbf{What worked}
+\begin{itemize}[leftmargin=*]
+\item one full checkpoint run proved the pipeline can complete,
+\item rerouting improvements helped,
+\item waypoint handling improved,
+\item logs became much more useful for debugging.
+\end{itemize}
+
+\textbf{What failed}
+\begin{itemize}[leftmargin=*]
+\item spinning,
+\item poor waypoint transitions,
+\item sensitivity to real conditions,
+\item curbs and steps remain weak points.
+\end{itemize}
+
+\textbf{If asked what 50 percent means}
+
+It means the outdoor system is partially successful and clearly improved, but still supervised and not yet robust.
+
+\section*{Slide 6: Marathon}
+\textbf{Say this}
+
+For the marathon, we kept the same outdoor runtime and made it stricter. We added stronger safety logic because the marathon problem is really about safe supervised completion, not just reaching checkpoints under ideal conditions.
+
+\textbf{What we added}
+\begin{itemize}[leftmargin=*]
+\item IMU safety,
+\item route corridor guard,
+\item rerouting from live GPS,
+\item waypoint handling improvements,
+\item clearer logs,
+\item semantic and traversability hooks as safety layers.
+\end{itemize}
+
+\textbf{If asked what SegFormer was for}
+
+SegFormer was part of the semantic-safety probe. It helped us test whether labels like road, sidewalk, grass, person, and plant could improve safety decisions, but that was still mostly an offline research step.
+
+\section*{Slide 7: Marathon Result And Failure Reason}
+\textbf{Say this}
+
+In the marathon run, the robot reached one checkpoint, but after that it started spinning and toppled.
+
+\textbf{Best simple explanation}
+\begin{itemize}[leftmargin=*]
+\item after checkpoint progress, the runtime became unstable around the next target transition,
+\item that created repeated turning or align behavior,
+\item repeated aggressive turning led to physical instability.
+\end{itemize}
+
+\textbf{If asked why this happened}
+
+We made the runtime more cautious, but we did not field-test every caution layer enough before this run. Too much caution can also be a problem if it makes the robot stop or turn too much instead of moving cleanly forward.
+
+\section*{Slide 8: Final Summary}
+\textbf{Say this}
+
+So the short summary is this: for indoor, MBRA-first is our best direction and we reached 8 out of 11 checkpoints. For outdoor, LogoNav plus route and safety layers is still our best direction, with one full success and the others around 50 percent. For marathon, the main thing we still need to solve is stability after checkpoint and waypoint transitions.
+
+\textbf{Optional closing line}
+
+The project is better not because everything is solved, but because the remaining problems are now much clearer.
+
+\section*{Questions And Short Answers}
+\textbf{Q: Why MBRA indoors?}
+
+Because indoor has strong corridor structure already. MBRA works best as the short-horizon controller once localization and graph progression define the motion structure.
+
+\textbf{Q: What was MBRA intended to be?}
+
+A short-horizon learned local controller, not a global planner. It steers toward a goal image using the current view and the target view.
+
+\textbf{Q: Why LogoNav outdoors?}
+
+Because the outdoor stack already had a usable controller base, and the bigger engineering problem was runtime stability and safety, not absence of a controller.
+
+\textbf{Q: What is LogoNav?}
+
+The outdoor local motion policy. It takes the current scene and a target waypoint and outputs motion commands, then the runtime wraps safety around it.
+
+\textbf{Q: What is the biggest indoor insight?}
+
+The graph is effectively forward-only in practice, so runtime logic has to handle that instead of blaming the planner.
+
+\textbf{Q: What is the biggest outdoor insight?}
+
+Runtime behavior around waypoint and checkpoint transitions matters as much as the controller itself.
+
+\textbf{Q: What was the biggest marathon failure?}
+
+Spinning and toppling after checkpoint transition.
+
+\textbf{Q: What was SegFormer doing?}
+
+It was an offline semantic-segmentation probe to see whether classes like road, sidewalk, grass, person, and plant could help with safety decisions.
+
+\textbf{Q: What is the biggest unresolved issue?}
+
+Low-lying outdoor hazards and stable behavior after target transitions.
+
+\section*{Numbers To Remember}
+\begin{itemize}[leftmargin=*]
+\item indoor: 8 / 11
+\item outdoor best run: all checkpoints
+\item outdoor overall: around 50\%
+\item outdoor failed rounds: 3
+\item marathon: 1 checkpoint, then toppled
+\end{itemize}
+
+\section*{Final Reminder}
+Keep the main talk simple. Say the numbers clearly. Do not oversell. Do not drift into documentation details. Keep coming back to:
+\begin{itemize}[leftmargin=*]
+\item what we chose,
+\item why we chose it,
+\item what worked,
+\item what failed.
+\end{itemize}
+
+\end{document}

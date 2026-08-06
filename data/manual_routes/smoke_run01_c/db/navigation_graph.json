@@ -1,0 +1,1515 @@
+{
+  "directed": true,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "index": 0,
+      "name": "000000.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000000.png",
+      "id": 0
+    },
+    {
+      "index": 1,
+      "name": "000001.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000001.png",
+      "id": 1
+    },
+    {
+      "index": 2,
+      "name": "000002.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000002.png",
+      "id": 2
+    },
+    {
+      "index": 3,
+      "name": "000003.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000003.png",
+      "id": 3
+    },
+    {
+      "index": 4,
+      "name": "000004.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000004.png",
+      "id": 4
+    },
+    {
+      "index": 5,
+      "name": "000005.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000005.png",
+      "id": 5
+    },
+    {
+      "index": 6,
+      "name": "000006.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000006.png",
+      "id": 6
+    },
+    {
+      "index": 7,
+      "name": "000007.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000007.png",
+      "id": 7
+    },
+    {
+      "index": 8,
+      "name": "000008.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000008.png",
+      "id": 8
+    },
+    {
+      "index": 9,
+      "name": "000009.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000009.png",
+      "id": 9
+    },
+    {
+      "index": 10,
+      "name": "000010.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000010.png",
+      "id": 10
+    },
+    {
+      "index": 11,
+      "name": "000011.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000011.png",
+      "id": 11
+    },
+    {
+      "index": 12,
+      "name": "000012.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000012.png",
+      "id": 12
+    },
+    {
+      "index": 13,
+      "name": "000013.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000013.png",
+      "id": 13
+    },
+    {
+      "index": 14,
+      "name": "000014.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000014.png",
+      "id": 14
+    },
+    {
+      "index": 15,
+      "name": "000015.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000015.png",
+      "id": 15
+    },
+    {
+      "index": 16,
+      "name": "000016.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000016.png",
+      "id": 16
+    },
+    {
+      "index": 17,
+      "name": "000017.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000017.png",
+      "id": 17
+    },
+    {
+      "index": 18,
+      "name": "000018.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000018.png",
+      "id": 18
+    },
+    {
+      "index": 19,
+      "name": "000019.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000019.png",
+      "id": 19
+    },
+    {
+      "index": 20,
+      "name": "000020.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000020.png",
+      "id": 20
+    },
+    {
+      "index": 21,
+      "name": "000021.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000021.png",
+      "id": 21
+    },
+    {
+      "index": 22,
+      "name": "000022.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000022.png",
+      "id": 22
+    },
+    {
+      "index": 23,
+      "name": "000023.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000023.png",
+      "id": 23
+    },
+    {
+      "index": 24,
+      "name": "000024.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000024.png",
+      "id": 24
+    },
+    {
+      "index": 25,
+      "name": "000025.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000025.png",
+      "id": 25
+    },
+    {
+      "index": 26,
+      "name": "000026.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000026.png",
+      "id": 26
+    },
+    {
+      "index": 27,
+      "name": "000027.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000027.png",
+      "id": 27
+    },
+    {
+      "index": 28,
+      "name": "000028.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000028.png",
+      "id": 28
+    },
+    {
+      "index": 29,
+      "name": "000029.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000029.png",
+      "id": 29
+    },
+    {
+      "index": 30,
+      "name": "000030.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000030.png",
+      "id": 30
+    },
+    {
+      "index": 31,
+      "name": "000031.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000031.png",
+      "id": 31
+    },
+    {
+      "index": 32,
+      "name": "000032.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000032.png",
+      "id": 32
+    },
+    {
+      "index": 33,
+      "name": "000033.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000033.png",
+      "id": 33
+    },
+    {
+      "index": 34,
+      "name": "000034.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000034.png",
+      "id": 34
+    },
+    {
+      "index": 35,
+      "name": "000035.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000035.png",
+      "id": 35
+    },
+    {
+      "index": 36,
+      "name": "000036.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000036.png",
+      "id": 36
+    },
+    {
+      "index": 37,
+      "name": "000037.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000037.png",
+      "id": 37
+    },
+    {
+      "index": 38,
+      "name": "000038.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000038.png",
+      "id": 38
+    },
+    {
+      "index": 39,
+      "name": "000039.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000039.png",
+      "id": 39
+    },
+    {
+      "index": 40,
+      "name": "000040.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000040.png",
+      "id": 40
+    },
+    {
+      "index": 41,
+      "name": "000041.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000041.png",
+      "id": 41
+    },
+    {
+      "index": 42,
+      "name": "000042.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000042.png",
+      "id": 42
+    },
+    {
+      "index": 43,
+      "name": "000043.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000043.png",
+      "id": 43
+    },
+    {
+      "index": 44,
+      "name": "000044.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000044.png",
+      "id": 44
+    },
+    {
+      "index": 45,
+      "name": "000045.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000045.png",
+      "id": 45
+    },
+    {
+      "index": 46,
+      "name": "000046.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000046.png",
+      "id": 46
+    },
+    {
+      "index": 47,
+      "name": "000047.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000047.png",
+      "id": 47
+    },
+    {
+      "index": 48,
+      "name": "000048.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000048.png",
+      "id": 48
+    },
+    {
+      "index": 49,
+      "name": "000049.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000049.png",
+      "id": 49
+    },
+    {
+      "index": 50,
+      "name": "000050.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000050.png",
+      "id": 50
+    },
+    {
+      "index": 51,
+      "name": "000051.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000051.png",
+      "id": 51
+    },
+    {
+      "index": 52,
+      "name": "000052.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000052.png",
+      "id": 52
+    },
+    {
+      "index": 53,
+      "name": "000053.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000053.png",
+      "id": 53
+    },
+    {
+      "index": 54,
+      "name": "000054.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000054.png",
+      "id": 54
+    },
+    {
+      "index": 55,
+      "name": "000055.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000055.png",
+      "id": 55
+    },
+    {
+      "index": 56,
+      "name": "000056.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000056.png",
+      "id": 56
+    },
+    {
+      "index": 57,
+      "name": "000057.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000057.png",
+      "id": 57
+    },
+    {
+      "index": 58,
+      "name": "000058.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000058.png",
+      "id": 58
+    },
+    {
+      "index": 59,
+      "name": "000059.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000059.png",
+      "id": 59
+    },
+    {
+      "index": 60,
+      "name": "000060.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000060.png",
+      "id": 60
+    },
+    {
+      "index": 61,
+      "name": "000061.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000061.png",
+      "id": 61
+    },
+    {
+      "index": 62,
+      "name": "000062.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000062.png",
+      "id": 62
+    },
+    {
+      "index": 63,
+      "name": "000063.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000063.png",
+      "id": 63
+    },
+    {
+      "index": 64,
+      "name": "000064.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000064.png",
+      "id": 64
+    },
+    {
+      "index": 65,
+      "name": "000065.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000065.png",
+      "id": 65
+    },
+    {
+      "index": 66,
+      "name": "000066.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000066.png",
+      "id": 66
+    },
+    {
+      "index": 67,
+      "name": "000067.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000067.png",
+      "id": 67
+    },
+    {
+      "index": 68,
+      "name": "000068.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000068.png",
+      "id": 68
+    },
+    {
+      "index": 69,
+      "name": "000069.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000069.png",
+      "id": 69
+    },
+    {
+      "index": 70,
+      "name": "000070.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000070.png",
+      "id": 70
+    },
+    {
+      "index": 71,
+      "name": "000071.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000071.png",
+      "id": 71
+    },
+    {
+      "index": 72,
+      "name": "000072.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000072.png",
+      "id": 72
+    },
+    {
+      "index": 73,
+      "name": "000073.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000073.png",
+      "id": 73
+    },
+    {
+      "index": 74,
+      "name": "000074.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000074.png",
+      "id": 74
+    },
+    {
+      "index": 75,
+      "name": "000075.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000075.png",
+      "id": 75
+    },
+    {
+      "index": 76,
+      "name": "000076.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000076.png",
+      "id": 76
+    },
+    {
+      "index": 77,
+      "name": "000077.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000077.png",
+      "id": 77
+    },
+    {
+      "index": 78,
+      "name": "000078.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000078.png",
+      "id": 78
+    },
+    {
+      "index": 79,
+      "name": "000079.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000079.png",
+      "id": 79
+    },
+    {
+      "index": 80,
+      "name": "000080.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000080.png",
+      "id": 80
+    },
+    {
+      "index": 81,
+      "name": "000081.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000081.png",
+      "id": 81
+    },
+    {
+      "index": 82,
+      "name": "000082.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000082.png",
+      "id": 82
+    },
+    {
+      "index": 83,
+      "name": "000083.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000083.png",
+      "id": 83
+    },
+    {
+      "index": 84,
+      "name": "000084.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000084.png",
+      "id": 84
+    },
+    {
+      "index": 85,
+      "name": "000085.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000085.png",
+      "id": 85
+    },
+    {
+      "index": 86,
+      "name": "000086.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000086.png",
+      "id": 86
+    },
+    {
+      "index": 87,
+      "name": "000087.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000087.png",
+      "id": 87
+    },
+    {
+      "index": 88,
+      "name": "000088.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000088.png",
+      "id": 88
+    },
+    {
+      "index": 89,
+      "name": "000089.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000089.png",
+      "id": 89
+    },
+    {
+      "index": 90,
+      "name": "000090.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000090.png",
+      "id": 90
+    },
+    {
+      "index": 91,
+      "name": "000091.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000091.png",
+      "id": 91
+    },
+    {
+      "index": 92,
+      "name": "000092.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000092.png",
+      "id": 92
+    },
+    {
+      "index": 93,
+      "name": "000093.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000093.png",
+      "id": 93
+    },
+    {
+      "index": 94,
+      "name": "000094.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000094.png",
+      "id": 94
+    },
+    {
+      "index": 95,
+      "name": "000095.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000095.png",
+      "id": 95
+    },
+    {
+      "index": 96,
+      "name": "000096.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000096.png",
+      "id": 96
+    },
+    {
+      "index": 97,
+      "name": "000097.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000097.png",
+      "id": 97
+    },
+    {
+      "index": 98,
+      "name": "000098.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000098.png",
+      "id": 98
+    },
+    {
+      "index": 99,
+      "name": "000099.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000099.png",
+      "id": 99
+    },
+    {
+      "index": 100,
+      "name": "000100.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000100.png",
+      "id": 100
+    },
+    {
+      "index": 101,
+      "name": "000101.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000101.png",
+      "id": 101
+    },
+    {
+      "index": 102,
+      "name": "000102.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000102.png",
+      "id": 102
+    },
+    {
+      "index": 103,
+      "name": "000103.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000103.png",
+      "id": 103
+    },
+    {
+      "index": 104,
+      "name": "000104.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000104.png",
+      "id": 104
+    },
+    {
+      "index": 105,
+      "name": "000105.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000105.png",
+      "id": 105
+    },
+    {
+      "index": 106,
+      "name": "000106.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000106.png",
+      "id": 106
+    },
+    {
+      "index": 107,
+      "name": "000107.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000107.png",
+      "id": 107
+    },
+    {
+      "index": 108,
+      "name": "000108.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000108.png",
+      "id": 108
+    },
+    {
+      "index": 109,
+      "name": "000109.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000109.png",
+      "id": 109
+    },
+    {
+      "index": 110,
+      "name": "000110.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000110.png",
+      "id": 110
+    },
+    {
+      "index": 111,
+      "name": "000111.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000111.png",
+      "id": 111
+    },
+    {
+      "index": 112,
+      "name": "000112.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000112.png",
+      "id": 112
+    },
+    {
+      "index": 113,
+      "name": "000113.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000113.png",
+      "id": 113
+    },
+    {
+      "index": 114,
+      "name": "000114.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000114.png",
+      "id": 114
+    },
+    {
+      "index": 115,
+      "name": "000115.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000115.png",
+      "id": 115
+    },
+    {
+      "index": 116,
+      "name": "000116.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000116.png",
+      "id": 116
+    },
+    {
+      "index": 117,
+      "name": "000117.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000117.png",
+      "id": 117
+    },
+    {
+      "index": 118,
+      "name": "000118.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000118.png",
+      "id": 118
+    },
+    {
+      "index": 119,
+      "name": "000119.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000119.png",
+      "id": 119
+    },
+    {
+      "index": 120,
+      "name": "000120.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000120.png",
+      "id": 120
+    },
+    {
+      "index": 121,
+      "name": "000121.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000121.png",
+      "id": 121
+    },
+    {
+      "index": 122,
+      "name": "000122.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000122.png",
+      "id": 122
+    },
+    {
+      "index": 123,
+      "name": "000123.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000123.png",
+      "id": 123
+    },
+    {
+      "index": 124,
+      "name": "000124.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000124.png",
+      "id": 124
+    },
+    {
+      "index": 125,
+      "name": "000125.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/smoke_run01_c/extracted/front_images/000125.png",
+      "id": 125
+    }
+  ],
+  "edges": [
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 0,
+      "target": 1
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 1,
+      "target": 2
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 2,
+      "target": 3
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 3,
+      "target": 4
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 4,
+      "target": 5
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 5,
+      "target": 6
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 6,
+      "target": 7
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 7,
+      "target": 8
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 8,
+      "target": 9
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 9,
+      "target": 10
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 10,
+      "target": 11
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 11,
+      "target": 12
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 12,
+      "target": 13
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 13,
+      "target": 14
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 14,
+      "target": 15
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 15,
+      "target": 16
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 16,
+      "target": 17
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 17,
+      "target": 18
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 18,
+      "target": 19
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 19,
+      "target": 20
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 20,
+      "target": 21
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 21,
+      "target": 22
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 22,
+      "target": 23
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 23,
+      "target": 24
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 24,
+      "target": 25
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 25,
+      "target": 26
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 26,
+      "target": 27
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 27,
+      "target": 28
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 28,
+      "target": 29
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 29,
+      "target": 30
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 30,
+      "target": 31
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 31,
+      "target": 32
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 32,
+      "target": 33
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 33,
+      "target": 34
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 34,
+      "target": 35
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 35,
+      "target": 36
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 36,
+      "target": 37
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 37,
+      "target": 38
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 38,
+      "target": 39
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 39,
+      "target": 40
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 40,
+      "target": 41
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 41,
+      "target": 42
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 42,
+      "target": 43
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 43,
+      "target": 44
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 44,
+      "target": 45
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 45,
+      "target": 46
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 46,
+      "target": 47
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 47,
+      "target": 48
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 48,
+      "target": 49
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 49,
+      "target": 50
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 50,
+      "target": 51
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 51,
+      "target": 52
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 52,
+      "target": 53
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 53,
+      "target": 54
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 54,
+      "target": 55
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 55,
+      "target": 56
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 56,
+      "target": 57
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 57,
+      "target": 58
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 58,
+      "target": 59
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 59,
+      "target": 60
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 60,
+      "target": 61
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 61,
+      "target": 62
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 62,
+      "target": 63
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 63,
+      "target": 64
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 64,
+      "target": 65
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 65,
+      "target": 66
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 66,
+      "target": 67
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 67,
+      "target": 68
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 68,
+      "target": 69
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 69,
+      "target": 70
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 70,
+      "target": 71
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 71,
+      "target": 72
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 72,
+      "target": 73
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 73,
+      "target": 74
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 74,
+      "target": 75
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 75,
+      "target": 76
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 76,
+      "target": 77
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 77,
+      "target": 78
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 78,
+      "target": 79
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 79,
+      "target": 80
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 80,
+      "target": 81
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 81,
+      "target": 82
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 82,
+      "target": 83
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 83,
+      "target": 84
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 84,
+      "target": 85
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 85,
+      "target": 86
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 86,
+      "target": 87
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 87,
+      "target": 88
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 88,
+      "target": 89
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 89,
+      "target": 90
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 90,
+      "target": 91
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 91,
+      "target": 92
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 92,
+      "target": 93
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 93,
+      "target": 94
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 94,
+      "target": 95
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 95,
+      "target": 96
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 96,
+      "target": 97
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 97,
+      "target": 98
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 98,
+      "target": 99
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 99,
+      "target": 100
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 100,
+      "target": 101
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 101,
+      "target": 102
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 102,
+      "target": 103
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 103,
+      "target": 104
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 104,
+      "target": 105
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 105,
+      "target": 106
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 106,
+      "target": 107
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 107,
+      "target": 108
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 108,
+      "target": 109
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 109,
+      "target": 110
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 110,
+      "target": 111
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 111,
+      "target": 112
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 112,
+      "target": 113
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 113,
+      "target": 114
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 114,
+      "target": 115
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 115,
+      "target": 116
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 116,
+      "target": 117
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 117,
+      "target": 118
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 118,
+      "target": 119
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 119,
+      "target": 120
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 120,
+      "target": 121
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 121,
+      "target": 122
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 122,
+      "target": 123
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 123,
+      "target": 124
+    },
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 124,
+      "target": 125
+    }
+  ]
+}

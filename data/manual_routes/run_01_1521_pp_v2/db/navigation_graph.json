@@ -1,0 +1,27 @@
+{
+  "directed": true,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "index": 0,
+      "name": "000000.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/run_01_1521_pp_v2/extracted/front_images/000000.png",
+      "id": 0
+    },
+    {
+      "index": 1,
+      "name": "000001.png",
+      "path": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/run_01_1521_pp_v2/extracted/front_images/000001.png",
+      "id": 1
+    }
+  ],
+  "edges": [
+    {
+      "actions": [],
+      "sequence_default": true,
+      "source": 0,
+      "target": 1
+    }
+  ]
+}

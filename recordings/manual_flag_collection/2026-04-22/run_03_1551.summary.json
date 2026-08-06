@@ -1,0 +1,12 @@
+{
+  "output_h5": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/recordings/manual_flag_collection/2026-04-22/run_03_1551.h5",
+  "session_name": "manual_flag_collection",
+  "telemetry_rows": 1304,
+  "front_frames": 1291,
+  "rear_frames": 0,
+  "accels": 5970,
+  "gyros": 5970,
+  "mags": 1194,
+  "rpms": 5970,
+  "controls": 0
+}

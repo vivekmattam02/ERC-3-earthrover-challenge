@@ -1,0 +1,15 @@
+{
+  "input_h5": "/home/vivek/Desktop/rover/ERC-3-earthrover-challenge/data/corrider.h5",
+  "frame_step": 1,
+  "num_front_frames_kept": 1865,
+  "num_controls": 2776,
+  "num_telemetry": 1942,
+  "num_accels": 9515,
+  "num_gyros": 9515,
+  "num_mags": 1903,
+  "num_rpms": 9515,
+  "estimated_frame_rate_hz": 4.314933036508198,
+  "rpm_nonzero_count": 8136,
+  "orientation_nan_count": 39,
+  "speed_nan_count": 39
+}

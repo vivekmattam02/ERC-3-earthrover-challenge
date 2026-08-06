@@ -1,0 +1,33 @@
+{
+  "input_h5": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/postprocessed/run_01_1521_v2/run_01_1521_cleaned.h5",
+  "route_name": "run_01_1521_pp_v2",
+  "route_dir": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/run_01_1521_pp_v2",
+  "extracted_dir": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/run_01_1521_pp_v2/extracted",
+  "db_dir": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/run_01_1521_pp_v2/db",
+  "frame_step": 4,
+  "auto_trim_motion": true,
+  "motion_rpm_threshold": 1.0,
+  "motion_pad_sec": 2.0,
+  "cosplace_repo": "/home/lunar/.cache/torch/hub/gmberton_cosplace_main",
+  "target_step": 1,
+  "live_command": [
+    "/home/lunar/miniconda3/envs/erv/bin/python3",
+    "live_indoor_runtime.py",
+    "--database",
+    "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/run_01_1521_pp_v2/db/descriptors.npz",
+    "--graph",
+    "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/run_01_1521_pp_v2/db/navigation_graph.json",
+    "--data-info-json",
+    "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/data/manual_routes/run_01_1521_pp_v2/extracted/metadata/data_info.json",
+    "--target-step",
+    "1",
+    "--controller",
+    "simple",
+    "--tick-hz",
+    "2.0",
+    "--max-subgoal-hops",
+    "8",
+    "--sdk-url",
+    "http://localhost:8000"
+  ]
+}

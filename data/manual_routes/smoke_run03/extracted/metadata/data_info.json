@@ -1,0 +1,15 @@
+[
+  {
+    "step": 0,
+    "image": "000000.png",
+    "timestamp": 1776901881.874098,
+    "relative_time_sec": 0.0,
+    "action": [],
+    "linear": null,
+    "angular": null,
+    "orientation": null,
+    "speed": null,
+    "control_index": null,
+    "telemetry_index": null
+  }
+]

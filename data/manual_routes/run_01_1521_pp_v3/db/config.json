@@ -1,0 +1,22 @@
+{
+  "descriptor_config": {
+    "backbone": "ResNet18",
+    "fc_output_dim": 512,
+    "resize_height": 320,
+    "resize_width": 320,
+    "crop_top_ratio": 0.12,
+    "crop_bottom_ratio": 0.88,
+    "batch_size": 64
+  },
+  "artifact_files": {
+    "descriptor_archive": "descriptors.npz",
+    "place_graph": "place_graph.json",
+    "navigation_graph": "navigation_graph.json"
+  },
+  "counts": {
+    "num_images": 15,
+    "num_nodes": 15,
+    "num_edges": 94,
+    "num_action_edges": 0
+  }
+}

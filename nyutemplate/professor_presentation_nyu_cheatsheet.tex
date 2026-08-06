@@ -1,0 +1,124 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{enumitem}
+
+\title{Professor Presentation Cheat Sheet}
+\author{Lunar}
+\date{April 1, 2026}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\section*{Opening}
+Short update on the EarthRover project. Keep it simple: indoor, outdoor, marathon. For each one: what we chose, why we chose it, what worked, what failed.
+
+\section*{Indoor}
+\textbf{What we chose}
+\begin{itemize}[leftmargin=*]
+\item MBRA as the main indoor controller
+\item exact checkpoint-step navigation
+\item a cleaner runtime around it
+\end{itemize}
+
+\textbf{Why}
+\begin{itemize}[leftmargin=*]
+\item indoor is a known corridor problem
+\item exact steps are cleaner than vague targets
+\item MBRA worked better with simpler recovery
+\end{itemize}
+
+\textbf{Result}
+\begin{itemize}[leftmargin=*]
+\item reached \textbf{8 / 11} checkpoints
+\item system became more stable and more understandable
+\end{itemize}
+
+\textbf{Main failures}
+\begin{itemize}[leftmargin=*]
+\item forward-only graph caused no-path issues
+\item stale context could trap the robot
+\item recovery still needed care
+\end{itemize}
+
+\section*{Outdoor}
+\textbf{What we chose}
+\begin{itemize}[leftmargin=*]
+\item LogoNav as the main outdoor controller
+\item OSM route expansion
+\item safety layers around the runtime
+\end{itemize}
+
+\textbf{Why}
+\begin{itemize}[leftmargin=*]
+\item outdoor already had a working base runtime
+\item the bigger need was safety and stability, not replacing the controller
+\end{itemize}
+
+\textbf{Result}
+\begin{itemize}[leftmargin=*]
+\item one run reached \textbf{all checkpoints}
+\item the rest were around \textbf{50\%} success overall
+\item \textbf{3 rounds failed}
+\end{itemize}
+
+\textbf{Main failures}
+\begin{itemize}[leftmargin=*]
+\item spinning
+\item bad waypoint transitions
+\item curbs and steps still weak
+\end{itemize}
+
+\section*{Marathon}
+\textbf{What we chose}
+\begin{itemize}[leftmargin=*]
+\item same outdoor base runtime
+\item stricter safety layers
+\item focus on stability, not full autonomy
+\end{itemize}
+
+\textbf{What we added}
+\begin{itemize}[leftmargin=*]
+\item IMU safety
+\item route corridor guard
+\item rerouting from live GPS
+\item better waypoint handling
+\item clearer logs
+\end{itemize}
+
+\textbf{Result}
+\begin{itemize}[leftmargin=*]
+\item reached \textbf{1 checkpoint}
+\item then the robot spun and toppled
+\end{itemize}
+
+\textbf{Reason}
+\begin{itemize}[leftmargin=*]
+\item likely unstable target handling after checkpoint transition
+\item repeated alignment / turning in place
+\item repeated aggressive turning made the robot unstable
+\end{itemize}
+
+\section*{Final Summary}
+\begin{itemize}[leftmargin=*]
+\item Indoor: best direction is MBRA-first, result \textbf{8 / 11}
+\item Outdoor: best direction is LogoNav + route + safety layers, result \textbf{1 full success}, others around \textbf{50\%}
+\item Marathon: main issue is stability after checkpoint and waypoint transitions
+\end{itemize}
+
+\section*{Numbers To Remember}
+\begin{itemize}[leftmargin=*]
+\item indoor: \textbf{8 / 11}
+\item outdoor best run: \textbf{all checkpoints}
+\item outdoor overall: \textbf{around 50\%}
+\item outdoor failed rounds: \textbf{3}
+\item marathon: \textbf{1 checkpoint, then toppled}
+\end{itemize}
+
+\section*{One Good Closing Line}
+The project is much better understood now, and the remaining weaknesses are much clearer.
+
+\end{document}

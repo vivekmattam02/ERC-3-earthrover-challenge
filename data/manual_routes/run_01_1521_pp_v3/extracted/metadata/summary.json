@@ -1,0 +1,17 @@
+{
+  "input_h5": "/home/lunar/Desktop/rover/ERC-3-earthrover-challenge/postprocessed/run_01_1521_v3/run_01_1521_cleaned.h5",
+  "frame_step": 4,
+  "trim_start_sec": 0.0,
+  "trim_end_sec": 359.6819999217987,
+  "num_front_frames_kept": 15,
+  "num_controls": 0,
+  "num_telemetry": 720,
+  "num_accels": 2935,
+  "num_gyros": 2935,
+  "num_mags": 587,
+  "num_rpms": 2935,
+  "estimated_frame_rate_hz": 0.0502605810175383,
+  "rpm_nonzero_count": 2017,
+  "orientation_nan_count": 0,
+  "speed_nan_count": 0
+}

@@ -1,0 +1,4 @@
+file_name,frame_idx,tag,roi_name,drivable_frac,neutral_frac,hazard_frac,caution_frac,drivable_center_frac,caution_center_frac,risk_score,obstructed,vegetation_blocked,hard_alerts,top_labels
+test_outdoor_1.h5,1500,cluster_1500,raised_corridor,0.0000,0.0000,0.0000,0.7594,0.0000,0.8443,0.5721,1,1,,tree:75.94% | sky:24.06%
+test_outdoor_1.h5,1800,cluster_1800,raised_corridor,0.0000,0.0000,0.0000,0.7586,0.0000,0.8423,0.5711,1,1,,tree:75.86% | sky:24.14%
+test_outdoor_1.h5,2100,cluster_2100,raised_corridor,0.0000,0.0000,0.0000,0.7357,0.0000,0.7997,0.5498,1,1,,tree:73.57% | sky:26.43%

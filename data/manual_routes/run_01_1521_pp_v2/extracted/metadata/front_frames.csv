@@ -1,0 +1,3 @@
+step,source_index,timestamp,relative_time_sec,image,control_index,telemetry_index,control_timestamp,control_relative_time_sec,telemetry_timestamp,telemetry_relative_time_sec,linear,angular,orientation,speed,battery,signal_level,gps_signal,latitude,longitude,vibration
+0,0,1776900216.689789,0.0,000000.png,,0,,,1776885820.513,0.0,,,305.0,0.0,100.0,0.0,28.75,1000.0,1000.0,0.0
+1,4,1776900218.690771,2.0009820461273193,000001.png,,35,,,1776885820.513,0.0,,,305.0,0.0,100.0,0.0,28.75,1000.0,1000.0,0.0

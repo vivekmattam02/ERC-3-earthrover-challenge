@@ -1,0 +1,315 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{listings}
+\hypersetup{colorlinks=true, linkcolor=blue!60!black, urlcolor=blue!60!black}
+\lstset{basicstyle=\ttfamily\small, breaklines=true, frame=single, columns=fullflexible}
+
+\title{Final System Overview\\
+\large The One Architecture Document for ERC-3 EarthRover Challenge}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Current Scope Update (July 16, 2026)}
+This overview documents the completed indoor and GPS-outdoor architectures. The
+active later branch is a third, distinct system: front-camera-only no-GPS visual
+teach-and-repeat for rough terrain. Its pipeline and adaptive-pursuit launch
+path are implemented, but field tests have not shown reliable autonomous route
+repeat. It must not be described as competition-ready. The current decision
+record is \texttt{obsidian\_vault/00 Home/Current No-GPS - Read This First.md}
+with detailed evidence in
+\texttt{obsidian\_vault/01 Source of Truth/No-GPS Field Trial - Findings.md}.
+
+\section{Project Overview}
+
+This repository contains the ERC-3 EarthRover architecture and a later
+experimental no-GPS branch. In practice the project contains three quite
+different systems:
+
+\begin{itemize}[nosep]
+  \item an \textbf{indoor known-corridor system}, where repeated corridor structure
+  and pre-recorded data could be exploited heavily, and
+  \item an \textbf{outdoor mission runtime}, where the rover had to follow SDK
+  mission checkpoints in a live environment while staying inside a stricter safety
+  envelope, and
+  \item a \textbf{no-GPS rough-terrain route-repeat system}, where a manually
+  taught front-camera route is used as the navigation memory.
+\end{itemize}
+
+Those two tracks share code and hardware, but they are not just two parameter
+settings of the same algorithm. The indoor stack is built around visual place
+recognition and graph progression. The outdoor stack is built around mission
+checkpoints, routed waypoints, and controller hardening.
+
+\section{No-GPS Rough-Terrain Route Repeat}
+
+This later branch is not a parameter change to the outdoor mission runtime. GPS
+is unusable in the session, so the route follower is organized around a visual
+teach route:
+
+\begin{lstlisting}
+manual H5 bag -> extracted front frames -> descriptor DB + directed route graph
+              -> live front frame -> localize -> subgoal -> adaptive pursuit
+\end{lstlisting}
+
+The relevant code path is:
+
+\begin{itemize}[nosep]
+  \item \texttt{scripts/record\_sdk\_session.py}: front-first manual recording,
+  \item \texttt{scripts/prepare\_manual\_route.py}: bag-to-route packaging,
+  \item \texttt{scripts/run\_prepared\_route.py}: live launcher,
+  \item \texttt{live\_indoor\_runtime.py}: no-GPS runtime loop,
+  \item \texttt{src/adaptive\_pursuit\_controller.py}: rough-terrain local control.
+\end{itemize}
+
+The rover uses the front camera only. IMU, gyro, and RPM streams provide
+terrain/motion support, not global pose. The strongest reference asset is
+\texttt{smoke\_run01\_c}, but it is a coverage candidate rather than a
+deployment route.
+
+The decisive field result is mixed: the rover moves and commands are sent, but
+tests repeatedly remained near startup localization steps and entered recovery
+loops without sustained route progression. Therefore the branch is
+\textbf{implemented but unproven}. Its next valid milestone is a short,
+repeatable hardware-in-the-loop segment with stable localization and graph-step
+progress. Full detail is in \texttt{no\_gps\_route\_repeat\_story.tex}.
+
+\section{The Story in One Page}
+
+The project started from a simpler indoor question: can we turn a known corridor
+recording into a usable navigation memory and drive to competition checkpoints
+reliably? That immediately pushed the system toward a practical stack:
+
+\begin{itemize}[nosep]
+  \item CosPlace-style visual retrieval for localization,
+  \item temporal smoothing to reduce flicker,
+  \item graph planning over the corridor memory,
+  \item and a short-horizon controller for immediate motion.
+\end{itemize}
+
+The outdoor track changed the project. GPS checkpoints, sidewalks, route structure,
+and safety constraints made it obvious that the corridor backbone could not simply
+be reused outdoors. That led to the split:
+
+\begin{itemize}[nosep]
+  \item \textbf{Indoor:} corridor memory + temporal localization + graph progression +
+  MBRA as local controller.
+  \item \textbf{Outdoor:} mission checkpoints + optional OSM routing + LogoNav as
+  local controller + runtime safety layers.
+\end{itemize}
+
+\section{Full Architecture Diagram}
+
+\begin{verbatim}
+                         +----------------------+
+                         |  EarthRover SDK/API  |
+                         |  camera / telemetry  |
+                         +----------+-----------+
+                                    |
+                    +---------------+---------------+
+                    |                               |
+                    v                               v
+        +------------------------+      +--------------------------+
+        | Indoor corridor stack  |      | Outdoor mission stack    |
+        +------------------------+      +--------------------------+
+        | corridor_localizer.py  |      | live_outdoor_runtime.py  |
+        | temporal_localization  |      | earthrover_interface.py  |
+        | graph_planner.py       |      | osm_router.py            |
+        | navigation_runtime.py  |      | outdoor_logonav_control  |
+        | mbra_controller.py     |      | outdoor_gps_controller   |
+        +-----------+------------+      +------------+-------------+
+                    |                                |
+                    v                                v
+         checkpoint-step subgoals         mission checkpoints / route waypoints
+                    |                                |
+                    v                                v
+           local controller output         controller output + safety envelope
+                    |                                |
+                    +---------------+----------------+
+                                    |
+                                    v
+                           rover control commands
+\end{verbatim}
+
+\section{Indoor Track}
+
+The indoor pipeline is assembled in \texttt{live\_indoor\_runtime.py}. The most
+important modules are:
+
+\begin{longtable}{p{0.24\textwidth}p{0.19\textwidth}p{0.52\textwidth}}
+\toprule
+\textbf{File} & \textbf{Main symbol} & \textbf{Role} \\
+\midrule
+\texttt{src/corridor\_localizer.py} & \texttt{CorridorLocalizer} & CosPlace-based retrieval over the corridor descriptor database; turns a live image into a candidate corridor step and confidence. \\
+\texttt{src/temporal\_localization.py} & \texttt{TemporalLocalizer}, \texttt{TemporalLocalizerConfig} & Adds continuity penalties and ambiguity handling so one bad frame does not rewrite the pose. \\
+\texttt{src/graph\_planner.py} & \texttt{GraphPlanner}, \texttt{GraphPlannerConfig} & Converts current step and active checkpoint into a path and nearby subgoal step. \\
+\texttt{src/navigation\_runtime.py} & \texttt{NavigationRuntime} & Orchestrates localizer + planner and returns controller input bundles. \\
+\texttt{src/mbra\_controller.py} & \texttt{MBRAController} & Short-horizon goal-image controller for indoor motion. \\
+\texttt{src/local\_controller.py} & \texttt{SimpleLocalController} & Backup heading-based controller when MBRA is not used. \\
+\bottomrule
+\end{longtable}
+
+In current code, \texttt{TemporalLocalizerConfig} defaults include
+\texttt{top\_k=10}, \texttt{max\_step\_jump=20}, \texttt{jump\_penalty=0.05},
+\texttt{backward\_penalty=0.15}, \texttt{heading\_penalty=0.002},
+\texttt{ambiguity\_margin=0.05}, and \texttt{hold\_on\_ambiguity=True}.
+
+For MBRA-based indoor competition mode, \texttt{live\_indoor\_runtime.py} sets:
+
+\begin{itemize}[nosep]
+  \item \texttt{max\_subgoal\_hops = 8}
+  \item \texttt{tick\_hz = 3.0}
+  \item \texttt{depth\_stop\_m = 0.25}
+  \item \texttt{depth\_slow\_m = 0.60}
+\end{itemize}
+
+The indoor tick loop is conceptually:
+
+\begin{lstlisting}
+frame -> corridor localizer -> temporal stabilization -> graph planner
+      -> choose active checkpoint / subgoal image
+      -> MBRA or simple controller
+      -> optional depth veto
+      -> send command or hold
+\end{lstlisting}
+
+\section{Outdoor Track}
+
+The outdoor pipeline is concentrated in \texttt{live\_outdoor\_runtime.py}. It pulls
+together:
+
+\begin{itemize}[nosep]
+  \item mission checkpoints from the SDK via \texttt{src/earthrover\_interface.py},
+  \item optional OSM route expansion via \texttt{src/osm\_router.py},
+  \item local motion from either \texttt{src/outdoor\_logonav\_controller.py} or
+  \texttt{src/outdoor\_gps\_controller.py},
+  \item and a thick runtime safety envelope around the chosen controller.
+\end{itemize}
+
+Key outdoor runtime defaults visible in the code include:
+
+\begin{itemize}[nosep]
+  \item \texttt{--controller logonav}
+  \item \texttt{--goal-radius-m 8.0}
+  \item \texttt{--intermediate-goal-radius-m 3.0}
+  \item \texttt{--checkpoint-confirm-ticks 1}
+  \item \texttt{--stuck-window-ticks 15}
+  \item \texttt{--route-corridor-stop-m 10.0}
+\end{itemize}
+
+\section{Safety Architecture}
+
+\begin{center}
+\begin{tabular}{p{0.24\textwidth}p{0.24\textwidth}p{0.43\textwidth}}
+\toprule
+\textbf{Authority level} & \textbf{Typical layers} & \textbf{Meaning} \\
+\midrule
+Hard stop & IMU safety, health gate, explicit operator intervention, severe GPS / vision faults & Motion must stop immediately. \\
+Hold / halt & nav-ready gate, camera watchdog, mission setup wait, hard-stop cooldown & The runtime pauses until preconditions return. \\
+Constraint & traversability slowdown/stop, speed caps, route corridor guard, recovery attempt limits & Controller output is clipped or replaced. \\
+Soft bias & semantic angular bias, caution scaling, informational diagnostics & Motion is nudged rather than vetoed. \\
+Info only & richer logs, waypoint / checkpoint counters, visibility diagnostics & Helps the operator understand behavior. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Composite Safety Modes}
+
+\subsection*{\texttt{--ultra-marathon}}
+
+Turns on IMU safety, health gate, leg pause, no reverse, route corridor guard,
+nav-ready gating, and more conservative recovery behavior. It also caps
+\texttt{max\_linear} and \texttt{logonav\_max\_linear} at \texttt{0.24}, tightens
+angular caps to about \texttt{0.32}, widens the stuck window, and enables
+behind-waypoint pruning.
+
+\subsection*{\texttt{--night-safe}}
+
+Turns on lamp, vision safety, GPS safety, IMU safety, route corridor guard,
+nav-ready gating, and traversability. It caps \texttt{logonav\_max\_linear} at
+\texttt{0.22}, \texttt{logonav\_max\_angular} at \texttt{0.28}, and makes
+traversability thresholds more conservative.
+
+\subsection*{\texttt{--sidewalk-strict}}
+
+Forces OSM routing, disables straight-line fallback, and turns on route corridor
+guard, GPS safety, traversability, semantics, semantic hard-stop, semantic yield,
+and semantic sidewalk-stop.
+
+\section{Design Decisions}
+
+\begin{itemize}[nosep]
+  \item \textbf{MBRA indoors}: used as a local controller on top of corridor
+  localization and graph progression, not as a planner.
+  \item \textbf{LogoNav outdoors}: kept as the main learned outdoor controller while
+  runtime reliability was hardened around it.
+  \item \textbf{CosPlace over heavier matching}: simpler and sufficient for the
+  known-corridor problem.
+  \item \textbf{Depth and semantics as support}: useful for caution and vetoes, but
+  not reliable enough to become the whole intelligence layer.
+\end{itemize}
+
+\section{Operations}
+
+\subsection*{Indoor}
+
+\begin{verbatim}
+python live_indoor_runtime.py \
+  --checkpoint-steps 45 480 761 821 1094 1208 1345 1430 1544 1638 1764 \
+  --auto-advance-checkpoints --send-control --controller mbra --depth-safety
+\end{verbatim}
+
+\subsection*{Outdoor}
+
+\begin{verbatim}
+python live_outdoor_runtime.py --mission --send-control --controller logonav --osm-route
+\end{verbatim}
+
+\subsection*{Outdoor marathon}
+
+\begin{verbatim}
+python live_outdoor_runtime.py \
+  --mission --send-control --controller logonav --osm-route --ultra-marathon
+\end{verbatim}
+
+\section{Troubleshooting}
+
+\begin{longtable}{p{0.27\textwidth}p{0.30\textwidth}p{0.35\textwidth}}
+\toprule
+\textbf{Symptom} & \textbf{Likely cause} & \textbf{What to check first} \\
+\midrule
+Indoor says \texttt{no path} forever & Robot already moved past target in forward-only graph & checkpoint-step list, confidence, skip-past logic \\
+Indoor spins or stalls repeatedly & stale controller context or poor recovery mode & MBRA mode, no-progress handling, depth veto logs \\
+Outdoor reroutes too often & route corridor threshold too aggressive or waypoint handoff too loose & route corridor flags, intermediate waypoint radius, prune settings \\
+Outdoor spins near a target & alignment logic applied to wrong target regime & whether target is mission checkpoint or routed waypoint \\
+Night run keeps stopping & image quality gate or conservative traversability & vision safety logs, lamp state, clearance thresholds \\
+\bottomrule
+\end{longtable}
+
+\section{Historical Status and Later Branch Update}
+
+\begin{itemize}[nosep]
+  \item \textbf{Working strongly:} indoor localization backbone, checkpoint-step
+  planning, indoor MBRA deployment path, outdoor mission runtime skeleton, outdoor
+  LogoNav path, multiple outdoor safety layers.
+  \item \textbf{Partial:} outdoor reliability under repeated live transitions,
+  semantics as a robust field signal, depth/traversability calibration across all
+  terrain.
+  \item \textbf{Still weak:} physical stability and target-transition stability in
+  long outdoor runs.
+  \item \textbf{Later no-GPS branch:} front-camera teach-and-repeat and
+  adaptive-pursuit launch are implemented, but reliable physical autonomous
+  route repeat remains unproven.
+\end{itemize}
+
+\end{document}
